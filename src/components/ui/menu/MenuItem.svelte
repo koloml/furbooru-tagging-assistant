@@ -1,28 +1,25 @@
-<script>
-  import { createBubbler } from 'svelte/legacy';
+<script lang="ts">
+  import type { Snippet } from "svelte";
+  import type { MouseEventHandler } from "svelte/elements";
 
-  const bubble = createBubbler();
+  interface MenuItemProps {
+    href?: string | null;
+    icon?: App.IconName | null;
+    target?: App.LinkTarget | undefined;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLAnchorElement | HTMLSpanElement>;
+  }
 
-
-  /**
-   * @typedef {Object} Props
-   * @property {string|null} [href]
-   * @property {App.IconName|null} [icon]
-   * @property {App.LinkTarget|undefined} [target]
-   * @property {import('svelte').Snippet} [children]
-   */
-
-  /** @type {Props} */
   let {
     href = null,
     icon = null,
     target = undefined,
-    children
-  } = $props();
+    children,
+    onclick
+  }: MenuItemProps = $props();
 </script>
 
-<svelte:element class="menu-item" {href} onclick={bubble('click')} role="link" tabindex="0" {target}
-                this="{href ? 'a': 'span'}">
+<svelte:element class="menu-item" {href} {onclick} role="link" tabindex="0" {target} this="{href ? 'a': 'span'}">
   {#if icon}
     <i class="icon icon-{icon}"></i>
   {/if}
