@@ -14,9 +14,9 @@
     const group = $tagGroups.find(group => group.id === groupId);
 
     /** @type {string} */
-    let rawExportedGroup;
+    let rawExportedGroup = $state();
     /** @type {string} */
-    let encodedExportedGroup;
+    let encodedExportedGroup = $state();
 
     if (!group) {
         goto('/features/groups');
@@ -25,7 +25,7 @@
         encodedExportedGroup = groupTransporter.exportToCompressedJSON(group);
     }
 
-    let isEncodedGroupShown = true;
+    let isEncodedGroupShown = $state(true);
 </script>
 
 <Menu>

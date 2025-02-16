@@ -1,14 +1,21 @@
 <script>
 
-    /** @type {string|undefined} */
-    export let label = undefined;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string|undefined} [label]
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let { label = undefined, children } = $props();
 </script>
 
 <label class="control">
     {#if label}
         <div class="label">{label}</div>
     {/if}
-    <slot></slot>
+    {@render children?.()}
 </label>
 
 <style lang="scss">

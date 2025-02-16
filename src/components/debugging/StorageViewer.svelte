@@ -1,25 +1,33 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import Menu from "$components/ui/menu/Menu.svelte";
     import MenuItem from "$components/ui/menu/MenuItem.svelte";
     import { storagesCollection } from "$stores/debug";
     import { goto } from "$app/navigation";
     import { findDeepObject } from "$lib/utils";
 
-    /** @type {string} */
-    export let storage;
+    
 
-    /** @type {string[]} */
-    export let path;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} storage
+     * @property {string[]} path
+     */
+
+    /** @type {Props} */
+    let { storage, path } = $props();
 
     /** @type {Object|null} */
-    let targetStorage = null;
+    let targetStorage = $state(null);
     /** @type {[string, string][]} */
-    let breadcrumbs = [];
+    let breadcrumbs = $state([]);
     /** @type {Object<string, any>|null} */
-    let targetObject = null;
-    let targetPathString = '';
+    let targetObject = $state(null);
+    let targetPathString = $state('');
 
-    $: {
+    run(() => {
         /** @type {[string, string][]} */
         const builtBreadcrumbs = [];
 
@@ -40,21 +48,21 @@
         if (targetPathString.length) {
             targetPathString += "/";
         }
-    }
+    });
 
-    $: {
+    run(() => {
         targetStorage = $storagesCollection[storage];
 
         if (!targetStorage) {
             goto("/preferences/debug/storage");
         }
-    }
+    });
 
-    $: {
+    run(() => {
         targetObject = targetStorage
                 ? findDeepObject(targetStorage, path)
                 : null;
-    }
+    });
 
     /**
      * Helper function to resolve type, including the null.

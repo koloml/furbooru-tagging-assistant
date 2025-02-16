@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
     import GroupView from "$components/features/GroupView.svelte";
@@ -8,20 +10,20 @@
 
     const groupId = $page.params.id;
     /** @type {import('$entities/TagGroup').default|null} */
-    let group = null;
+    let group = $state(null);
 
     if (groupId === 'new') {
         goto('/features/groups/new/edit');
     }
 
-    $: {
+    run(() => {
         group = $tagGroups.find(group => group.id === groupId) || null;
 
         if (!group) {
             console.warn(`Group ${groupId} not found.`);
             goto('/features/groups');
         }
-    }
+    });
 </script>
 
 <Menu>

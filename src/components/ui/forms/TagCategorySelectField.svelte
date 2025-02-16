@@ -2,13 +2,19 @@
     import SelectField from "$components/ui/forms/SelectField.svelte";
     import { categories } from "$lib/booru/tag-categories";
 
-    /** @type {string} */
-    export let value = '';
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} [value]
+     */
+
+    /** @type {Props} */
+    let { value = $bindable('') } = $props();
 
     /** @type {Record<string, string>} */
-    let tagCategoriesOptions = {
+    let tagCategoriesOptions = $state({
         '': 'Default'
-    };
+    });
 
     tagCategoriesOptions = categories.reduce((options, category) => {
         options[category] = category

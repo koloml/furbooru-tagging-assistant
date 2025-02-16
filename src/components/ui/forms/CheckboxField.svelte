@@ -1,12 +1,19 @@
 <script>
-    /** @type {string|undefined} */
-    export let name = undefined;
+    
 
-    /** @type {boolean} */
-    export let checked;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string|undefined} [name]
+     * @property {boolean} checked
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let { name = undefined, checked = $bindable(), children } = $props();
 </script>
 
 <input type="checkbox" {name} bind:checked={checked}>
 <span>
-    <slot></slot>
+    {@render children?.()}
 </span>

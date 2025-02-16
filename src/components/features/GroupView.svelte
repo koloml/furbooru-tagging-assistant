@@ -1,15 +1,19 @@
 <script>
     import TagsColorContainer from "$components/tags/TagsColorContainer.svelte";
 
+    
     /**
-     * @type {import('$entities/TagGroup').default}
+     * @typedef {Object} Props
+     * @property {import('$entities/TagGroup').default} group
      */
-    export let group;
 
-    let sortedTagsList, sortedPrefixes;
+    /** @type {Props} */
+    let { group } = $props();
 
-    $: sortedTagsList = group.settings.tags.sort((a, b) => a.localeCompare(b));
-    $: sortedPrefixes = group.settings.prefixes.sort((a, b) => a.localeCompare(b));
+    let sortedTagsList = $derived(group.settings.tags.sort((a, b) => a.localeCompare(b))), sortedPrefixes = $derived(group.settings.prefixes.sort((a, b) => a.localeCompare(b)));
+
+    
+    
 </script>
 
 <div class="block">

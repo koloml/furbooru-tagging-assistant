@@ -1,7 +1,12 @@
-<script>
+<script lang="ts">
     import "../styles/popup.scss";
     import Header from "$components/layout/Header.svelte";
     import Footer from "$components/layout/Footer.svelte";
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 
     // Sort of a hack, detect if we rendered in the browser tab or in the popup.
     // Popup will always should have fixed 320px size, otherwise we consider it opened in the tab.
@@ -10,7 +15,7 @@
 
 <Header/>
 <main>
-    <slot/>
+    {@render children?.()}
 </main>
 <Footer/>
 

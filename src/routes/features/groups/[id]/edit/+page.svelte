@@ -16,12 +16,12 @@
     /** @type {TagGroup|null} */
     let targetGroup = null;
 
-    let groupName = '';
+    let groupName = $state('');
     /** @type {string[]} */
-    let tagsList = [];
+    let tagsList = $state([]);
     /** @type {string[]} */
-    let prefixesList = [];
-    let tagCategory = '';
+    let prefixesList = $state([]);
+    let tagCategory = $state('');
 
     if (groupId === 'new') {
         targetGroup = new TagGroup(crypto.randomUUID(), {});

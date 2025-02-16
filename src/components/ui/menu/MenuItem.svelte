@@ -1,25 +1,34 @@
 <script>
-    /**
-     * @type {string|null}
-     */
-    export let href = null;
+    import { createBubbler } from 'svelte/legacy';
 
-    /**
-     * @type {App.IconName|null}
-     */
-    export let icon = null;
+    const bubble = createBubbler();
+    
 
+    
+
+    
     /**
-     * @type {App.LinkTarget|undefined}
+     * @typedef {Object} Props
+     * @property {string|null} [href]
+     * @property {App.IconName|null} [icon]
+     * @property {App.LinkTarget|undefined} [target]
+     * @property {import('svelte').Snippet} [children]
      */
-    export let target = undefined;
+
+    /** @type {Props} */
+    let {
+        href = null,
+        icon = null,
+        target = undefined,
+        children
+    } = $props();
 </script>
 
-<svelte:element this="{href ? 'a': 'span'}" class="menu-item" {href} {target} on:click role="link" tabindex="0">
+<svelte:element this="{href ? 'a': 'span'}" class="menu-item" {href} {target} onclick={bubble('click')} role="link" tabindex="0">
     {#if icon}
         <i class="icon icon-{icon}"></i>
     {/if}
-    <slot></slot>
+    {@render children?.()}
 </svelte:element>
 
 <style lang="scss">

@@ -1,12 +1,16 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import Menu from "$components/ui/menu/Menu.svelte";
     import MenuItem from "$components/ui/menu/MenuItem.svelte";
     import { tagGroups } from "$stores/entities/tag-groups";
 
     /** @type {import('$entities/TagGroup').default[]} */
-    let groups = [];
+    let groups = $state([]);
 
-    $: groups = $tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
+    run(() => {
+        groups = $tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
+    });
 </script>
 
 <Menu>

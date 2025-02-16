@@ -5,9 +5,9 @@
     import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
 
     /** @type {import('$entities/MaintenanceProfile').default|undefined} */
-    let activeProfile;
+    let activeProfile = $derived($maintenanceProfiles.find(profile => profile.id === $activeProfileStore));
 
-    $: activeProfile = $maintenanceProfiles.find(profile => profile.id === $activeProfileStore);
+    
 
     function turnOffActiveProfile() {
         $activeProfileStore = null;

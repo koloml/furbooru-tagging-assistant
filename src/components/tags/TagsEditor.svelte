@@ -1,17 +1,24 @@
 <script>
+    import { run } from 'svelte/legacy';
+
+    
     /**
-     * List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
-     * @type {string[]}
+     * @typedef {Object} Props
+     * @property {string[]} [tags] - List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
      */
-    export let tags = [];
+
+    /** @type {Props} */
+    let { tags = $bindable([]) } = $props();
 
     /** @type {Set<string>} */
-    let uniqueTags = new Set();
+    let uniqueTags = $state(new Set());
 
-    $: uniqueTags = new Set(tags);
+    run(() => {
+        uniqueTags = new Set(tags);
+    });
 
     /** @type {string} */
-    let addedTagName = '';
+    let addedTagName = $state('');
 
     /**
      * Create a callback function to pass into both mouse & keyboard events for tag removal.
@@ -81,14 +88,14 @@
     {#each uniqueTags.values() as tagName}
         <div class="tag">
             {tagName}
-            <span class="remove" on:click={createTagRemoveHandler(tagName)}
-                  on:keydown={createTagRemoveHandler(tagName)}
+            <span class="remove" onclick={createTagRemoveHandler(tagName)}
+                  onkeydown={createTagRemoveHandler(tagName)}
                   role="button" tabindex="0">x</span>
         </div>
     {/each}
     <input type="text"
            bind:value={addedTagName}
-           on:keydown={handleKeyPresses}
+           onkeydown={handleKeyPresses}
            autocomplete="off"
            autocapitalize="none"/>
 </div>

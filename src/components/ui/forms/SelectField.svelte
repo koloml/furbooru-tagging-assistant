@@ -1,20 +1,29 @@
 <script>
+    
+
+    
+
+    
+
+    
     /**
-     * @type {string[]|Record<string, string>}
+     * @typedef {Object} Props
+     * @property {string[]|Record<string, string>} [options]
+     * @property {string|undefined} [name]
+     * @property {string|undefined} [id]
+     * @property {string|undefined} [value]
      */
-    export let options = [];
 
-    /** @type {string|undefined} */
-    export let name = undefined;
-
-    /** @type {string|undefined} */
-    export let id = undefined;
-
-    /** @type {string|undefined} */
-    export let value = undefined;
+    /** @type {Props} */
+    let {
+        options = [],
+        name = undefined,
+        id = undefined,
+        value = $bindable(undefined)
+    } = $props();
 
     /** @type {Record<string, string>} */
-    const optionPairs = {};
+    const optionPairs = $state({});
 
     if (Array.isArray(options)) {
         for (let option of options) {

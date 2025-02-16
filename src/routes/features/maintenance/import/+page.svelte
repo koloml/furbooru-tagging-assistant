@@ -12,14 +12,14 @@
     const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
 
     /** @type {string} */
-    let importedString = '';
+    let importedString = $state('');
     /** @type {string} */
-    let errorMessage = '';
+    let errorMessage = $state('');
 
     /** @type {MaintenanceProfile|null} */
-    let candidateProfile = null;
+    let candidateProfile = $state(null);
     /** @type {MaintenanceProfile|null} */
-    let existingProfile = null;
+    let existingProfile = $state(null);
 
     function tryImportingProfile() {
         candidateProfile = null;

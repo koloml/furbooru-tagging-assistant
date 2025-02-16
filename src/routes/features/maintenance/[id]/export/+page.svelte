@@ -14,9 +14,9 @@
 
     const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
     /** @type {string} */
-    let exportedProfile = '';
+    let exportedProfile = $state('');
     /** @type {string} */
-    let compressedProfile = '';
+    let compressedProfile = $state('');
 
     if (!profile) {
         goto('/features/maintenance/');
@@ -25,7 +25,7 @@
         compressedProfile = profilesTransporter.exportToCompressedJSON(profile);
     }
 
-    let isCompressedProfileShown = true;
+    let isCompressedProfileShown = $state(true);
 </script>
 
 <Menu>

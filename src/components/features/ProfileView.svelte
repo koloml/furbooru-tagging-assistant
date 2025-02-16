@@ -1,6 +1,12 @@
 <script>
-    /** @type {import('$entities/MaintenanceProfile').default} */
-    export let profile;
+    
+    /**
+     * @typedef {Object} Props
+     * @property {import('$entities/MaintenanceProfile').default} profile
+     */
+
+    /** @type {Props} */
+    let { profile } = $props();
 
     const sortedTagsList = profile.settings.tags.sort((a, b) => a.localeCompare(b));
 </script>

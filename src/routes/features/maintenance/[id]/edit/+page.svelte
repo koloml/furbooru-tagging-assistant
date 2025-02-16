@@ -16,9 +16,9 @@
     let targetProfile = null;
 
     /** @type {string} */
-    let profileName = '';
+    let profileName = $state('');
     /** @type {string[]} */
-    let tagsList = [];
+    let tagsList = $state([]);
 
     if (profileId === 'new') {
         targetProfile = new MaintenanceProfile(crypto.randomUUID(), {});

@@ -1,4 +1,6 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import Menu from "$components/ui/menu/Menu.svelte";
     import MenuItem from "$components/ui/menu/MenuItem.svelte";
     import { page } from "$app/stores";
@@ -9,13 +11,13 @@
 
     const profileId = $page.params.id;
     /** @type {import('$entities/MaintenanceProfile').default|null} */
-    let profile = null;
+    let profile = $state(null);
 
     if (profileId === 'new') {
         goto('/features/maintenance/new/edit');
     }
 
-    $: {
+    run(() => {
         const resolvedProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
 
         if (resolvedProfile) {
@@ -24,11 +26,11 @@
             console.warn(`Profile ${profileId} not found.`);
             goto('/features/maintenance');
         }
-    }
+    });
 
-    let isActiveProfile = $activeProfileStore === profileId;
+    let isActiveProfile = $state($activeProfileStore === profileId);
 
-    $: {
+    run(() => {
         if (isActiveProfile && $activeProfileStore !== profileId) {
             $activeProfileStore = profileId;
         }
@@ -36,7 +38,7 @@
         if (!isActiveProfile && $activeProfileStore === profileId) {
             $activeProfileStore = null;
         }
-    }
+    });
 </script>
 
 <Menu>

@@ -12,14 +12,14 @@
     const groupTransporter = new EntitiesTransporter(TagGroup);
 
     /** @type {string} */
-    let importedString = '';
+    let importedString = $state('');
     /** @type {string} */
-    let errorMessage = '';
+    let errorMessage = $state('');
 
     /** @type {TagGroup|null} */
-    let candidateGroup = null;
+    let candidateGroup = $state(null);
     /** @type {TagGroup|null} */
-    let existingGroup = null;
+    let existingGroup = $state(null);
 
     function tryImportingGroup() {
         candidateGroup = null;
