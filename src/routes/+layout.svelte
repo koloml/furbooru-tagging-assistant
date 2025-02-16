@@ -1,26 +1,27 @@
 <script lang="ts">
-    import "../styles/popup.scss";
-    import Header from "$components/layout/Header.svelte";
-    import Footer from "$components/layout/Footer.svelte";
-    interface Props {
-        children?: import('svelte').Snippet;
-    }
+  import "../styles/popup.scss";
+  import Header from "$components/layout/Header.svelte";
+  import Footer from "$components/layout/Footer.svelte";
 
-    let { children }: Props = $props();
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
 
-    // Sort of a hack, detect if we rendered in the browser tab or in the popup.
-    // Popup will always should have fixed 320px size, otherwise we consider it opened in the tab.
-    document.body.classList.toggle('is-in-tab', window.innerWidth > 320);
+  let { children }: Props = $props();
+
+  // Sort of a hack, detect if we rendered in the browser tab or in the popup.
+  // Popup will always should have fixed 320px size, otherwise we consider it opened in the tab.
+  document.body.classList.toggle('is-in-tab', window.innerWidth > 320);
 </script>
 
 <Header/>
 <main>
-    {@render children?.()}
+  {@render children?.()}
 </main>
 <Footer/>
 
-<style lang="scss" global>
-    main {
-        padding: .5em 24px;
-    }
+<style global lang="scss">
+  main {
+    padding: .5em 24px;
+  }
 </style>

@@ -1,49 +1,44 @@
 <script>
-    
 
-    
 
-    
+  /**
+   * @typedef {Object} Props
+   * @property {string[]|Record<string, string>} [options]
+   * @property {string|undefined} [name]
+   * @property {string|undefined} [id]
+   * @property {string|undefined} [value]
+   */
 
-    
-    /**
-     * @typedef {Object} Props
-     * @property {string[]|Record<string, string>} [options]
-     * @property {string|undefined} [name]
-     * @property {string|undefined} [id]
-     * @property {string|undefined} [value]
-     */
+  /** @type {Props} */
+  let {
+    options = [],
+    name = undefined,
+    id = undefined,
+    value = $bindable(undefined)
+  } = $props();
 
-    /** @type {Props} */
-    let {
-        options = [],
-        name = undefined,
-        id = undefined,
-        value = $bindable(undefined)
-    } = $props();
+  /** @type {Record<string, string>} */
+  const optionPairs = $state({});
 
-    /** @type {Record<string, string>} */
-    const optionPairs = $state({});
-
-    if (Array.isArray(options)) {
-        for (let option of options) {
-            optionPairs[option] = option;
-        }
-    } else if (options && typeof options === 'object') {
-        Object.keys(options).forEach((key) => {
-            optionPairs[key] = options[key];
-        })
+  if (Array.isArray(options)) {
+    for (let option of options) {
+      optionPairs[option] = option;
     }
+  } else if (options && typeof options === 'object') {
+    Object.keys(options).forEach((key) => {
+      optionPairs[key] = options[key];
+    })
+  }
 </script>
 
-<select {name} {id} bind:value={value}>
-    {#each Object.entries(optionPairs) as [value, label]}
-        <option {value}>{label}</option>
-    {/each}
+<select bind:value={value} {id} {name}>
+  {#each Object.entries(optionPairs) as [value, label]}
+    <option {value}>{label}</option>
+  {/each}
 </select>
 
 <style lang="scss">
-    select {
-        width: 100%;
-    }
+  select {
+    width: 100%;
+  }
 </style>

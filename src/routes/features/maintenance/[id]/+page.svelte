@@ -1,65 +1,64 @@
 <script>
-    import { run } from 'svelte/legacy';
+  import { run } from 'svelte/legacy';
+  import Menu from "$components/ui/menu/Menu.svelte";
+  import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
+  import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import ProfileView from "$components/features/ProfileView.svelte";
+  import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
 
-    import Menu from "$components/ui/menu/Menu.svelte";
-    import MenuItem from "$components/ui/menu/MenuItem.svelte";
-    import { page } from "$app/stores";
-    import { goto } from "$app/navigation";
-    import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
-    import ProfileView from "$components/features/ProfileView.svelte";
-    import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
+  const profileId = $page.params.id;
+  /** @type {import('$entities/MaintenanceProfile').default|null} */
+  let profile = $state(null);
 
-    const profileId = $page.params.id;
-    /** @type {import('$entities/MaintenanceProfile').default|null} */
-    let profile = $state(null);
+  if (profileId === 'new') {
+    goto('/features/maintenance/new/edit');
+  }
 
-    if (profileId === 'new') {
-        goto('/features/maintenance/new/edit');
+  run(() => {
+    const resolvedProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
+
+    if (resolvedProfile) {
+      profile = resolvedProfile;
+    } else {
+      console.warn(`Profile ${profileId} not found.`);
+      goto('/features/maintenance');
+    }
+  });
+
+  let isActiveProfile = $state($activeProfileStore === profileId);
+
+  run(() => {
+    if (isActiveProfile && $activeProfileStore !== profileId) {
+      $activeProfileStore = profileId;
     }
 
-    run(() => {
-        const resolvedProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
-
-        if (resolvedProfile) {
-            profile = resolvedProfile;
-        } else {
-            console.warn(`Profile ${profileId} not found.`);
-            goto('/features/maintenance');
-        }
-    });
-
-    let isActiveProfile = $state($activeProfileStore === profileId);
-
-    run(() => {
-        if (isActiveProfile && $activeProfileStore !== profileId) {
-            $activeProfileStore = profileId;
-        }
-
-        if (!isActiveProfile && $activeProfileStore === profileId) {
-            $activeProfileStore = null;
-        }
-    });
+    if (!isActiveProfile && $activeProfileStore === profileId) {
+      $activeProfileStore = null;
+    }
+  });
 </script>
 
 <Menu>
-    <MenuItem href="/features/maintenance" icon="arrow-left">Back</MenuItem>
-    <hr>
+  <MenuItem href="/features/maintenance" icon="arrow-left">Back</MenuItem>
+  <hr>
 </Menu>
 {#if profile}
-    <ProfileView {profile}/>
+  <ProfileView {profile}/>
 {/if}
 <Menu>
-    <hr>
-    <MenuItem icon="wrench" href="/features/maintenance/{profileId}/edit">Edit Profile</MenuItem>
-    <MenuCheckboxItem bind:checked={isActiveProfile}>
-        Activate Profile
-    </MenuCheckboxItem>
-    <MenuItem icon="file-export" href="/features/maintenance/{profileId}/export">
-        Export Profile
-    </MenuItem>
-    <MenuItem icon="trash" href="/features/maintenance/{profileId}/delete">
-        Delete Profile
-    </MenuItem>
+  <hr>
+  <MenuItem href="/features/maintenance/{profileId}/edit" icon="wrench">Edit Profile</MenuItem>
+  <MenuCheckboxItem bind:checked={isActiveProfile}>
+    Activate Profile
+  </MenuCheckboxItem>
+  <MenuItem href="/features/maintenance/{profileId}/export" icon="file-export">
+    Export Profile
+  </MenuItem>
+  <MenuItem href="/features/maintenance/{profileId}/delete" icon="trash">
+    Delete Profile
+  </MenuItem>
 </Menu>
 
 <style lang="scss">

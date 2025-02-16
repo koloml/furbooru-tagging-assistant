@@ -1,27 +1,26 @@
 <script>
-    import { run } from 'svelte/legacy';
+  import { run } from 'svelte/legacy';
+  import Menu from "$components/ui/menu/Menu.svelte";
+  import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import { tagGroups } from "$stores/entities/tag-groups";
 
-    import Menu from "$components/ui/menu/Menu.svelte";
-    import MenuItem from "$components/ui/menu/MenuItem.svelte";
-    import { tagGroups } from "$stores/entities/tag-groups";
+  /** @type {import('$entities/TagGroup').default[]} */
+  let groups = $state([]);
 
-    /** @type {import('$entities/TagGroup').default[]} */
-    let groups = $state([]);
-
-    run(() => {
-        groups = $tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
-    });
+  run(() => {
+    groups = $tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
+  });
 </script>
 
 <Menu>
-    <MenuItem href="/" icon="arrow-left">Back</MenuItem>
-    <MenuItem href="/features/groups/new/edit" icon="plus">Create New</MenuItem>
-    {#if groups.length}
-        <hr>
-        {#each groups as group}
-            <MenuItem href="/features/groups/{group.id}">{group.settings.name}</MenuItem>
-        {/each}
-    {/if}
+  <MenuItem href="/" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/groups/new/edit" icon="plus">Create New</MenuItem>
+  {#if groups.length}
     <hr>
-    <MenuItem href="/features/groups/import">Import Group</MenuItem>
+    {#each groups as group}
+      <MenuItem href="/features/groups/{group.id}">{group.settings.name}</MenuItem>
+    {/each}
+  {/if}
+  <hr>
+  <MenuItem href="/features/groups/import">Import Group</MenuItem>
 </Menu>

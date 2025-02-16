@@ -1,24 +1,21 @@
 <script>
-    
 
-    
 
-    
-    /**
-     * @typedef {Object} Props
-     * @property {string|undefined} [name]
-     * @property {string|undefined} [placeholder]
-     * @property {string} [value]
-     */
+  /**
+   * @typedef {Object} Props
+   * @property {string|undefined} [name]
+   * @property {string|undefined} [placeholder]
+   * @property {string} [value]
+   */
 
-    /** @type {Props} */
-    let { name = undefined, placeholder = undefined, value = $bindable('') } = $props();
+  /** @type {Props} */
+  let { name = undefined, placeholder = undefined, value = $bindable('') } = $props();
 </script>
 
-<input type="text" {name} {placeholder} bind:value={value}>
+<input bind:value={value} {name} {placeholder} type="text">
 
 <style lang="scss">
-    :global(.control) input {
-        width: 100%;
-    }
+  :global(.control) input {
+    width: 100%;
+  }
 </style>
