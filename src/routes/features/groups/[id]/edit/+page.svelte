@@ -55,7 +55,7 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/${groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>
