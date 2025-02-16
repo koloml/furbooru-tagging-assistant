@@ -1,34 +1,21 @@
-<script>
-  import { run } from 'svelte/legacy';
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { storagesCollection } from "$stores/debug";
   import { goto } from "$app/navigation";
   import { findDeepObject } from "$lib/utils";
 
+  interface StorageViewerProps {
+    storage: string;
+    path: string[];
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} storage
-   * @property {string[]} path
-   */
+  type BreadcrumbsArray = [string, string][];
 
-  /** @type {Props} */
-  let { storage, path } = $props();
+  let { storage, path }: StorageViewerProps = $props();
 
-  /** @type {Object|null} */
-  let targetStorage = $state(null);
-  /** @type {[string, string][]} */
-  let breadcrumbs = $state([]);
-  /** @type {Object<string, any>|null} */
-  let targetObject = $state(null);
-  let targetPathString = $state('');
-
-  run(() => {
-    /** @type {[string, string][]} */
-    const builtBreadcrumbs = [];
-
-    breadcrumbs = path.reduce((resultCrumbs, entry) => {
+  let breadcrumbs = $derived.by<BreadcrumbsArray>(() => {
+    return path.reduce<BreadcrumbsArray>((resultCrumbs, entry) => {
       let entryPath = entry;
 
       if (resultCrumbs.length) {
@@ -38,37 +25,42 @@
       resultCrumbs.push([entry, entryPath]);
 
       return resultCrumbs;
-    }, builtBreadcrumbs);
-
-    targetPathString = path.join("/");
-
-    if (targetPathString.length) {
-      targetPathString += "/";
-    }
+    }, [])
   });
 
-  run(() => {
-    targetStorage = $storagesCollection[storage];
+  let targetStorage = $derived.by<object|null>(() => {
+    return $storagesCollection[storage];
+  });
 
+  let targetObject = $derived.by<Record<string, any> | null>(() => {
+    return targetStorage
+      ? findDeepObject(targetStorage, path)
+      : null;
+  });
+
+  let targetPathString = $derived.by<string>(() => {
+    let pathString = path.join("/");
+
+    if (pathString.length) {
+      pathString += "/";
+    }
+
+    return pathString;
+  });
+
+  $effect(() => {
     if (!targetStorage) {
       goto("/preferences/debug/storage");
     }
   });
 
-  run(() => {
-    targetObject = targetStorage
-      ? findDeepObject(targetStorage, path)
-      : null;
-  });
-
   /**
    * Helper function to resolve type, including the null.
-   * @param {*} value Value to resolve type from.
-   * @return {string} Type of the value, including "null" for null.
+   * @param value Value to resolve type from.
+   * @return Type of the value, including "null" for null.
    */
-  function resolveType(value) {
-    /** @type {string} */
-    let typeName = typeof value;
+  function resolveType(value: unknown): string {
+    let typeName: string = typeof value;
 
     if (typeName === 'object' && value === null) {
       typeName = 'null';
@@ -79,10 +71,10 @@
 
   /**
    * Helper function to resolve value, including values like null or undefined.
-   * @param {*} value Value to resolve.
-   * @return {string} String representation of the value.
+   * @param value Value to resolve.
+   * @return String representation of the value.
    */
-  function resolveValue(value) {
+  function resolveValue(value: unknown): string {
     if (value === null) {
       return "null";
     }
@@ -108,7 +100,7 @@
 {#if targetObject}
   <Menu>
     <hr>
-    {#each Object.entries(targetObject) as [key, value]}
+    {#each Object.entries(targetObject) as [key, _]}
       {#if targetObject[key] && typeof targetObject[key] === 'object'}
         <MenuItem href="/preferences/debug/storage/{storage}/{targetPathString}{key}">
           {key}: Object
