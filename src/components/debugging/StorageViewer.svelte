@@ -1,126 +1,123 @@
-<script>
-    import Menu from "$components/ui/menu/Menu.svelte";
-    import MenuItem from "$components/ui/menu/MenuItem.svelte";
-    import { storagesCollection } from "$stores/debug";
-    import { goto } from "$app/navigation";
-    import { findDeepObject } from "$lib/utils";
+<script lang="ts">
+  import Menu from "$components/ui/menu/Menu.svelte";
+  import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import { storagesCollection } from "$stores/debug";
+  import { goto } from "$app/navigation";
+  import { findDeepObject } from "$lib/utils";
 
-    /** @type {string} */
-    export let storage;
+  interface StorageViewerProps {
+    storage: string;
+    path: string[];
+  }
 
-    /** @type {string[]} */
-    export let path;
+  type BreadcrumbsArray = [string, string][];
 
-    /** @type {Object|null} */
-    let targetStorage = null;
-    /** @type {[string, string][]} */
-    let breadcrumbs = [];
-    /** @type {Object<string, any>|null} */
-    let targetObject = null;
-    let targetPathString = '';
+  let { storage, path }: StorageViewerProps = $props();
 
-    $: {
-        /** @type {[string, string][]} */
-        const builtBreadcrumbs = [];
+  let breadcrumbs = $derived.by<BreadcrumbsArray>(() => {
+    return path.reduce<BreadcrumbsArray>((resultCrumbs, entry) => {
+      let entryPath = entry;
 
-        breadcrumbs = path.reduce((resultCrumbs, entry) => {
-            let entryPath = entry;
+      if (resultCrumbs.length) {
+        entryPath = resultCrumbs[resultCrumbs.length - 1][1] + "/" + entryPath;
+      }
 
-            if (resultCrumbs.length) {
-                entryPath = resultCrumbs[resultCrumbs.length - 1][1] + "/" + entryPath;
-            }
+      resultCrumbs.push([entry, entryPath]);
 
-            resultCrumbs.push([entry, entryPath]);
+      return resultCrumbs;
+    }, [])
+  });
 
-            return resultCrumbs;
-        }, builtBreadcrumbs);
+  let targetStorage = $derived.by<object|null>(() => {
+    return $storagesCollection[storage];
+  });
 
-        targetPathString = path.join("/");
+  let targetObject = $derived.by<Record<string, any> | null>(() => {
+    return targetStorage
+      ? findDeepObject(targetStorage, path)
+      : null;
+  });
 
-        if (targetPathString.length) {
-            targetPathString += "/";
-        }
+  let targetPathString = $derived.by<string>(() => {
+    let pathString = path.join("/");
+
+    if (pathString.length) {
+      pathString += "/";
     }
 
-    $: {
-        targetStorage = $storagesCollection[storage];
+    return pathString;
+  });
 
-        if (!targetStorage) {
-            goto("/preferences/debug/storage");
-        }
+  $effect(() => {
+    if (!targetStorage) {
+      goto("/preferences/debug/storage");
+    }
+  });
+
+  /**
+   * Helper function to resolve type, including the null.
+   * @param value Value to resolve type from.
+   * @return Type of the value, including "null" for null.
+   */
+  function resolveType(value: unknown): string {
+    let typeName: string = typeof value;
+
+    if (typeName === 'object' && value === null) {
+      typeName = 'null';
     }
 
-    $: {
-        targetObject = targetStorage
-                ? findDeepObject(targetStorage, path)
-                : null;
+    return typeName;
+  }
+
+  /**
+   * Helper function to resolve value, including values like null or undefined.
+   * @param value Value to resolve.
+   * @return String representation of the value.
+   */
+  function resolveValue(value: unknown): string {
+    if (value === null) {
+      return "null";
     }
 
-    /**
-     * Helper function to resolve type, including the null.
-     * @param {*} value Value to resolve type from.
-     * @return {string} Type of the value, including "null" for null.
-     */
-    function resolveType(value) {
-        /** @type {string} */
-        let typeName = typeof value;
-
-        if (typeName === 'object' && value === null) {
-            typeName = 'null';
-        }
-
-        return typeName;
+    if (value === undefined) {
+      return "undefined";
     }
 
-    /**
-     * Helper function to resolve value, including values like null or undefined.
-     * @param {*} value Value to resolve.
-     * @return {string} String representation of the value.
-     */
-    function resolveValue(value) {
-        if (value === null) {
-            return "null";
-        }
-
-        if (value === undefined) {
-            return "undefined";
-        }
-
-        return value?.toString() ?? '';
-    }
+    return value?.toString() ?? '';
+  }
 </script>
 
 <Menu>
-    <MenuItem href="/preferences/debug/storage" icon="arrow-left">Back</MenuItem>
-    <hr>
+  <MenuItem href="/preferences/debug/storage" icon="arrow-left">Back</MenuItem>
+  <hr>
 </Menu>
 <p class="path">
-    <span>/ <a href="/preferences/debug/storage/{storage}">{storage}</a></span>
-    {#each breadcrumbs as [name, entryPath]}
-        <span>/ <a href="/preferences/debug/storage/{storage}/{entryPath}/">{name}</a></span>
-    {/each}
+  <span>/ <a href="/preferences/debug/storage/{storage}">{storage}</a></span>
+  {#each breadcrumbs as [name, entryPath]}
+    <span>/ <a href="/preferences/debug/storage/{storage}/{entryPath}/">{name}</a></span>
+  {/each}
 </p>
 {#if targetObject}
-    <Menu>
-        <hr>
-        {#each Object.entries(targetObject) as [key, value]}
-            {#if targetObject[key] && typeof targetObject[key] === 'object'}
-                <MenuItem href="/preferences/debug/storage/{storage}/{targetPathString}{key}">
-                    {key}: Object
-                </MenuItem>
-            {:else}
-                <MenuItem>
-                    {key}: {resolveType(targetObject[key])} = {resolveValue(targetObject[key])}
-                </MenuItem>
-            {/if}
-        {/each}
-    </Menu>
+  <Menu>
+    <hr>
+    {#each Object.entries(targetObject) as [key, _]}
+      {#if targetObject[key] && typeof targetObject[key] === 'object'}
+        <MenuItem href="/preferences/debug/storage/{storage}/{targetPathString}{key}">
+          {key}: Object
+        </MenuItem>
+      {:else}
+        <MenuItem>
+          {key}: {resolveType(targetObject[key])} = {resolveValue(targetObject[key])}
+        </MenuItem>
+      {/if}
+    {/each}
+  </Menu>
 {/if}
 
 <style lang="scss">
-    .path {
-        display: flex;
-        flex-wrap: wrap;
-        column-gap: .5em;
-    }
+  .path {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: .5em;
+  }
 </style>

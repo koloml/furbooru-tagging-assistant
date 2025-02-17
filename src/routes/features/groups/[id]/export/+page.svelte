@@ -1,50 +1,53 @@
-<script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import FormContainer from "$components/ui/forms/FormContainer.svelte";
-    import FormControl from "$components/ui/forms/FormControl.svelte";
-    import Menu from "$components/ui/menu/Menu.svelte";
-    import MenuItem from "$components/ui/menu/MenuItem.svelte";
-    import TagGroup from "$entities/TagGroup";
-    import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
-    import { tagGroups } from "$stores/entities/tag-groups";
+<script lang="ts">
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import FormContainer from "$components/ui/forms/FormContainer.svelte";
+  import FormControl from "$components/ui/forms/FormControl.svelte";
+  import Menu from "$components/ui/menu/Menu.svelte";
+  import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import TagGroup from "$entities/TagGroup";
+  import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
+  import { tagGroups } from "$stores/entities/tag-groups";
 
-    const groupId = $page.params.id;
-    const groupTransporter = new EntitiesTransporter(TagGroup);
-    const group = $tagGroups.find(group => group.id === groupId);
+  let isEncodedGroupShown = $state(true);
 
-    /** @type {string} */
-    let rawExportedGroup;
-    /** @type {string} */
-    let encodedExportedGroup;
+  const groupId = $derived<string>(page.params.id);
+  const group = $derived<TagGroup | undefined>($tagGroups.find(group => group.id === groupId));
 
+  $effect(() => {
     if (!group) {
-        goto('/features/groups');
-    } else {
-        rawExportedGroup = groupTransporter.exportToJSON(group);
-        encodedExportedGroup = groupTransporter.exportToCompressedJSON(group);
+      goto('/features/groups');
     }
+  });
 
-    let isEncodedGroupShown = true;
+  const groupTransporter = new EntitiesTransporter(TagGroup);
+
+  let rawExportedGroup = $derived<string>(group ? groupTransporter.exportToJSON(group) : '');
+  let encodedExportedGroup = $derived<string>(group ? groupTransporter.exportToCompressedJSON(group) : '');
+  let selectedExportString = $derived<string>(isEncodedGroupShown ? encodedExportedGroup : rawExportedGroup);
+
+  function toggleEncoding() {
+    isEncodedGroupShown = !isEncodedGroupShown;
+  }
 </script>
 
 <Menu>
-    <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
-    <hr>
+  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <hr>
 </Menu>
 <FormContainer>
-    <FormControl label="Export string">
-        <textarea readonly rows="6">{isEncodedGroupShown ? encodedExportedGroup : rawExportedGroup}</textarea>
-    </FormControl>
+  <FormControl label="Export string">
+    <textarea readonly rows="6">{selectedExportString}</textarea>
+  </FormControl>
 </FormContainer>
 <Menu>
-    <hr>
-    <MenuItem on:click={() => isEncodedGroupShown = !isEncodedGroupShown}>
-        Switch Format:
-        {#if isEncodedGroupShown}
-            Base64-Encoded
-        {:else}
-            Raw JSON
-        {/if}
-    </MenuItem>
+  <hr>
+  <MenuItem onclick={toggleEncoding}>
+    Switch Format:
+    {#if isEncodedGroupShown}
+      Base64-Encoded
+    {:else}
+      Raw JSON
+    {/if}
+  </MenuItem>
 </Menu>

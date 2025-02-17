@@ -1,37 +1,44 @@
-<script>
-    import MenuLink from "$components/ui/menu/MenuItem.svelte";
+<script lang="ts">
+  import MenuLink from "$components/ui/menu/MenuItem.svelte";
+  import type { Snippet } from "svelte";
+  import type { FormEventHandler, MouseEventHandler } from "svelte/elements";
 
-    /**
-     * @type {boolean}
-     */
-    export let checked;
+  interface MenuCheckboxItemProps {
+    checked: boolean;
+    name?: string;
+    value?: string;
+    href?: string;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLInputElement>;
+    oninput?: FormEventHandler<HTMLInputElement>;
+  }
 
-    /**
-     * @type {string|undefined}
-     */
-    export let name = undefined;
+  let {
+    checked = $bindable(),
+    name = undefined,
+    value = undefined,
+    href = undefined,
+    children,
+    onclick,
+    oninput,
+  }: MenuCheckboxItemProps = $props();
 
-    /**
-     * @type {string|undefined}
-     */
-    export let value = undefined;
-
-    /**
-     * @type {string|null}
-     */
-    export let href = null;
+  function stopPropagationAndPassCallback(originalEvent: MouseEvent) {
+    originalEvent.stopPropagation();
+    onclick?.(originalEvent as MouseEvent & { currentTarget: HTMLInputElement });
+  }
 </script>
 
 <MenuLink {href}>
-    <input type="checkbox" {name} {value} bind:checked={checked} on:input on:click|stopPropagation>
-    <slot></slot>
+  <input bind:checked={checked} {name} onclick={stopPropagationAndPassCallback} {oninput} type="checkbox" {value}>
+  {@render children?.()}
 </MenuLink>
 
 <style lang="scss">
-    :global(.menu-item) input {
-        width: 16px;
-        height: 16px;
-        margin-right: 6px;
-        flex-shrink: 0;
-    }
+  :global(.menu-item) input {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
 </style>

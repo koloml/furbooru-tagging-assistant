@@ -1,29 +1,38 @@
-<script>
-    import StorageViewer from "$components/debugging/StorageViewer.svelte";
-    import { page } from "$app/stores";
-    import { goto } from "$app/navigation";
+<script lang="ts">
+  import StorageViewer from "$components/debugging/StorageViewer.svelte";
+  import { page } from "$app/state";
+  import { goto } from "$app/navigation";
 
-    let pathString = '';
-    /** @type {string[]} */
-    let pathArray = [];
-    /** @type {string|undefined} */
-    let storageName = void 0;
+  let pathArray = $derived.by<string[]>(() => {
+    const pathString = page.params.path;
 
-    $: {
-        pathString = $page.params.path;
-        pathArray = pathString.length ? pathString.split("/") : [];
-        storageName = pathArray.shift()
+    return pathString.length ? pathString.split('/') : [];
+  });
 
-        if (pathArray.length && pathArray[pathArray.length - 1] === '') {
-            pathArray.pop();
-        }
+  let storageName = $derived.by<string | undefined>(() => {
+    return pathArray[0];
+  });
 
-        if (!storageName) {
-            goto("/preferences/debug/storage");
-        }
+  // Copy of the array without the storage or empty string at the end.
+  let normalizedPathArray = $derived.by<string[]>(() => {
+    // Excludes storage name
+    const resultArray = pathArray.slice(1);
+
+    // Getting rid of trailing empty entry
+    if (resultArray.length && resultArray[resultArray.length - 1] === '') {
+      resultArray.pop();
     }
+
+    return resultArray;
+  });
+
+  $effect(() => {
+    if (!storageName) {
+      goto("/preferences/debug/storage");
+    }
+  });
 </script>
 
 {#if storageName}
-    <StorageViewer storage="{storageName}" path="{pathArray}"></StorageViewer>
+  <StorageViewer storage={storageName} path={normalizedPathArray}></StorageViewer>
 {/if}

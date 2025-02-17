@@ -1,82 +1,87 @@
-<script>
-    import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
-    import TagsColorContainer from "$components/tags/TagsColorContainer.svelte";
-    import FormContainer from "$components/ui/forms/FormContainer.svelte";
-    import FormControl from "$components/ui/forms/FormControl.svelte";
-    import TagCategorySelectField from "$components/ui/forms/TagCategorySelectField.svelte";
-    import TextField from "$components/ui/forms/TextField.svelte";
-    import Menu from "$components/ui/menu/Menu.svelte";
-    import MenuItem from "$components/ui/menu/MenuItem.svelte";
-    import TagsEditor from "$components/tags/TagsEditor.svelte";
-    import TagGroup from "$entities/TagGroup";
-    import { tagGroups } from "$stores/entities/tag-groups";
+<script lang="ts">
+  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
+  import TagsColorContainer from "$components/tags/TagsColorContainer.svelte";
+  import FormContainer from "$components/ui/forms/FormContainer.svelte";
+  import FormControl from "$components/ui/forms/FormControl.svelte";
+  import TagCategorySelectField from "$components/ui/forms/TagCategorySelectField.svelte";
+  import TextField from "$components/ui/forms/TextField.svelte";
+  import Menu from "$components/ui/menu/Menu.svelte";
+  import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import TagsEditor from "$components/tags/TagsEditor.svelte";
+  import TagGroup from "$entities/TagGroup";
+  import { tagGroups } from "$stores/entities/tag-groups";
 
-    const groupId = $page.params.id;
-    /** @type {TagGroup|null} */
-    let targetGroup = null;
+  let groupId = $derived(page.params.id);
 
-    let groupName = '';
-    /** @type {string[]} */
-    let tagsList = [];
-    /** @type {string[]} */
-    let prefixesList = [];
-    let tagCategory = '';
-
+  let targetGroup = $derived.by<TagGroup | null>(() => {
     if (groupId === 'new') {
-        targetGroup = new TagGroup(crypto.randomUUID(), {});
-    } else {
-        targetGroup = $tagGroups.find(group => group.id === groupId) || null;
-
-        if (targetGroup) {
-            groupName = targetGroup.settings.name;
-            tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
-            prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
-            tagCategory = targetGroup.settings.category;
-        } else {
-            goto('/features/groups');
-        }
+      return new TagGroup(crypto.randomUUID(), {});
     }
 
-    async function saveGroup() {
-        if (!targetGroup) {
-            console.warn('Attempting to save group, but group is not loaded yet.');
-            return;
-        }
+    return $tagGroups.find(group => group.id === groupId) || null;
+  });
 
-        targetGroup.settings.name = groupName;
-        targetGroup.settings.tags = [...tagsList];
-        targetGroup.settings.prefixes = [...prefixesList];
-        targetGroup.settings.category = tagCategory;
+  let groupName = $state<string>('');
+  let tagsList = $state<string[]>([]);
+  let prefixesList = $state<string[]>([]);
+  let tagCategory = $state<string>('');
 
-        await targetGroup.save();
-        await goto(`/features/groups/${targetGroup.id}`);
+  $effect(() => {
+    if (groupId === 'new') {
+      return;
     }
+
+    if (!targetGroup) {
+      goto('/features/groups');
+      return;
+    }
+
+    groupName = targetGroup.settings.name;
+    tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
+    prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
+    tagCategory = targetGroup.settings.category;
+  });
+
+  async function saveGroup() {
+    if (!targetGroup) {
+      console.warn('Attempting to save group, but group is not loaded yet.');
+      return;
+    }
+
+    targetGroup.settings.name = groupName;
+    targetGroup.settings.tags = [...tagsList];
+    targetGroup.settings.prefixes = [...prefixesList];
+    targetGroup.settings.category = tagCategory;
+
+    await targetGroup.save();
+    await goto(`/features/groups/${targetGroup.id}`);
+  }
 </script>
 
 <Menu>
-    <MenuItem href="/features/groups/${groupId}" icon="arrow-left">Back</MenuItem>
-    <hr>
+  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <hr>
 </Menu>
 <FormContainer>
-    <FormControl label="Group Name">
-        <TextField bind:value={groupName} placeholder="Group Name"></TextField>
+  <FormControl label="Group Name">
+    <TextField bind:value={groupName} placeholder="Group Name"></TextField>
+  </FormControl>
+  <FormControl label="Group Color">
+    <TagCategorySelectField bind:value={tagCategory}/>
+  </FormControl>
+  <TagsColorContainer targetCategory={tagCategory}>
+    <FormControl label="Tags">
+      <TagsEditor bind:tags={tagsList}/>
     </FormControl>
-    <FormControl label="Group Color">
-        <TagCategorySelectField bind:value={tagCategory}/>
+  </TagsColorContainer>
+  <TagsColorContainer targetCategory={tagCategory}>
+    <FormControl label="Tag Prefixes">
+      <TagsEditor bind:tags={prefixesList}/>
     </FormControl>
-    <TagsColorContainer targetCategory="{tagCategory}">
-        <FormControl label="Tags">
-            <TagsEditor bind:tags={tagsList}/>
-        </FormControl>
-    </TagsColorContainer>
-    <TagsColorContainer targetCategory="{tagCategory}">
-        <FormControl label="Tag Prefixes">
-            <TagsEditor bind:tags={prefixesList}/>
-        </FormControl>
-    </TagsColorContainer>
+  </TagsColorContainer>
 </FormContainer>
 <Menu>
-    <hr>
-    <MenuItem on:click={saveGroup}>Save Group</MenuItem>
+  <hr>
+  <MenuItem onclick={saveGroup}>Save Group</MenuItem>
 </Menu>

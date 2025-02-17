@@ -1,106 +1,113 @@
-<script>
-    /**
-     * List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
-     * @type {string[]}
-     */
-    export let tags = [];
+<script lang="ts">
+  import type { EventHandler } from "svelte/elements";
 
-    /** @type {Set<string>} */
-    let uniqueTags = new Set();
+  interface TagEditorProps {
+    // List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
+    tags?: string[];
+  }
 
-    $: uniqueTags = new Set(tags);
+  let {
+    tags = $bindable([])
+  }: TagEditorProps = $props();
 
-    /** @type {string} */
-    let addedTagName = '';
+  let uniqueTags = $state<Set<string>>(new Set());
 
-    /**
-     * Create a callback function to pass into both mouse & keyboard events for tag removal.
-     * @param {string} tagName
-     * @return {function(Event)} Callback to pass as event listener.
-     */
-    function createTagRemoveHandler(tagName) {
-        return event => {
-            if (event.type === 'click') {
-                removeTag(tagName);
-            }
+  $effect.pre(() => {
+    uniqueTags = new Set(tags);
+  });
 
-            if (event instanceof KeyboardEvent && (event.code === 'Enter' || event.code === 'Space')) {
-                // To be more comfortable, automatically focus next available tag's remove button in the list.
-                if (event.currentTarget instanceof HTMLElement) {
-                    const currenTagElement = event.currentTarget.closest('.tag');
-                    const nextTagElement = currenTagElement?.previousElementSibling ?? currenTagElement?.parentElement?.firstElementChild;
-                    const nextRemoveButton = nextTagElement?.querySelector('.remove');
+  let addedTagName = $state<string>('');
 
-                    if (nextRemoveButton instanceof HTMLElement) {
-                        nextRemoveButton.focus();
-                    }
-                }
+  /**
+   * Create a callback function to pass into both mouse & keyboard events for tag removal.
+   * @param tagName Name to remove when clicked.
+   * @return Callback to pass as event listener.
+   */
+  function createTagRemoveHandler(tagName: string): EventHandler<Event, HTMLElement> {
+    return event => {
+      if (event.type === 'click') {
+        removeTag(tagName);
+      }
 
-                removeTag(tagName);
-            }
-        }
-    }
+      if (event instanceof KeyboardEvent && (event.code === 'Enter' || event.code === 'Space')) {
+        // To be more comfortable, automatically focus next available tag's remove button in the list.
+        if (event.currentTarget instanceof HTMLElement) {
+          const currenTagElement = event.currentTarget.closest('.tag');
+          const nextTagElement = currenTagElement?.previousElementSibling ?? currenTagElement?.parentElement?.firstElementChild;
+          const nextRemoveButton = nextTagElement?.querySelector('.remove');
 
-    /**
-     * @param {string} tagName
-     */
-    function removeTag(tagName) {
-        uniqueTags.delete(tagName);
-        tags = Array.from(uniqueTags);
-    }
-
-    /**
-     * @param {string} tagName
-     */
-    function addTag(tagName) {
-        uniqueTags.add(tagName);
-        tags = Array.from(uniqueTags);
-    }
-
-    /**
-     * Handle adding new tags to the list or removing them when backspace is pressed.
-     *
-     * Additional note: For some reason, mobile Chrome breaks the usual behaviour inside extension. `code` is becoming
-     * empty, while usually it should contain proper button code.
-     *
-     * @param {KeyboardEvent} event
-     */
-    function handleKeyPresses(event) {
-        if ((event.code === 'Enter' || event.key === 'Enter') && addedTagName.length) {
-            addTag(addedTagName)
-            addedTagName = '';
+          if (nextRemoveButton instanceof HTMLElement) {
+            nextRemoveButton.focus();
+          }
         }
 
-        if ((event.code === 'Backspace' || event.key === 'Backspace') && !addedTagName.length && tags?.length) {
-            removeTag(tags[tags.length - 1]);
-        }
+        removeTag(tagName);
+      }
     }
+  }
+
+  /**
+   * Remove the tag from the set.
+   * @param tagName Name of the tag to remove.
+   */
+  function removeTag(tagName: string) {
+    uniqueTags.delete(tagName);
+    tags = Array.from(uniqueTags);
+  }
+
+  /**
+   * Add the tag to the set.
+   * @param tagName Name of the tag to add.
+   */
+  function addTag(tagName: string) {
+    uniqueTags.add(tagName);
+    tags = Array.from(uniqueTags);
+  }
+
+  /**
+   * Handle adding new tags to the list or removing them when backspace is pressed.
+   *
+   * Additional note: For some reason, mobile Chrome breaks the usual behaviour inside extension. `code` is becoming
+   * empty, while usually it should contain proper button code.
+   *
+   * @param event
+   */
+  function handleKeyPresses(event: KeyboardEvent) {
+    if ((event.code === 'Enter' || event.key === 'Enter') && addedTagName.length) {
+      addTag(addedTagName)
+      addedTagName = '';
+    }
+
+    if ((event.code === 'Backspace' || event.key === 'Backspace') && !addedTagName.length && tags?.length) {
+      removeTag(tags[tags.length - 1]);
+    }
+  }
 </script>
 
 <div class="tags-editor">
-    {#each uniqueTags.values() as tagName}
-        <div class="tag">
-            {tagName}
-            <span class="remove" on:click={createTagRemoveHandler(tagName)}
-                  on:keydown={createTagRemoveHandler(tagName)}
-                  role="button" tabindex="0">x</span>
-        </div>
-    {/each}
-    <input type="text"
-           bind:value={addedTagName}
-           on:keydown={handleKeyPresses}
-           autocomplete="off"
-           autocapitalize="none"/>
+  {#each uniqueTags.values() as tagName}
+    <div class="tag">
+      {tagName}
+      <span class="remove" onclick={createTagRemoveHandler(tagName)}
+            onkeydown={createTagRemoveHandler(tagName)}
+            role="button" tabindex="0">x</span>
+    </div>
+  {/each}
+  <input autocapitalize="none"
+         autocomplete="off"
+         bind:value={addedTagName}
+         onkeydown={handleKeyPresses}
+         type="text"/>
 </div>
 
 <style lang="scss">
-    .tags-editor {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
+  .tags-editor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 
-        input {
-            width: 100%;
-        }
+    input {
+      width: 100%;
     }
+  }
 </style>
