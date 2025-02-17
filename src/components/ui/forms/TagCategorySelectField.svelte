@@ -1,28 +1,26 @@
-<script>
+<script lang="ts">
   import SelectField from "$components/ui/forms/SelectField.svelte";
   import { categories } from "$lib/booru/tag-categories";
 
+  interface TagCategorySelectFieldProps {
+    value?: string;
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} [value]
-   */
+  let {
+    value = $bindable('')
+  }: TagCategorySelectFieldProps = $props();
 
-  /** @type {Props} */
-  let { value = $bindable('') } = $props();
+  let tagCategoriesOptions = $derived.by<Record<string, string>>(() => {
+    return categories.reduce<Record<string, string>>((options, category) => {
+      options[category] = category
+        .replace('-', ' ')
+        .replace(/(?<=\s|^)\w/g, (matchedCharacter) => matchedCharacter.toUpperCase());
 
-  /** @type {Record<string, string>} */
-  let tagCategoriesOptions = $state({
-    '': 'Default'
+      return options;
+    }, {
+      '': 'Default'
+    })
   });
-
-  tagCategoriesOptions = categories.reduce((options, category) => {
-    options[category] = category
-      .replace('-', ' ')
-      .replace(/(?<=\s|^)\w/g, (matchedCharacter) => matchedCharacter.toUpperCase());
-
-    return options;
-  }, tagCategoriesOptions);
 </script>
 
 <SelectField bind:value={value} name="tag_color" options={tagCategoriesOptions}/>

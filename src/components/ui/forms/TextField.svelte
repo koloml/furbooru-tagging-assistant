@@ -1,15 +1,15 @@
-<script>
+<script lang="ts">
+  interface TextFieldProps {
+    name?: string;
+    placeholder?: string;
+    value?: string;
+  }
 
-
-  /**
-   * @typedef {Object} Props
-   * @property {string|undefined} [name]
-   * @property {string|undefined} [placeholder]
-   * @property {string} [value]
-   */
-
-  /** @type {Props} */
-  let { name = undefined, placeholder = undefined, value = $bindable('') } = $props();
+  let {
+    name = undefined,
+    placeholder = undefined,
+    value = $bindable('')
+  }: TextFieldProps = $props();
 </script>
 
 <input bind:value={value} {name} {placeholder} type="text">

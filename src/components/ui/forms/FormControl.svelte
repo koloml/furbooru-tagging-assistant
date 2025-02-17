@@ -1,14 +1,15 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from "svelte";
 
+  interface FormControlProps {
+    label?: string;
+    children?: Snippet;
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {string|undefined} [label]
-   * @property {import('svelte').Snippet} [children]
-   */
-
-  /** @type {Props} */
-  let { label = undefined, children } = $props();
+  let {
+    label = undefined,
+    children
+  }: FormControlProps = $props();
 </script>
 
 <label class="control">

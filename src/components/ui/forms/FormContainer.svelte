@@ -1,9 +1,11 @@
 <script lang="ts">
-  interface Props {
-    children?: import('svelte').Snippet;
+  import type { Snippet } from "svelte";
+
+  interface FormContainerProps {
+    children?: Snippet;
   }
 
-  let { children }: Props = $props();
+  let { children }: FormContainerProps = $props();
 </script>
 
 <form>

@@ -1,34 +1,35 @@
-<script>
+<script lang="ts">
+  type SelectFieldOptionsObject = Record<string, string>;
 
+  interface SelectFieldProps {
+    options?: string[] | SelectFieldOptionsObject;
+    name?: string;
+    id?: string;
+    value?: string;
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {string[]|Record<string, string>} [options]
-   * @property {string|undefined} [name]
-   * @property {string|undefined} [id]
-   * @property {string|undefined} [value]
-   */
-
-  /** @type {Props} */
   let {
     options = [],
     name = undefined,
     id = undefined,
     value = $bindable(undefined)
-  } = $props();
+  }: SelectFieldProps = $props();
 
-  /** @type {Record<string, string>} */
-  const optionPairs = $state({});
+  const optionPairs = $derived.by<SelectFieldOptionsObject>(() => {
+    const resultPairs: SelectFieldOptionsObject = {};
 
-  if (Array.isArray(options)) {
-    for (let option of options) {
-      optionPairs[option] = option;
+    if (Array.isArray(options)) {
+      for (let optionName of options) {
+        resultPairs[optionName] = optionName;
+      }
+    } else if (options && typeof options === 'object') {
+      Object.keys(options).forEach(optionKey => {
+        resultPairs[optionKey] = options[optionKey];
+      })
     }
-  } else if (options && typeof options === 'object') {
-    Object.keys(options).forEach((key) => {
-      optionPairs[key] = options[key];
-    })
-  }
+
+    return resultPairs;
+  });
 </script>
 
 <select bind:value={value} {id} {name}>
