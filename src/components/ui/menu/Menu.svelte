@@ -1,9 +1,9 @@
 <script lang="ts">
-  interface Props {
+  interface MenuProps {
     children?: import('svelte').Snippet;
   }
 
-  let { children }: Props = $props();
+  let { children }: MenuProps = $props();
 </script>
 
 <nav>

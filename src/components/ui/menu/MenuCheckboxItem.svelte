@@ -1,33 +1,31 @@
-<script>
-  import { createBubbler, stopPropagation } from 'svelte/legacy';
+<script lang="ts">
   import MenuLink from "$components/ui/menu/MenuItem.svelte";
+  import type { Snippet } from "svelte";
+  import type { FormEventHandler, MouseEventHandler } from "svelte/elements";
 
-  const bubble = createBubbler();
+  interface MenuCheckboxItemProps {
+    checked: boolean;
+    name?: string;
+    value?: string;
+    href?: string;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLInputElement>;
+    oninput?: FormEventHandler<HTMLInputElement>;
+  }
 
-
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} checked
-   * @property {string|undefined} [name]
-   * @property {string|undefined} [value]
-   * @property {string|null} [href]
-   * @property {import('svelte').Snippet} [children]
-   */
-
-  /** @type {Props} */
   let {
     checked = $bindable(),
     name = undefined,
     value = undefined,
-    href = null,
-    children
-  } = $props();
+    href = undefined,
+    children,
+    onclick,
+    oninput,
+  }: MenuCheckboxItemProps = $props();
 </script>
 
 <MenuLink {href}>
-  <input bind:checked={checked} {name} onclick={stopPropagation(bubble('click'))} oninput={bubble('input')}
-         type="checkbox"
-         {value}>
+  <input bind:checked={checked} {name} {onclick} {oninput} type="checkbox" {value}>
   {@render children?.()}
 </MenuLink>
 

@@ -1,31 +1,31 @@
-<script>
-  import { createBubbler, stopPropagation } from 'svelte/legacy';
+<script lang="ts">
   import MenuLink from "$components/ui/menu/MenuItem.svelte";
+  import type { Snippet } from "svelte";
+  import type { FormEventHandler, MouseEventHandler } from "svelte/elements";
 
-  const bubble = createBubbler();
+  interface MenuRadioItemProps {
+    checked: boolean;
+    name: string;
+    value: string;
+    href?: string | null;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLInputElement>;
+    oninput?: FormEventHandler<HTMLInputElement>;
+  }
 
-
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} checked
-   * @property {string} name
-   * @property {string} value
-   * @property {string|null} [href]
-   * @property {import('svelte').Snippet} [children]
-   */
-
-  /** @type {Props} */
   let {
     checked,
     name,
     value,
     href = null,
-    children
-  } = $props();
+    children,
+    onclick,
+    oninput,
+  }: MenuRadioItemProps = $props();
 </script>
 
 <MenuLink {href}>
-  <input {checked} {name} onclick={stopPropagation(bubble('click'))} oninput={bubble('input')} type="radio" {value}>
+  <input {checked} {name} {onclick} {oninput} type="radio" {value}>
   {@render children?.()}
 </MenuLink>
 
