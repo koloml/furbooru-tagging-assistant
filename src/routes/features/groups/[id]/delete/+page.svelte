@@ -1,16 +1,19 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import type TagGroup from "$entities/TagGroup";
 
-  const groupId = $page.params.id;
-  const targetGroup = $tagGroups.find(group => group.id === groupId);
+  const groupId = $derived<string>(page.params.id);
+  const targetGroup = $derived<TagGroup | undefined>($tagGroups.find(group => group.id === groupId));
 
-  if (!targetGroup) {
-    void goto('/features/groups');
-  }
+  $effect(() => {
+    if (!targetGroup) {
+      goto('/features/groups');
+    }
+  })
 
   async function deleteGroup() {
     if (!targetGroup) {
@@ -33,7 +36,7 @@
   </p>
   <Menu>
     <hr>
-    <MenuItem on:click={deleteGroup}>Yes</MenuItem>
+    <MenuItem onclick={deleteGroup}>Yes</MenuItem>
     <MenuItem href="/features/groups/{groupId}">No</MenuItem>
   </Menu>
 {:else}

@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import TagsColorContainer from "$components/tags/TagsColorContainer.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
   import FormControl from "$components/ui/forms/FormControl.svelte";
@@ -12,31 +12,36 @@
   import TagGroup from "$entities/TagGroup";
   import { tagGroups } from "$stores/entities/tag-groups";
 
-  const groupId = $page.params.id;
-  /** @type {TagGroup|null} */
-  let targetGroup = null;
+  let groupId = $derived(page.params.id);
 
-  let groupName = $state('');
-  /** @type {string[]} */
-  let tagsList = $state([]);
-  /** @type {string[]} */
-  let prefixesList = $state([]);
-  let tagCategory = $state('');
-
-  if (groupId === 'new') {
-    targetGroup = new TagGroup(crypto.randomUUID(), {});
-  } else {
-    targetGroup = $tagGroups.find(group => group.id === groupId) || null;
-
-    if (targetGroup) {
-      groupName = targetGroup.settings.name;
-      tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
-      prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
-      tagCategory = targetGroup.settings.category;
-    } else {
-      goto('/features/groups');
+  let targetGroup = $derived.by<TagGroup | null>(() => {
+    if (groupId === 'new') {
+      return new TagGroup(crypto.randomUUID(), {});
     }
-  }
+
+    return $tagGroups.find(group => group.id === groupId) || null;
+  });
+
+  let groupName = $state<string>('');
+  let tagsList = $state<string[]>([]);
+  let prefixesList = $state<string[]>([]);
+  let tagCategory = $state<string>('');
+
+  $effect(() => {
+    if (groupId === 'new') {
+      return;
+    }
+
+    if (!targetGroup) {
+      goto('/features/groups');
+      return;
+    }
+
+    groupName = targetGroup.settings.name;
+    tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
+    prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
+    tagCategory = targetGroup.settings.category;
+  });
 
   async function saveGroup() {
     if (!targetGroup) {
@@ -65,12 +70,12 @@
   <FormControl label="Group Color">
     <TagCategorySelectField bind:value={tagCategory}/>
   </FormControl>
-  <TagsColorContainer targetCategory="{tagCategory}">
+  <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tags">
       <TagsEditor bind:tags={tagsList}/>
     </FormControl>
   </TagsColorContainer>
-  <TagsColorContainer targetCategory="{tagCategory}">
+  <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tag Prefixes">
       <TagsEditor bind:tags={prefixesList}/>
     </FormControl>
@@ -78,5 +83,5 @@
 </FormContainer>
 <Menu>
   <hr>
-  <MenuItem on:click={saveGroup}>Save Group</MenuItem>
+  <MenuItem onclick={saveGroup}>Save Group</MenuItem>
 </Menu>

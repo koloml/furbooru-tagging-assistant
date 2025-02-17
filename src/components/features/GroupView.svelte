@@ -1,18 +1,15 @@
-<script>
+<script lang="ts">
   import TagsColorContainer from "$components/tags/TagsColorContainer.svelte";
+  import type TagGroup from "$entities/TagGroup";
 
+  interface GroupViewProps {
+    group: TagGroup;
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {import('$entities/TagGroup').default} group
-   */
+  let { group }: GroupViewProps = $props();
 
-  /** @type {Props} */
-  let { group } = $props();
-
-  let sortedTagsList = $derived(group.settings.tags.sort((a, b) => a.localeCompare(b))),
-    sortedPrefixes = $derived(group.settings.prefixes.sort((a, b) => a.localeCompare(b)));
-
+  let sortedTagsList = $derived<string[]>(group.settings.tags.sort((a, b) => a.localeCompare(b))),
+    sortedPrefixes = $derived<string[]>(group.settings.prefixes.sort((a, b) => a.localeCompare(b)));
 
 </script>
 
@@ -23,7 +20,7 @@
 {#if sortedTagsList.length}
   <div class="block">
     <strong>Tags:</strong>
-    <TagsColorContainer targetCategory="{group.settings.category}">
+    <TagsColorContainer targetCategory={group.settings.category}>
       <div class="tags-list">
         {#each sortedTagsList as tagName}
           <span class="tag">{tagName}</span>
@@ -35,7 +32,7 @@
 {#if sortedPrefixes.length}
   <div class="block">
     <strong>Prefixes:</strong>
-    <TagsColorContainer targetCategory="{group.settings.category}">
+    <TagsColorContainer targetCategory={group.settings.category}>
       <div class="tags-list">
         {#each sortedPrefixes as prefixName}
           <span class="tag">{prefixName}*</span>

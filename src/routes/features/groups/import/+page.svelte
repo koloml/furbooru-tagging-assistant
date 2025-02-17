@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import GroupView from "$components/features/GroupView.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
@@ -11,15 +11,11 @@
 
   const groupTransporter = new EntitiesTransporter(TagGroup);
 
-  /** @type {string} */
   let importedString = $state('');
-  /** @type {string} */
   let errorMessage = $state('');
 
-  /** @type {TagGroup|null} */
-  let candidateGroup = $state(null);
-  /** @type {TagGroup|null} */
-  let existingGroup = $state(null);
+  let candidateGroup = $state<TagGroup | null>(null);
+  let existingGroup = $state<TagGroup | null>(null);
 
   function tryImportingGroup() {
     candidateGroup = null;
@@ -91,7 +87,7 @@
   </FormContainer>
   <Menu>
     <hr>
-    <MenuItem on:click={tryImportingGroup}>Import</MenuItem>
+    <MenuItem onclick={tryImportingGroup}>Import</MenuItem>
   </Menu>
 {:else}
   {#if existingGroup}
@@ -99,16 +95,16 @@
       This group will replace the existing "{existingGroup.settings.name}" group, since it have the same ID.
     </p>
   {/if}
-  <GroupView group="{candidateGroup}"></GroupView>
+  <GroupView group={candidateGroup}></GroupView>
   <Menu>
     <hr>
     {#if existingGroup}
-      <MenuItem on:click={saveGroup}>Replace Existing Group</MenuItem>
-      <MenuItem on:click={cloneAndSaveGroup}>Save as New Group</MenuItem>
+      <MenuItem onclick={saveGroup}>Replace Existing Group</MenuItem>
+      <MenuItem onclick={cloneAndSaveGroup}>Save as New Group</MenuItem>
     {:else}
-      <MenuItem on:click={saveGroup}>Import New Group</MenuItem>
+      <MenuItem onclick={saveGroup}>Import New Group</MenuItem>
     {/if}
-    <MenuItem on:click={() => candidateGroup = null}>Cancel</MenuItem>
+    <MenuItem onclick={() => candidateGroup = null}>Cancel</MenuItem>
   </Menu>
 {/if}
 

@@ -1,15 +1,10 @@
-<script>
-  import { run } from 'svelte/legacy';
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import TagGroup from "$entities/TagGroup";
 
-  /** @type {import('$entities/TagGroup').default[]} */
-  let groups = $state([]);
-
-  run(() => {
-    groups = $tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
-  });
+  let groups = $derived<TagGroup[]>($tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name)));
 </script>
 
 <Menu>

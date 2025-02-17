@@ -1,13 +1,12 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from "svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string} [targetCategory]
-   * @property {import('svelte').Snippet} [children]
-   */
+  interface TagColorContainerProps {
+    targetCategory?: string;
+    children?: Snippet;
+  }
 
-  /** @type {Props} */
-  let { targetCategory = '', children } = $props();
+  let { targetCategory = '', children }: TagColorContainerProps = $props();
 </script>
 
 <div class="tag-color-container tag-color-container--{targetCategory || 'default'}">
