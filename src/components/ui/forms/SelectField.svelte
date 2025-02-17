@@ -1,40 +1,45 @@
-<script>
-    /**
-     * @type {string[]|Record<string, string>}
-     */
-    export let options = [];
+<script lang="ts">
+  type SelectFieldOptionsObject = Record<string, string>;
 
-    /** @type {string|undefined} */
-    export let name = undefined;
+  interface SelectFieldProps {
+    options?: string[] | SelectFieldOptionsObject;
+    name?: string;
+    id?: string;
+    value?: string;
+  }
 
-    /** @type {string|undefined} */
-    export let id = undefined;
+  let {
+    options = [],
+    name = undefined,
+    id = undefined,
+    value = $bindable(undefined)
+  }: SelectFieldProps = $props();
 
-    /** @type {string|undefined} */
-    export let value = undefined;
-
-    /** @type {Record<string, string>} */
-    const optionPairs = {};
+  const optionPairs = $derived.by<SelectFieldOptionsObject>(() => {
+    const resultPairs: SelectFieldOptionsObject = {};
 
     if (Array.isArray(options)) {
-        for (let option of options) {
-            optionPairs[option] = option;
-        }
+      for (let optionName of options) {
+        resultPairs[optionName] = optionName;
+      }
     } else if (options && typeof options === 'object') {
-        Object.keys(options).forEach((key) => {
-            optionPairs[key] = options[key];
-        })
+      Object.keys(options).forEach(optionKey => {
+        resultPairs[optionKey] = options[optionKey];
+      })
     }
+
+    return resultPairs;
+  });
 </script>
 
-<select {name} {id} bind:value={value}>
-    {#each Object.entries(optionPairs) as [value, label]}
-        <option {value}>{label}</option>
-    {/each}
+<select bind:value={value} {id} {name}>
+  {#each Object.entries(optionPairs) as [value, label]}
+    <option {value}>{label}</option>
+  {/each}
 </select>
 
 <style lang="scss">
-    select {
-        width: 100%;
-    }
+  select {
+    width: 100%;
+  }
 </style>

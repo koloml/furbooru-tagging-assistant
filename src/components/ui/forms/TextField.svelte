@@ -1,18 +1,21 @@
-<script>
-    /** @type {string|undefined} */
-    export let name = undefined;
+<script lang="ts">
+  interface TextFieldProps {
+    name?: string;
+    placeholder?: string;
+    value?: string;
+  }
 
-    /** @type {string|undefined} */
-    export let placeholder = undefined;
-
-    /** @type {string} */
-    export let value = '';
+  let {
+    name = undefined,
+    placeholder = undefined,
+    value = $bindable('')
+  }: TextFieldProps = $props();
 </script>
 
-<input type="text" {name} {placeholder} bind:value={value}>
+<input bind:value={value} {name} {placeholder} type="text">
 
 <style lang="scss">
-    :global(.control) input {
-        width: 100%;
-    }
+  :global(.control) input {
+    width: 100%;
+  }
 </style>

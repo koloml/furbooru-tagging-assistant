@@ -1,12 +1,20 @@
-<script>
-    /** @type {string|undefined} */
-    export let name = undefined;
+<script lang="ts">
+  import type { Snippet } from "svelte";
 
-    /** @type {boolean} */
-    export let checked;
+  interface CheckboxFieldProps {
+    name?: string;
+    checked: boolean;
+    children?: Snippet;
+  }
+
+  let {
+    name = undefined,
+    checked = $bindable(),
+    children
+  }: CheckboxFieldProps = $props();
 </script>
 
-<input type="checkbox" {name} bind:checked={checked}>
+<input bind:checked={checked} {name} type="checkbox">
 <span>
-    <slot></slot>
+    {@render children?.()}
 </span>
