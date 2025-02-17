@@ -1,31 +1,29 @@
-<script>
-  import { run } from 'svelte/legacy';
+<script lang="ts">
+  import type { EventHandler } from "svelte/elements";
 
+  interface TagEditorProps {
+    // List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
+    tags?: string[];
+  }
 
-  /**
-   * @typedef {Object} Props
-   * @property {string[]} [tags] - List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
-   */
+  let {
+    tags = $bindable([])
+  }: TagEditorProps = $props();
 
-  /** @type {Props} */
-  let { tags = $bindable([]) } = $props();
+  let uniqueTags = $state<Set<string>>(new Set());
 
-  /** @type {Set<string>} */
-  let uniqueTags = $state(new Set());
-
-  run(() => {
+  $effect.pre(() => {
     uniqueTags = new Set(tags);
   });
 
-  /** @type {string} */
-  let addedTagName = $state('');
+  let addedTagName = $state<string>('');
 
   /**
    * Create a callback function to pass into both mouse & keyboard events for tag removal.
-   * @param {string} tagName
-   * @return {function(Event)} Callback to pass as event listener.
+   * @param tagName Name to remove when clicked.
+   * @return Callback to pass as event listener.
    */
-  function createTagRemoveHandler(tagName) {
+  function createTagRemoveHandler(tagName: string): EventHandler<Event, HTMLElement> {
     return event => {
       if (event.type === 'click') {
         removeTag(tagName);
@@ -49,17 +47,19 @@
   }
 
   /**
-   * @param {string} tagName
+   * Remove the tag from the set.
+   * @param tagName Name of the tag to remove.
    */
-  function removeTag(tagName) {
+  function removeTag(tagName: string) {
     uniqueTags.delete(tagName);
     tags = Array.from(uniqueTags);
   }
 
   /**
-   * @param {string} tagName
+   * Add the tag to the set.
+   * @param tagName Name of the tag to add.
    */
-  function addTag(tagName) {
+  function addTag(tagName: string) {
     uniqueTags.add(tagName);
     tags = Array.from(uniqueTags);
   }
@@ -70,9 +70,9 @@
    * Additional note: For some reason, mobile Chrome breaks the usual behaviour inside extension. `code` is becoming
    * empty, while usually it should contain proper button code.
    *
-   * @param {KeyboardEvent} event
+   * @param event
    */
-  function handleKeyPresses(event) {
+  function handleKeyPresses(event: KeyboardEvent) {
     if ((event.code === 'Enter' || event.key === 'Enter') && addedTagName.length) {
       addTag(addedTagName)
       addedTagName = '';
