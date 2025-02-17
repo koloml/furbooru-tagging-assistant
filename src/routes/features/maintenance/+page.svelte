@@ -1,25 +1,19 @@
-<script>
-  import { run } from 'svelte/legacy';
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import MenuRadioItem from "$components/ui/menu/MenuRadioItem.svelte";
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  /** @type {import('$entities/MaintenanceProfile').default[]} */
-  let profiles = $state([]);
-
-  run(() => {
-    profiles = $maintenanceProfiles.sort((a, b) => a.settings.name.localeCompare(b.settings.name));
-  });
+  let profiles = $derived<MaintenanceProfile[]>(
+    $maintenanceProfiles.sort((a, b) => a.settings.name.localeCompare(b.settings.name))
+  );
 
   function resetActiveProfile() {
     $activeProfileStore = null;
   }
 
-  /**
-   * @param {Event} event
-   */
-  function enableSelectedProfile(event) {
+  function enableSelectedProfile(event: Event) {
     const target = event.target;
 
     if (target instanceof HTMLInputElement && target.checked) {
@@ -37,13 +31,13 @@
   {#each profiles as profile}
     <MenuRadioItem href="/features/maintenance/{profile.id}"
                    name="active-profile"
-                   value="{profile.id}"
-                   checked="{$activeProfileStore === profile.id}"
-                   on:input={enableSelectedProfile}>
+                   value={profile.id}
+                   checked={$activeProfileStore === profile.id}
+                   oninput={enableSelectedProfile}>
       {profile.settings.name}
     </MenuRadioItem>
   {/each}
   <hr>
-  <MenuItem href="#" on:click={resetActiveProfile}>Reset Active Profile</MenuItem>
+  <MenuItem href="#" onclick={resetActiveProfile}>Reset Active Profile</MenuItem>
   <MenuItem href="/features/maintenance/import">Import Profile</MenuItem>
 </Menu>

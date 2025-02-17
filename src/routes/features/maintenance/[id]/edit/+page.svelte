@@ -1,38 +1,42 @@
-<script>
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import TagsEditor from "$components/tags/TagsEditor.svelte";
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import TextField from "$components/ui/forms/TextField.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  /** @type {string} */
-  let profileId = $page.params.id;
-  /** @type {MaintenanceProfile|null} */
-  let targetProfile = null;
 
-  /** @type {string} */
-  let profileName = $state('');
-  /** @type {string[]} */
-  let tagsList = $state([]);
+  let profileId = $derived(page.params.id);
 
-  if (profileId === 'new') {
-    targetProfile = new MaintenanceProfile(crypto.randomUUID(), {});
-  } else {
-    const maybeExistingProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
-
-    if (maybeExistingProfile) {
-      targetProfile = maybeExistingProfile;
-      profileName = targetProfile.settings.name;
-      tagsList = [...targetProfile.settings.tags].sort((a, b) => a.localeCompare(b));
-    } else {
-      goto('/features/maintenance');
+  let targetProfile = $derived.by<MaintenanceProfile | null>(() => {
+    if (profileId === 'new') {
+      return new MaintenanceProfile(crypto.randomUUID(), {});
     }
-  }
+
+    return $maintenanceProfiles.find(profile => profile.id === profileId) || null;
+  });
+
+  let profileName = $state('');
+  let tagsList = $state<string[]>([]);
+
+  $effect(() => {
+    if (profileId === 'new') {
+      return;
+    }
+
+    if (!targetProfile) {
+      goto('/features/maintenance');
+      return;
+    }
+
+    profileName = targetProfile.settings.name;
+    tagsList = [...targetProfile.settings.tags].sort((a, b) => a.localeCompare(b));
+  });
 
   async function saveProfile() {
     if (!targetProfile) {
@@ -65,5 +69,5 @@
 </FormContainer>
 <Menu>
   <hr>
-  <MenuItem href="#" on:click={saveProfile}>Save Profile</MenuItem>
+  <MenuItem href="#" onclick={saveProfile}>Save Profile</MenuItem>
 </Menu>

@@ -1,12 +1,11 @@
-<script>
+<script lang="ts">
+  import type MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  /**
-   * @typedef {Object} Props
-   * @property {import('$entities/MaintenanceProfile').default} profile
-   */
+  interface ProfileViewProps {
+    profile: MaintenanceProfile;
+  }
 
-  /** @type {Props} */
-  let { profile } = $props();
+  let { profile }: ProfileViewProps = $props();
 
   const sortedTagsList = profile.settings.tags.sort((a, b) => a.localeCompare(b));
 </script>

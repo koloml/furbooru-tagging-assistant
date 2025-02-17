@@ -1,35 +1,39 @@
-<script>
+<script lang="ts">
   import { run } from 'svelte/legacy';
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import ProfileView from "$components/features/ProfileView.svelte";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
+  import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { onMount } from "svelte";
 
-  const profileId = $page.params.id;
-  /** @type {import('$entities/MaintenanceProfile').default|null} */
-  let profile = $state(null);
+  let profileId = $derived(page.params.id);
+  let profile = $derived<MaintenanceProfile|null>(
+    $maintenanceProfiles.find(profile => profile.id === profileId) || null
+  );
 
-  if (profileId === 'new') {
-    goto('/features/maintenance/new/edit');
-  }
+  $effect(() => {
+    if (profileId === 'new') {
+      goto('/features/maintenance/new/edit');
+      return;
+    }
 
-  run(() => {
-    const resolvedProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
-
-    if (resolvedProfile) {
-      profile = resolvedProfile;
-    } else {
+    if (!profile) {
       console.warn(`Profile ${profileId} not found.`);
       goto('/features/maintenance');
     }
   });
 
-  let isActiveProfile = $state($activeProfileStore === profileId);
+  let isActiveProfile = $state(false);
 
-  run(() => {
+  $effect.pre(() => {
+    isActiveProfile = $activeProfileStore === profileId;
+  });
+
+  $effect(() => {
     if (isActiveProfile && $activeProfileStore !== profileId) {
       $activeProfileStore = profileId;
     }

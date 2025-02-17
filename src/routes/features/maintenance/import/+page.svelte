@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
@@ -11,15 +11,11 @@
 
   const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
 
-  /** @type {string} */
   let importedString = $state('');
-  /** @type {string} */
   let errorMessage = $state('');
 
-  /** @type {MaintenanceProfile|null} */
-  let candidateProfile = $state(null);
-  /** @type {MaintenanceProfile|null} */
-  let existingProfile = $state(null);
+  let candidateProfile = $state<MaintenanceProfile | null>(null);
+  let existingProfile = $state<MaintenanceProfile | null>(null);
 
   function tryImportingProfile() {
     candidateProfile = null;
@@ -36,9 +32,9 @@
     try {
       if (importedString.trim().startsWith('{')) {
         candidateProfile = profilesTransporter.importFromJSON(importedString);
+      } else {
+        candidateProfile = profilesTransporter.importFromCompressedJSON(importedString)
       }
-
-      candidateProfile = profilesTransporter.importFromCompressedJSON(importedString);
     } catch (error) {
       errorMessage = error instanceof Error
         ? error.message
@@ -91,7 +87,7 @@
   </FormContainer>
   <Menu>
     <hr>
-    <MenuItem on:click={tryImportingProfile}>Import</MenuItem>
+    <MenuItem onclick={tryImportingProfile}>Import</MenuItem>
   </Menu>
 {:else}
   {#if existingProfile}
@@ -99,16 +95,16 @@
       This profile will replace the existing "{existingProfile.settings.name}" profile, since it have the same ID.
     </p>
   {/if}
-  <ProfileView profile="{candidateProfile}"></ProfileView>
+  <ProfileView profile={candidateProfile}></ProfileView>
   <Menu>
     <hr>
     {#if existingProfile}
-      <MenuItem on:click={saveProfile}>Replace Existing Profile</MenuItem>
-      <MenuItem on:click={cloneAndSaveProfile}>Save as New Profile</MenuItem>
+      <MenuItem onclick={saveProfile}>Replace Existing Profile</MenuItem>
+      <MenuItem onclick={cloneAndSaveProfile}>Save as New Profile</MenuItem>
     {:else}
-      <MenuItem on:click={saveProfile}>Import New Profile</MenuItem>
+      <MenuItem onclick={saveProfile}>Import New Profile</MenuItem>
     {/if}
-    <MenuItem on:click={() => candidateProfile = null}>Cancel</MenuItem>
+    <MenuItem onclick={() => candidateProfile = null}>Cancel</MenuItem>
   </Menu>
 {/if}
 

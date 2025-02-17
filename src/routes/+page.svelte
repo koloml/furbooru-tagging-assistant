@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
+  import MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  /** @type {import('$entities/MaintenanceProfile').default|undefined} */
-  let activeProfile = $derived($maintenanceProfiles.find(profile => profile.id === $activeProfileStore));
-
+  let activeProfile = $derived<MaintenanceProfile | null>(
+    $maintenanceProfiles.find(profile => profile.id === $activeProfileStore) || null
+  );
 
   function turnOffActiveProfile() {
     $activeProfileStore = null;
@@ -15,7 +16,7 @@
 
 <Menu>
   {#if activeProfile}
-    <MenuCheckboxItem checked on:input={turnOffActiveProfile} href="/features/maintenance/{activeProfile.id}">
+    <MenuCheckboxItem checked oninput={turnOffActiveProfile} href="/features/maintenance/{activeProfile.id}">
       Active Profile: {activeProfile.settings.name}
     </MenuCheckboxItem>
     <hr>

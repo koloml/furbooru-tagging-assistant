@@ -1,5 +1,5 @@
-<script>
-  import { page } from "$app/stores";
+<script lang="ts">
+  import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import Menu from "$components/ui/menu/Menu.svelte";
@@ -9,23 +9,24 @@
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  const profileId = $page.params.id;
-  const profile = $maintenanceProfiles.find(profile => profile.id === profileId);
+  let isCompressedProfileShown = $state(true);
+
+  const profileId = $derived(page.params.id);
+  const profile = $derived<MaintenanceProfile | null>(
+    $maintenanceProfiles.find(profile => profile.id === profileId) || null
+  );
+
+  $effect(() => {
+    if (!profile) {
+      goto('/features/maintenance/');
+    }
+  });
 
   const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
-  /** @type {string} */
-  let exportedProfile = $state('');
-  /** @type {string} */
-  let compressedProfile = $state('');
 
-  if (!profile) {
-    goto('/features/maintenance/');
-  } else {
-    exportedProfile = profilesTransporter.exportToJSON(profile);
-    compressedProfile = profilesTransporter.exportToCompressedJSON(profile);
-  }
-
-  let isCompressedProfileShown = $state(true);
+  let rawExportedProfile = $derived(profile ? profilesTransporter.exportToJSON(profile) : '');
+  let compressedExportedProfile = $derived(profile ? profilesTransporter.exportToCompressedJSON(profile) : '');
+  let selectedExportString = $derived(isCompressedProfileShown ? compressedExportedProfile : rawExportedProfile);
 </script>
 
 <Menu>
@@ -36,12 +37,12 @@
 </Menu>
 <FormContainer>
   <FormControl label="Export string">
-    <textarea readonly rows="6">{isCompressedProfileShown ? compressedProfile : exportedProfile}</textarea>
+    <textarea readonly rows="6">{selectedExportString}</textarea>
   </FormControl>
 </FormContainer>
 <Menu>
   <hr>
-  <MenuItem on:click={() => isCompressedProfileShown = !isCompressedProfileShown}>
+  <MenuItem onclick={() => isCompressedProfileShown = !isCompressedProfileShown}>
     Switch Format:
     {#if isCompressedProfileShown}
       Base64-Encoded

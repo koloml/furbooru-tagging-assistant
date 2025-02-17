@@ -1,16 +1,21 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import MaintenanceProfile from "$entities/MaintenanceProfile";
 
-  const profileId = $page.params.id;
-  const targetProfile = $maintenanceProfiles.find(profile => profile.id === profileId);
+  const profileId = $derived(page.params.id);
+  const targetProfile = $derived<MaintenanceProfile | null>(
+    $maintenanceProfiles.find(profile => profile.id === profileId) || null
+  );
 
-  if (!targetProfile) {
-    void goto('/features/maintenance');
-  }
+  $effect(() => {
+    if (!targetProfile) {
+      goto('/features/maintenance');
+    }
+  });
 
   async function deleteProfile() {
     if (!targetProfile) {
@@ -33,7 +38,7 @@
   </p>
   <Menu>
     <hr>
-    <MenuItem on:click={deleteProfile}>Yes</MenuItem>
+    <MenuItem onclick={deleteProfile}>Yes</MenuItem>
     <MenuItem href="/features/maintenance/{profileId}">No</MenuItem>
   </Menu>
 {:else}
