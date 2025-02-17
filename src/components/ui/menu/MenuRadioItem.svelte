@@ -22,10 +22,15 @@
     onclick,
     oninput,
   }: MenuRadioItemProps = $props();
+
+  function stopPropagationAndPassCallback(originalEvent: MouseEvent) {
+    originalEvent.stopPropagation();
+    onclick?.(originalEvent as MouseEvent & { currentTarget: HTMLInputElement });
+  }
 </script>
 
 <MenuLink {href}>
-  <input {checked} {name} {onclick} {oninput} type="radio" {value}>
+  <input {checked} {name} onclick={stopPropagationAndPassCallback} {oninput} type="radio" {value}>
   {@render children?.()}
 </MenuLink>
 
