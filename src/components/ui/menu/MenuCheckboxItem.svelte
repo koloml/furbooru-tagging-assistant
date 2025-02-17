@@ -22,10 +22,15 @@
     onclick,
     oninput,
   }: MenuCheckboxItemProps = $props();
+
+  function stopPropagationAndPassCallback(originalEvent: MouseEvent) {
+    originalEvent.stopPropagation();
+    onclick?.(originalEvent as MouseEvent & { currentTarget: HTMLInputElement });
+  }
 </script>
 
 <MenuLink {href}>
-  <input bind:checked={checked} {name} {onclick} {oninput} type="checkbox" {value}>
+  <input bind:checked={checked} {name} onclick={stopPropagationAndPassCallback} {oninput} type="checkbox" {value}>
   {@render children?.()}
 </MenuLink>
 
