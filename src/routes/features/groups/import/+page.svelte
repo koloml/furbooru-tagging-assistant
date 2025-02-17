@@ -32,9 +32,9 @@
     try {
       if (importedString.trim().startsWith('{')) {
         candidateGroup = groupTransporter.importFromJSON(importedString);
+      } else {
+        candidateGroup = groupTransporter.importFromCompressedJSON(importedString);
       }
-
-      candidateGroup = groupTransporter.importFromCompressedJSON(importedString);
     } catch (error) {
       errorMessage = error instanceof Error
         ? error.message
