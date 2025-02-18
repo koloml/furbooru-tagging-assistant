@@ -17,5 +17,5 @@ export default class TagGroup extends StorageEntity<TagGroupSettings> {
     });
   }
 
-  static _entityName = 'groups';
+  public static readonly _entityName: keyof App.EntityNamesMap = "groups";
 }
