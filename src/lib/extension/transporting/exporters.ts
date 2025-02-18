@@ -14,6 +14,8 @@ const entitiesExporters: ExportersMap = {
       id: entity.id,
       name: entity.settings.name,
       tags: entity.settings.tags,
+      // Any exported profile should be considered non-temporary.
+      temporary: false,
     }
   },
   groups: entity => {
@@ -23,6 +25,7 @@ const entitiesExporters: ExportersMap = {
       name: entity.settings.name,
       tags: entity.settings.tags,
       prefixes: entity.settings.prefixes,
+      category: entity.settings.category,
     }
   }
 };
