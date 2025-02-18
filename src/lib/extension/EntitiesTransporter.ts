@@ -60,8 +60,8 @@ export default class EntitiesTransporter<EntityType> {
     }
 
     const exportableObject = exportEntityToObject(
-      entityObject,
-      this.#entityName
+      this.#entityName as keyof App.EntityNamesMap,
+      entityObject
     );
 
     return JSON.stringify(exportableObject, null, 2);

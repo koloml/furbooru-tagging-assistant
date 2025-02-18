@@ -1,8 +1,11 @@
 import StorageEntity from "$lib/extension/base/StorageEntity";
+import type { ImportableObject } from "$lib/extension/transporting/importables";
+
+type ExporterFunction<EntityType extends StorageEntity> = (entity: EntityType) => ImportableObject<EntityType>;
 
 type ExportersMap = {
-  [EntityName in keyof App.EntityNamesMap]: (entity: App.EntityNamesMap[EntityName]) => Record<string, any>
-};
+  [EntityName in keyof App.EntityNamesMap]: ExporterFunction<App.EntityNamesMap[EntityName]>;
+}
 
 const entitiesExporters: ExportersMap = {
   profiles: entity => {
@@ -24,10 +27,13 @@ const entitiesExporters: ExportersMap = {
   }
 };
 
-export function exportEntityToObject(entityInstance: StorageEntity<any>, entityName: string): Record<string, any> {
+export function exportEntityToObject<EntityName extends keyof App.EntityNamesMap>(
+  entityName: EntityName,
+  entityInstance: App.EntityNamesMap[EntityName]
+): ImportableObject<App.EntityNamesMap[EntityName]> {
   if (!(entityName in entitiesExporters) || !entitiesExporters.hasOwnProperty(entityName)) {
     throw new Error(`Missing exporter for entity: ${entityName}`);
   }
 
-  return entitiesExporters[entityName as keyof App.EntityNamesMap].call(null, entityInstance);
+  return entitiesExporters[entityName].call(null, entityInstance);
 }
