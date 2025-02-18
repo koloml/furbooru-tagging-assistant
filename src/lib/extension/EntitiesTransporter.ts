@@ -12,7 +12,13 @@ export default class EntitiesTransporter<EntityType> {
    */
   get #entityName() {
     // How the hell should I even do this?
-    return ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+    const entityName = ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+
+    if (entityName === "entity") {
+      throw new Error("Generic entity name encountered!");
+    }
+
+    return entityName;
   }
 
   /**
@@ -34,8 +40,8 @@ export default class EntitiesTransporter<EntityType> {
     }
 
     validateImportedEntity(
+      this.#entityName,
       importedObject,
-      this.#entityName
     );
 
     return new this.#targetEntityConstructor(
@@ -60,7 +66,7 @@ export default class EntitiesTransporter<EntityType> {
     }
 
     const exportableObject = exportEntityToObject(
-      this.#entityName as keyof App.EntityNamesMap,
+      this.#entityName,
       entityObject
     );
 

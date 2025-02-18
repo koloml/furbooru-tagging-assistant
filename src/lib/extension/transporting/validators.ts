@@ -40,15 +40,18 @@ const entitiesValidators: EntitiesValidationMap = {
 
 /**
  * Validate the structure of the entity.
- * @param importedObject Object imported from JSON.
  * @param entityName Name of the entity to validate. Should be loaded from the entity class.
+ * @param importedObject Object imported from JSON.
  * @throws {Error} Error in case validation failed with the reason stored in the message.
  */
-export function validateImportedEntity(importedObject: any, entityName: string) {
+export function validateImportedEntity<EntityName extends keyof App.EntityNamesMap>(
+  entityName: EntityName,
+  importedObject: any
+) {
   if (!entitiesValidators.hasOwnProperty(entityName)) {
     console.error(`Trying to validate entity without the validator present! Entity name: ${entityName}`);
     return;
   }
 
-  entitiesValidators[entityName as keyof EntitiesValidationMap]!.call(null, importedObject);
+  entitiesValidators[entityName]!.call(null, importedObject);
 }
