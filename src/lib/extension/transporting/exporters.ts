@@ -1,7 +1,7 @@
 import StorageEntity from "$lib/extension/base/StorageEntity";
-import type { ImportableObject } from "$lib/extension/transporting/importables";
+import type { ImportableEntityObject } from "$lib/extension/transporting/importables";
 
-type ExporterFunction<EntityType extends StorageEntity> = (entity: EntityType) => ImportableObject<EntityType>;
+type ExporterFunction<EntityType extends StorageEntity> = (entity: EntityType) => ImportableEntityObject<EntityType>;
 
 type ExportersMap = {
   [EntityName in keyof App.EntityNamesMap]: ExporterFunction<App.EntityNamesMap[EntityName]>;
@@ -10,7 +10,8 @@ type ExportersMap = {
 const entitiesExporters: ExportersMap = {
   profiles: entity => {
     return {
-      v: 1,
+      $type: "profiles",
+      v: 2,
       id: entity.id,
       name: entity.settings.name,
       tags: entity.settings.tags,
@@ -20,7 +21,8 @@ const entitiesExporters: ExportersMap = {
   },
   groups: entity => {
     return {
-      v: 1,
+      $type: "groups",
+      v: 2,
       id: entity.id,
       name: entity.settings.name,
       tags: entity.settings.tags,
@@ -33,7 +35,7 @@ const entitiesExporters: ExportersMap = {
 export function exportEntityToObject<EntityName extends keyof App.EntityNamesMap>(
   entityName: EntityName,
   entityInstance: App.EntityNamesMap[EntityName]
-): ImportableObject<App.EntityNamesMap[EntityName]> {
+): ImportableEntityObject<App.EntityNamesMap[EntityName]> {
   if (!(entityName in entitiesExporters) || !entitiesExporters.hasOwnProperty(entityName)) {
     throw new Error(`Missing exporter for entity: ${entityName}`);
   }

@@ -1,12 +1,12 @@
 import type StorageEntity from "$lib/extension/base/StorageEntity";
-import type { ImportableObject } from "$lib/extension/transporting/importables";
+import type { ImportableEntityObject } from "$lib/extension/transporting/importables";
 
 /**
  * Function for validating the entities.
  * @todo Probably would be better to replace the throw-catch method with some kind of result-error returning type.
  *   Errors are only properly definable in the JSDoc.
  */
-type ValidationFunction<EntityType extends StorageEntity> = (importedObject: ImportableObject<EntityType>) => void;
+type ValidationFunction<EntityType extends StorageEntity> = (importedObject: ImportableEntityObject<EntityType>) => void;
 
 /**
  * Mapping of validation functions for all entities present in the extension. Key is a name of entity and value is a
