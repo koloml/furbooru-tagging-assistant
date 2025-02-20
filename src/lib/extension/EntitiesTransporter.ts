@@ -32,13 +32,7 @@ export default class EntitiesTransporter<EntityType> {
     this.#targetEntityConstructor = entityConstructor;
   }
 
-  importFromJSON(jsonString: string): EntityType {
-    const importedObject = this.#tryParsingAsJSON(jsonString);
-
-    if (!importedObject) {
-      throw new Error('Invalid JSON!');
-    }
-
+  importFromObject(importedObject: Record<string, any>): EntityType {
     validateImportedEntity(
       this.#entityName,
       importedObject,
@@ -48,6 +42,16 @@ export default class EntitiesTransporter<EntityType> {
       importedObject.id,
       importedObject
     );
+  }
+
+  importFromJSON(jsonString: string): EntityType {
+    const importedObject = this.#tryParsingAsJSON(jsonString);
+
+    if (!importedObject) {
+      throw new Error('Invalid JSON!');
+    }
+
+    return this.importFromObject(importedObject);
   }
 
   importFromCompressedJSON(compressedJsonString: string): EntityType {
