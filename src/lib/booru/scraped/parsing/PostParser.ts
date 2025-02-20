@@ -2,23 +2,19 @@ import PageParser from "$lib/booru/scraped/parsing/PageParser";
 import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
 
 export default class PostParser extends PageParser {
-  /** @type {HTMLFormElement} */
-  #tagEditorForm;
+  #tagEditorForm: HTMLFormElement | null = null;
 
-  constructor(imageId) {
+  constructor(imageId: number) {
     super(`/images/${imageId}`);
   }
 
-  /**
-   * @return {Promise<HTMLFormElement>}
-   */
-  async resolveTagEditorForm() {
+  async resolveTagEditorForm(): Promise<HTMLFormElement> {
     if (this.#tagEditorForm) {
       return this.#tagEditorForm;
     }
 
     const documentFragment = await this.resolveFragment();
-    const tagsFormElement = documentFragment.querySelector("#tags-form");
+    const tagsFormElement = documentFragment.querySelector<HTMLFormElement>("#tags-form");
 
     if (!tagsFormElement) {
       throw new Error("Failed to find the tag editor form");
@@ -37,10 +33,8 @@ export default class PostParser extends PageParser {
 
   /**
    * Resolve the tags and aliases mapping from the post page.
-   *
-   * @return {Promise<Map<string, string>|null>}
    */
-  async resolveTagsAndAliases() {
+  async resolveTagsAndAliases(): Promise<Map<string, string> | null> {
     return PostParser.resolveTagsAndAliasesFromPost(
       await this.resolveFragment()
     );
@@ -49,25 +43,32 @@ export default class PostParser extends PageParser {
   /**
    * Resolve the list of tags and aliases from the post content.
    *
-   * @param {DocumentFragment} documentFragment Real content to parse the data from.
+   * @param documentFragment Real content to parse the data from.
    *
-   * @return {Map<string, string>|null} Tags and aliases or null if failed to parse.
+   * @return Tags and aliases or null if failed to parse.
    */
-  static resolveTagsAndAliasesFromPost(documentFragment) {
-    const imageShowContainer = documentFragment.querySelector('.image-show-container');
-    const tagsForm = documentFragment.querySelector('#tags-form');
+  static resolveTagsAndAliasesFromPost(documentFragment: DocumentFragment): Map<string, string> | null {
+    const imageShowContainer = documentFragment.querySelector<HTMLElement>('.image-show-container');
+    const tagsForm = documentFragment.querySelector<HTMLFormElement>('#tags-form');
 
     if (!imageShowContainer || !tagsForm) {
       return null;
     }
 
     const tagsFormData = new FormData(tagsForm);
+    const tagsAndAliasesValue = imageShowContainer.dataset.imageTagAliases;
+    const tagsValue = tagsFormData.get(this.tagsInputName);
 
-    const tagsAndAliasesList = imageShowContainer.dataset.imageTagAliases
+    if (!tagsAndAliasesValue || !tagsValue || typeof tagsValue !== 'string') {
+      console.warn('Failed to locate tags & aliases!');
+      return null;
+    }
+
+    const tagsAndAliasesList = tagsAndAliasesValue
       .split(',')
       .map(tagName => tagName.trim());
 
-    const actualTagsList = tagsFormData.get(this.tagsInputName)
+    const actualTagsList = tagsValue
       .split(',')
       .map(tagName => tagName.trim());
 
