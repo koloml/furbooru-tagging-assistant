@@ -25,8 +25,8 @@ jobs:
             -   name: Install npm dependencies
                 run: npm ci
 
-            -   name: Running unit tests
-                run: npm run test
-
             -   name: Building the extension
                 run: npm run build
+
+            -   name: Running unit tests
+                run: npm run test
