@@ -12,11 +12,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    include: ['src/**/*.{js,ts}'],
     exclude: ['**/node_modules/**', '.*\\.d\\.ts$', '.*\\.spec\\.ts$'],
     coverage: {
       reporter: ['text', 'html'],
-      include: ['src/**/*.{js,ts}'],
+      include: ['src/lib/**/*.{js,ts}'],
     }
   }
 });

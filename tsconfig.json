@@ -11,5 +11,8 @@
         "strict": true,
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": false,
+        "types": [
+            "vitest/globals"
+        ]
     }
 }
