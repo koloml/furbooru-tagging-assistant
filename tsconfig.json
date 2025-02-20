@@ -12,7 +12,8 @@
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": false,
         "types": [
-            "vitest/globals"
+            "vitest/globals",
+            "@types/chrome",
         ]
     }
 }
