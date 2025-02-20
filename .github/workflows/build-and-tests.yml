@@ -1,0 +1,32 @@
+name: Testing
+
+on:
+    push:
+        branches:
+            - master
+            - 'release/**'
+    pull_request:
+        branches:
+            - master
+            - 'release/**'
+
+jobs:
+    run-tests:
+        name: 'Run Unit Tests'
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   name: Setup Node.js
+                uses: actions/setup-node@v4
+                with:
+                    node-version: '22'
+
+            -   name: Install npm dependencies
+                run: npm ci
+
+            -   name: Building the extension
+                run: npm run build
+
+            -   name: Running unit tests
+                run: npm run test

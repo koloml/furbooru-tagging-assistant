@@ -19,6 +19,7 @@ const config = {
       "$styles": "./src/styles",
       "$stores": "./src/stores",
       "$entities": "./src/lib/extension/entities",
+      "$tests": "./tests"
     },
     typescript: {
       config: config => {
