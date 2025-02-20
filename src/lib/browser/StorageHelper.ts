@@ -22,7 +22,7 @@ export default class StorageHelper {
    * @return The JSON object or the default value if the entry does not exist.
    */
   async read<Type = any, DefaultType = any>(key: string, defaultValue: DefaultType | null = null): Promise<Type | DefaultType> {
-    return (await this.#storageArea.get(key))?.[key] || defaultValue;
+    return (await this.#storageArea.get(key))?.[key] ?? defaultValue;
   }
 
   /**
