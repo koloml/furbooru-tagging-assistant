@@ -1,6 +1,6 @@
 import CacheableSettings from "$lib/extension/base/CacheableSettings";
 
-export type FullscreenViewerSize = 'small' | 'medium' | 'large' | 'full';
+export type FullscreenViewerSize = keyof App.ImageURIs;
 
 interface MiscSettingsFields {
   fullscreenViewer: boolean;

@@ -7,9 +7,9 @@ export class TagsForm extends BaseComponent {
    */
   refreshTagColors() {
     const tagCategories = this.#gatherTagCategories();
-    const editableTags = this.container.querySelectorAll('.tag');
+    const editableTags = this.container.querySelectorAll<HTMLElement>('.tag');
 
-    for (let tagElement of editableTags) {
+    for (const tagElement of editableTags) {
       // Tag name is stored in the "remove" link and not in the tag itself.
       const removeLink = tagElement.querySelector('a');
 
@@ -19,11 +19,11 @@ export class TagsForm extends BaseComponent {
 
       const tagName = removeLink.dataset.tagName;
 
-      if (!tagCategories.has(tagName)) {
+      if (!tagName || !tagCategories.has(tagName)) {
         continue;
       }
 
-      const categoryName = tagCategories.get(tagName);
+      const categoryName = tagCategories.get(tagName)!;
 
       tagElement.dataset.tagCategory = categoryName;
       tagElement.setAttribute('data-tag-category', categoryName);
@@ -32,14 +32,21 @@ export class TagsForm extends BaseComponent {
 
   /**
    * Collect list of categories from the tags on the page.
-   * @return {Map<string, string>}
+   * @return
    */
-  #gatherTagCategories() {
-    /** @type {Map<string, string>} */
-    const tagCategories = new Map();
+  #gatherTagCategories(): Map<string, string> {
+    const tagCategories: Map<string, string> = new Map();
 
-    for (let tagElement of document.querySelectorAll('.tag[data-tag-name][data-tag-category]')) {
-      tagCategories.set(tagElement.dataset.tagName, tagElement.dataset.tagCategory);
+    for (const tagElement of document.querySelectorAll<HTMLElement>('.tag[data-tag-name][data-tag-category]')) {
+      const tagName = tagElement.dataset.tagName;
+      const tagCategory = tagElement.dataset.tagCategory;
+
+      if (!tagName || !tagCategory) {
+        console.warn('Missing tag name or category!');
+        continue;
+      }
+
+      tagCategories.set(tagName, tagCategory);
     }
 
     return tagCategories;
@@ -59,23 +66,26 @@ export class TagsForm extends BaseComponent {
         return;
       }
 
-      const refreshTrigger = targetElement.closest('.js-taginput-show, #edit-tags')
+      const refreshTrigger = targetElement.closest<HTMLElement>('.js-taginput-show, #edit-tags')
 
       if (!refreshTrigger) {
         return;
       }
 
-      const tagFormElement = tagEditorWrapper.querySelector('#tags-form');
+      const tagFormElement = tagEditorWrapper.querySelector<HTMLElement>('#tags-form');
 
-      /** @type {TagsForm|null} */
+      if (!tagFormElement) {
+        return;
+      }
+
       let tagEditor = getComponent(tagFormElement);
 
-      if (!tagEditor || (!tagEditor instanceof TagsForm)) {
+      if (!tagEditor || !(tagEditor instanceof TagsForm)) {
         tagEditor = new TagsForm(tagFormElement);
         tagEditor.initialize();
       }
 
-      tagEditor.refreshTagColors();
+      (tagEditor as TagsForm).refreshTagColors();
     });
   }
 }

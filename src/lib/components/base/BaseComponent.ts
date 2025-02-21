@@ -1,18 +1,14 @@
 import { bindComponent } from "$lib/components/base/component-utils";
 
-/**
- * @abstract
- */
-export class BaseComponent {
-  /** @type {HTMLElement} */
-  #container;
+type ComponentEventListener<EventName extends keyof HTMLElementEventMap> =
+  (this: HTMLElement, event: HTMLElementEventMap[EventName]) => void;
+
+export abstract class BaseComponent<ContainerType extends HTMLElement = HTMLElement> {
+  readonly #container: ContainerType;
 
   #isInitialized = false;
 
-  /**
-   * @param {HTMLElement} container
-   */
-  constructor(container) {
+  constructor(container: ContainerType) {
     this.#container = container;
 
     bindComponent(container, this);
@@ -29,42 +25,33 @@ export class BaseComponent {
     this.init();
   }
 
-  /**
-   * @protected
-   */
-  build() {
+  protected build(): void {
     // This method can be implemented by the component classes to modify or create the inner elements.
   }
 
-  /**
-   * @protected
-   */
-  init() {
+  protected init(): void {
     // This method can be implemented by the component classes to initialize the component.
-  }
+  };
 
-  /**
-   * @return {HTMLElement}
-   */
-  get container() {
+  get container(): ContainerType {
     return this.#container;
   }
 
   /**
    * Check if the component is initialized already. If not checked, subsequent calls to the `initialize` method will
    * throw an error.
-   * @return {boolean}
+   * @return
    */
-  get isInitialized() {
+  get isInitialized(): boolean {
     return this.#isInitialized;
   }
 
   /**
    * Emit the custom event on the container element.
-   * @param {keyof HTMLElementEventMap|string} event The event name.
-   * @param {any} [detail] The event detail. Can be omitted.
+   * @param event The event name.
+   * @param [detail] The event detail. Can be omitted.
    */
-  emit(event, detail = undefined) {
+  emit(event: keyof HTMLElementEventMap | string, detail: any = undefined): void {
     this.#container.dispatchEvent(
       new CustomEvent(
         event,
@@ -78,12 +65,16 @@ export class BaseComponent {
 
   /**
    * Subscribe to the DOM event on the container element.
-   * @param {keyof HTMLElementEventMap|string} event The event name.
-   * @param {function(Event): void} listener The event listener.
-   * @param {AddEventListenerOptions|undefined} [options] The event listener options. Can be omitted.
-   * @return {function(): void} The unsubscribe function.
+   * @param event The event name.
+   * @param listener The event listener.
+   * @param [options] The event listener options. Can be omitted.
+   * @return The unsubscribe function.
    */
-  on(event, listener, options = undefined) {
+  on<EventName extends keyof HTMLElementEventMap>(
+    event: EventName,
+    listener: ComponentEventListener<EventName>,
+    options?: AddEventListenerOptions,
+  ): () => void {
     this.#container.addEventListener(event, listener, options);
 
     return () => void this.#container.removeEventListener(event, listener, options);
@@ -91,12 +82,16 @@ export class BaseComponent {
 
   /**
    * Subscribe to the DOM event on the container element. The event listener will be called only once.
-   * @param {keyof HTMLElementEventMap|string} event The event name.
-   * @param {function(Event): void} listener The event listener.
-   * @param {AddEventListenerOptions|undefined} [options] The event listener options. Can be omitted.
-   * @return {function(): void} The unsubscribe function.
+   * @param event The event name.
+   * @param listener The event listener.
+   * @param [options] The event listener options. Can be omitted.
+   * @return The unsubscribe function.
    */
-  once(event, listener, options = undefined) {
+  once<EventName extends keyof HTMLElementEventMap>(
+    event: EventName,
+    listener: ComponentEventListener<EventName>,
+    options?: AddEventListenerOptions,
+  ): () => void {
     options = options || {};
     options.once = true;
 

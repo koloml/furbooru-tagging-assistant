@@ -2,21 +2,23 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import MiscSettings from "$lib/extension/settings/MiscSettings";
 import { FullscreenViewer } from "$lib/components/FullscreenViewer";
+import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
 
 export class ImageShowFullscreenButton extends BaseComponent {
-  /**
-   * @type {import('./MediaBoxTools').MediaBoxTools|null}
-   */
-  #mediaBoxTools= null;
-  #isFullscreenButtonEnabled = false;
+  #mediaBoxTools: MediaBoxTools | null = null;
+  #isFullscreenButtonEnabled: boolean = false;
 
-  build() {
+  protected build() {
     this.container.innerText = '🔍';
 
     ImageShowFullscreenButton.#miscSettings ??= new MiscSettings();
   }
 
-  init() {
+  protected init() {
+    if (!this.container.parentElement) {
+      throw new Error('Missing parent element!');
+    }
+
     this.#mediaBoxTools = getComponent(this.container.parentElement);
 
     if (!this.#mediaBoxTools) {
@@ -32,7 +34,7 @@ export class ImageShowFullscreenButton extends BaseComponent {
           this.#updateFullscreenButtonVisibility();
         })
         .then(() => {
-          ImageShowFullscreenButton.#miscSettings.subscribe(settings => {
+          ImageShowFullscreenButton.#miscSettings?.subscribe(settings => {
             this.#isFullscreenButtonEnabled = settings.fullscreenViewer ?? true;
             this.#updateFullscreenButtonVisibility();
           })
@@ -45,28 +47,25 @@ export class ImageShowFullscreenButton extends BaseComponent {
   }
 
   #onButtonClicked() {
+    const imageLinks = this.#mediaBoxTools?.mediaBox.imageLinks;
+
+    if (!imageLinks) {
+      throw new Error('Failed to resolve image links from media box tools!');
+    }
+
     ImageShowFullscreenButton
       .#resolveViewer()
-      .show(this.#mediaBoxTools.mediaBox.imageLinks);
+      ?.show(imageLinks);
   }
 
-  /**
-   * @type {FullscreenViewer|null}
-   */
-  static #viewer = null;
+  static #viewer: FullscreenViewer | null = null;
 
-  /**
-   * @return {FullscreenViewer}
-   */
-  static #resolveViewer() {
+  static #resolveViewer(): FullscreenViewer {
     this.#viewer ??= this.#buildViewer();
     return this.#viewer;
   }
 
-  /**
-   * @return {FullscreenViewer}
-   */
-  static #buildViewer() {
+  static #buildViewer(): FullscreenViewer {
     const element = document.createElement('div');
     const viewer = new FullscreenViewer(element);
 
@@ -77,10 +76,7 @@ export class ImageShowFullscreenButton extends BaseComponent {
     return viewer;
   }
 
-  /**
-   * @type {MiscSettings|null}
-   */
-  static #miscSettings = null;
+  static #miscSettings: MiscSettings | null = null;
 }
 
 export function createImageShowFullscreenButton() {
