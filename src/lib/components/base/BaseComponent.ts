@@ -3,7 +3,7 @@ import { bindComponent } from "$lib/components/base/component-utils";
 type ComponentEventListener<EventName extends keyof HTMLElementEventMap> =
   (this: HTMLElement, event: HTMLElementEventMap[EventName]) => void;
 
-export abstract class BaseComponent<ContainerType extends HTMLElement = HTMLElement> {
+export class BaseComponent<ContainerType extends HTMLElement = HTMLElement> {
   readonly #container: ContainerType;
 
   #isInitialized = false;
