@@ -1,12 +1,15 @@
 import type { MaintenancePopupEventsMap } from "$lib/components/events/maintenance-popup-events";
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import type { FullscreenViewerEventsMap } from "$lib/components/events/fullscreen-viewer-events";
+import type { BooruEventsMap } from "$lib/components/events/booru-events";
 
-interface EventsMapping extends MaintenancePopupEventsMap, FullscreenViewerEventsMap {
-}
+type EventsMapping =
+  MaintenancePopupEventsMap
+  & FullscreenViewerEventsMap
+  & BooruEventsMap;
 
 type EventCallback<EventDetails> = (event: CustomEvent<EventDetails>) => void;
-type UnsubscribeFunction = () => void;
+export type UnsubscribeFunction = () => void;
 type ResolvableTarget = EventTarget | BaseComponent;
 
 function resolveTarget(componentOrElement: ResolvableTarget): EventTarget {
