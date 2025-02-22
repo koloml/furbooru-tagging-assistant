@@ -27,7 +27,7 @@
                 "*://*.furbooru.org/galleries/*"
             ],
             "js": [
-                "src/content/listing.js"
+                "src/content/listing.ts"
             ],
             "css": [
                 "src/styles/content/listing.scss"
@@ -38,7 +38,7 @@
                 "*://*.furbooru.org/*"
             ],
             "js": [
-                "src/content/header.js"
+                "src/content/header.ts"
             ],
             "css": [
                 "src/styles/content/header.scss"
@@ -59,7 +59,7 @@
                 "*://*.furbooru.org/filters/*"
             ],
             "js": [
-                "src/content/tags.js"
+                "src/content/tags.ts"
             ]
         },
         {
@@ -67,7 +67,7 @@
                 "*://*.furbooru.org/images/*"
             ],
             "js": [
-                "src/content/tags-editor.js"
+                "src/content/tags-editor.ts"
             ]
         }
     ],

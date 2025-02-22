@@ -10,47 +10,27 @@ import {
   eventMaintenanceStateChanged,
   eventTagsUpdated
 } from "$lib/components/events/maintenance-popup-events";
+import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
 
 class BlackListedTagsEncounteredError extends Error {
-  /**
-   * @param {string} tagName
-   */
-  constructor(tagName) {
-    super(`This tag is blacklisted and prevents submission: ${tagName}`);
+  constructor(tagName: string) {
+    super(`This tag is blacklisted and prevents submission: ${tagName}`, {
+      cause: tagName
+    });
   }
 }
 
 export class MaintenancePopup extends BaseComponent {
-  /** @type {HTMLElement} */
-  #tagsListElement = null;
-
-  /** @type {HTMLElement[]} */
-  #tagsList = [];
-
-  /** @type {Map<string, HTMLElement>} */
-  #suggestedInvalidTags = new Map();
-
-  /** @type {MaintenanceProfile|null} */
-  #activeProfile = null;
-
-  /** @type {import('$lib/components/MediaBoxTools').MediaBoxTools} */
-  #mediaBoxTools = null;
-
-  /** @type {Set<string>} */
-  #tagsToRemove = new Set();
-
-  /** @type {Set<string>} */
-  #tagsToAdd = new Set();
-
-  /** @type {boolean} */
-  #isPlanningToSubmit = false;
-
-  /** @type {boolean} */
-  #isSubmitting = false;
-
-  /** @type {number|null} */
-  #tagsSubmissionTimer = null;
-
+  #tagsListElement: HTMLElement = document.createElement('div');
+  #tagsList: HTMLElement[] = [];
+  #suggestedInvalidTags: Map<string, HTMLElement> = new Map();
+  #activeProfile: MaintenanceProfile | null = null;
+  #mediaBoxTools: MediaBoxTools | null = null;
+  #tagsToRemove: Set<string> = new Set();
+  #tagsToAdd: Set<string> = new Set();
+  #isPlanningToSubmit: boolean = false;
+  #isSubmitting: boolean = false;
+  #tagsSubmissionTimer: number | null = null;
   #emitter = emitterAt(this);
 
   /**
@@ -60,7 +40,6 @@ export class MaintenancePopup extends BaseComponent {
     this.container.innerHTML = '';
     this.container.classList.add('maintenance-popup');
 
-    this.#tagsListElement = document.createElement('div');
     this.#tagsListElement.classList.add('tags-list');
 
     this.container.append(
@@ -72,14 +51,13 @@ export class MaintenancePopup extends BaseComponent {
    * @protected
    */
   init() {
-    const mediaBoxToolsElement = this.container.closest('.media-box-tools');
+    const mediaBoxToolsElement = this.container.closest<HTMLElement>('.media-box-tools');
 
     if (!mediaBoxToolsElement) {
       throw new Error('Maintenance popup initialized outside of the media box tools!');
     }
 
-    /** @type {MediaBoxTools|null} */
-    const mediaBoxTools = getComponent(mediaBoxToolsElement);
+    const mediaBoxTools = getComponent<MediaBoxTools>(mediaBoxToolsElement);
 
     if (!mediaBoxTools) {
       throw new Error('Media box tools component not found!');
@@ -96,10 +74,7 @@ export class MaintenancePopup extends BaseComponent {
     mediaBox.on('mouseover', this.#onMouseEnteredArea.bind(this));
   }
 
-  /**
-   * @param {MaintenanceProfile|null} activeProfile
-   */
-  #onActiveProfileChanged(activeProfile) {
+  #onActiveProfileChanged(activeProfile: MaintenanceProfile | null) {
     this.#activeProfile = activeProfile;
     this.container.classList.toggle('is-active', activeProfile !== null);
     this.#refreshTagsList();
@@ -108,8 +83,11 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   #refreshTagsList() {
-    /** @type {string[]} */
-    const activeProfileTagsList = this.#activeProfile?.settings.tags || [];
+    if (!this.#mediaBoxTools) {
+      return;
+    }
+
+    const activeProfileTagsList: string[] = this.#activeProfile?.settings.tags || [];
 
     for (const tagElement of this.#tagsList) {
       tagElement.remove();
@@ -147,17 +125,22 @@ export class MaintenancePopup extends BaseComponent {
 
   /**
    * Detect and process clicks made directly to the tags.
-   * @param {MouseEvent} event
    */
-  #handleTagClick(event) {
-    /** @type {HTMLElement} */
-    let tagElement = event.target;
+  #handleTagClick(event: MouseEvent) {
+    const targetObject = event.target;
 
-    if (!tagElement.classList.contains('tag')) {
-      tagElement = tagElement.closest('.tag');
+
+    if (!targetObject || !(targetObject instanceof HTMLElement)) {
+      return;
     }
 
-    if (!tagElement) {
+    let tagElement: HTMLElement | null = targetObject;
+
+    if (!tagElement.classList.contains('tag')) {
+      tagElement = tagElement.closest<HTMLElement>('.tag');
+    }
+
+    if (!tagElement?.dataset.name) {
       return;
     }
 
@@ -210,7 +193,7 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   async #onSubmissionTimerPassed() {
-    if (!this.#isPlanningToSubmit || this.#isSubmitting) {
+    if (!this.#isPlanningToSubmit || this.#isSubmitting || !this.#mediaBoxTools) {
       return;
     }
 
@@ -281,6 +264,10 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   #revealInvalidTags() {
+    if (!this.#mediaBoxTools) {
+      return;
+    }
+
     const tagsAndAliases = this.#mediaBoxTools.mediaBox.tagsAndAliases;
 
     if (!tagsAndAliases) {
@@ -310,18 +297,11 @@ export class MaintenancePopup extends BaseComponent {
     }
   }
 
-  /**
-   * @return {boolean}
-   */
   get isActive() {
     return this.container.classList.contains('is-active');
   }
 
-  /**
-   * @param {string} tagName
-   * @return {HTMLElement}
-   */
-  static #buildTagElement(tagName) {
+  static #buildTagElement(tagName: string): HTMLElement {
     const tagElement = document.createElement('span');
     tagElement.classList.add('tag');
     tagElement.innerText = tagName;
@@ -332,28 +312,26 @@ export class MaintenancePopup extends BaseComponent {
 
   /**
    * Marks the tag with red color.
-   * @param {HTMLElement} tagElement Element to mark.
+   * @param tagElement Element to mark.
    */
-  static #markTagAsInvalid(tagElement) {
+  static #markTagAsInvalid(tagElement: HTMLElement) {
     tagElement.dataset.tagCategory = 'error';
     tagElement.setAttribute('data-tag-category', 'error');
   }
 
   /**
    * Controller with maintenance settings.
-   * @type {MaintenanceSettings}
    */
   static #maintenanceSettings = new MaintenanceSettings();
 
   /**
    * Subscribe to all necessary feeds to watch for every active profile change. Additionally, will execute the callback
    * at the very start to retrieve the currently active profile.
-   * @param {function(MaintenanceProfile|null):void} callback Callback to execute whenever selection of active profile
-   * or profile itself has been changed.
-   * @return {function(): void} Unsubscribe function. Call it to stop watching for changes.
+   * @param callback Callback to execute whenever selection of active profile or profile itself has been changed.
+   * @return Unsubscribe function. Call it to stop watching for changes.
    */
-  static #watchActiveProfile(callback) {
-    let lastActiveProfileId;
+  static #watchActiveProfile(callback: (profile: MaintenanceProfile | null) => void): () => void {
+    let lastActiveProfileId: string | null | undefined = null;
 
     const unsubscribeFromProfilesChanges = MaintenanceProfile.subscribe(profiles => {
       if (lastActiveProfileId) {
@@ -393,9 +371,9 @@ export class MaintenancePopup extends BaseComponent {
 
   /**
    * Notify the frontend about new pending submission started.
-   * @param {boolean} isStarted True if started, false if ended.
+   * @param isStarted True if started, false if ended.
    */
-  static #notifyAboutPendingSubmission(isStarted) {
+  static #notifyAboutPendingSubmission(isStarted: boolean) {
     if (this.#pendingSubmissionCount === null) {
       this.#pendingSubmissionCount = 0;
       this.#initializeExitPromptHandler();
@@ -424,9 +402,8 @@ export class MaintenancePopup extends BaseComponent {
 
   /**
    * Amount of pending submissions or NULL if logic was not yet initialized.
-   * @type {number|null}
    */
-  static #pendingSubmissionCount = null;
+  static #pendingSubmissionCount: number|null = null;
 }
 
 export function createMaintenancePopup() {

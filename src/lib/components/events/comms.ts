@@ -1,7 +1,8 @@
 import type { MaintenancePopupEventsMap } from "$lib/components/events/maintenance-popup-events";
 import { BaseComponent } from "$lib/components/base/BaseComponent";
+import type { FullscreenViewerEventsMap } from "$lib/components/events/fullscreen-viewer-events";
 
-interface EventsMapping extends MaintenancePopupEventsMap {
+interface EventsMapping extends MaintenancePopupEventsMap, FullscreenViewerEventsMap {
 }
 
 type EventCallback<EventDetails> = (event: CustomEvent<EventDetails>) => void;
