@@ -12,7 +12,13 @@ export default class EntitiesTransporter<EntityType> {
    */
   get #entityName() {
     // How the hell should I even do this?
-    return ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+    const entityName = ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+
+    if (entityName === "entity") {
+      throw new Error("Generic entity name encountered!");
+    }
+
+    return entityName;
   }
 
   /**
@@ -26,6 +32,18 @@ export default class EntitiesTransporter<EntityType> {
     this.#targetEntityConstructor = entityConstructor;
   }
 
+  importFromObject(importedObject: Record<string, any>): EntityType {
+    validateImportedEntity(
+      this.#entityName,
+      importedObject,
+    );
+
+    return new this.#targetEntityConstructor(
+      importedObject.id,
+      importedObject
+    );
+  }
+
   importFromJSON(jsonString: string): EntityType {
     const importedObject = this.#tryParsingAsJSON(jsonString);
 
@@ -33,15 +51,7 @@ export default class EntitiesTransporter<EntityType> {
       throw new Error('Invalid JSON!');
     }
 
-    validateImportedEntity(
-      importedObject,
-      this.#entityName
-    );
-
-    return new this.#targetEntityConstructor(
-      importedObject.id,
-      importedObject
-    );
+    return this.importFromObject(importedObject);
   }
 
   importFromCompressedJSON(compressedJsonString: string): EntityType {
@@ -60,8 +70,8 @@ export default class EntitiesTransporter<EntityType> {
     }
 
     const exportableObject = exportEntityToObject(
-      entityObject,
-      this.#entityName
+      this.#entityName,
+      entityObject
     );
 
     return JSON.stringify(exportableObject, null, 2);
