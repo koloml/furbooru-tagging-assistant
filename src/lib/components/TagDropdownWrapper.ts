@@ -3,6 +3,8 @@ import MaintenanceProfile from "$entities/MaintenanceProfile";
 import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
 import { getComponent } from "$lib/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
+import { on } from "$lib/components/events/comms";
+import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
 
 const categoriesResolver = new CustomCategoriesResolver();
 
@@ -278,5 +280,12 @@ export function watchTagDropdownsInTagsEditor() {
     for (const tagDropdownElement of closestTagEditor.querySelectorAll<HTMLElement>('.tag.dropdown')) {
       wrapTagDropdown(tagDropdownElement);
     }
-  })
+  });
+
+  // When form is submitted, its DOM is completely updated. We need to fetch those tags in this case.
+  on(document.body, eventFormEditorUpdated, event => {
+    for (const tagDropdownElement of event.detail.querySelectorAll<HTMLElement>('.tag.dropdown')) {
+      wrapTagDropdown(tagDropdownElement);
+    }
+  });
 }
