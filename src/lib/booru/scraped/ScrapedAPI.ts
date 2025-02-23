@@ -1,19 +1,25 @@
 import PostParser from "$lib/booru/scraped/parsing/PostParser";
 
+type UpdaterFunction = (tags: Set<string>) => Set<string>;
+
 export default class ScrapedAPI {
   /**
    * Update the tags of the image using callback.
-   * @param {number} imageId ID of the image.
-   * @param {function(Set<string>): Set<string>} callback Callback to call to change the content.
-   * @return {Promise<Map<string,string>|null>} Updated tags and aliases list for updating internal cached state.
+   * @param imageId ID of the image.
+   * @param callback Callback to call to change the content.
+   * @return Updated tags and aliases list for updating internal cached state.
    */
-  async updateImageTags(imageId, callback) {
+  async updateImageTags(imageId: number, callback: UpdaterFunction): Promise<Map<string, string> | null> {
     const postParser = new PostParser(imageId);
     const formData = await postParser.resolveTagEditorFormData();
+    const tagsFieldValue = formData.get(PostParser.tagsInputName);
+
+    if (typeof tagsFieldValue !== 'string') {
+      throw new Error('Missing tags field!');
+    }
 
     const tagsList = new Set(
-      formData
-        .get(PostParser.tagsInputName)
+      tagsFieldValue
         .split(',')
         .map(tagName => tagName.trim())
     );

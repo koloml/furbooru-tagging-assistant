@@ -1,29 +1,25 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { QueryLexer, QuotedTermToken, TermToken, Token } from "$lib/booru/search/QueryLexer";
-import SearchSettings from "$lib/extension/settings/SearchSettings";
+import SearchSettings, { type SuggestionsPosition } from "$lib/extension/settings/SearchSettings";
 
 export class SearchWrapper extends BaseComponent {
-  /** @type {HTMLInputElement|null} */
-  #searchField = null;
-  /** @type {string|null} */
-  #lastParsedSearchValue = null;
-  /** @type {Token[]} */
-  #cachedParsedQuery = [];
-  #searchSettings = new SearchSettings();
-  #arePropertiesSuggestionsEnabled = false;
-  /** @type {"start"|"end"} */
-  #propertiesSuggestionsPosition = "start";
-  /** @type {HTMLElement|null} */
-  #cachedAutocompleteContainer = null;
-  /** @type {TermToken|QuotedTermToken|null} */
-  #lastTermToken = null;
+  #searchField: HTMLInputElement | null = null;
+  #lastParsedSearchValue: string | null = null;
+  #cachedParsedQuery: Token[] = [];
+  #searchSettings: SearchSettings = new SearchSettings();
+  #arePropertiesSuggestionsEnabled: boolean = false;
+  #propertiesSuggestionsPosition: SuggestionsPosition = "start";
+  #cachedAutocompleteContainer: HTMLElement | null = null;
+  #lastTermToken: TermToken | QuotedTermToken | null = null;
 
   build() {
     this.#searchField = this.container.querySelector('input[name=q]');
   }
 
   init() {
-    this.#searchField.addEventListener('input', this.#onInputFindProperties.bind(this));
+    if (this.#searchField) {
+      this.#searchField.addEventListener('input', this.#onInputFindProperties.bind(this))
+    }
 
     this.#searchSettings.resolvePropertiesSuggestionsEnabled()
       .then(isEnabled => this.#arePropertiesSuggestionsEnabled = isEnabled);
@@ -31,18 +27,18 @@ export class SearchWrapper extends BaseComponent {
       .then(position => this.#propertiesSuggestionsPosition = position);
 
     this.#searchSettings.subscribe(settings => {
-      this.#arePropertiesSuggestionsEnabled = settings.suggestProperties;
-      this.#propertiesSuggestionsPosition = settings.suggestPropertiesPosition;
+      this.#arePropertiesSuggestionsEnabled = Boolean(settings.suggestProperties);
+      this.#propertiesSuggestionsPosition = settings.suggestPropertiesPosition || "start";
     });
   }
 
   /**
    * Catch the user input and execute suggestions logic.
-   * @param {InputEvent} event Source event to find the input element from.
+   * @param event Source event to find the input element from.
    */
-  #onInputFindProperties(event) {
+  #onInputFindProperties(event: Event) {
     // Ignore events until option is enabled.
-    if (!this.#arePropertiesSuggestionsEnabled) {
+    if (!this.#arePropertiesSuggestionsEnabled || !(event.currentTarget instanceof HTMLInputElement)) {
       return;
     }
 
@@ -60,20 +56,26 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Get the selection position in the search field.
-   * @return {number}
    */
-  #getInputUserSelection() {
+  #getInputUserSelection(): number {
+    if (!this.#searchField) {
+      throw new Error('Missing search field!');
+    }
+
     return Math.min(
-      this.#searchField.selectionStart,
-      this.#searchField.selectionEnd
+      this.#searchField.selectionStart ?? 0,
+      this.#searchField.selectionEnd ?? 0,
     );
   }
 
   /**
    * Parse the search query and return the list of parsed tokens. Result will be cached for current search query.
-   * @return {Token[]}
    */
-  #resolveQueryTokens() {
+  #resolveQueryTokens(): Token[] {
+    if (!this.#searchField) {
+      throw new Error('Missing search field!');
+    }
+
     const searchValue = this.#searchField.value;
 
     if (searchValue === this.#lastParsedSearchValue && this.#cachedParsedQuery) {
@@ -88,9 +90,9 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Find the currently selected term.
-   * @return {string|null} Selected term or null if none found.
+   * @return Selected term or null if none found.
    */
-  #findCurrentTagFragment() {
+  #findCurrentTagFragment(): string | null {
     if (!this.#searchField) {
       return null;
     }
@@ -127,9 +129,9 @@ export class SearchWrapper extends BaseComponent {
    *
    * This means, that properties will only be suggested once actual autocomplete logic was activated.
    *
-   * @return {HTMLElement|null} Resolved element or nothing.
+   * @return Resolved element or nothing.
    */
-  #resolveAutocompleteContainer() {
+  #resolveAutocompleteContainer(): HTMLElement | null {
     if (this.#cachedAutocompleteContainer) {
       return this.#cachedAutocompleteContainer;
     }
@@ -141,11 +143,10 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Render the list of suggestions into the existing popup or create and populate a new one.
-   * @param {string[]} suggestions List of suggestion to render the popup from.
-   * @param {HTMLInputElement} targetInput Target input to attach the popup to.
+   * @param suggestions List of suggestion to render the popup from.
+   * @param targetInput Target input to attach the popup to.
    */
-  #renderSuggestions(suggestions, targetInput) {
-    /** @type {HTMLElement[]} */
+  #renderSuggestions(suggestions: string[], targetInput: HTMLInputElement) {
     const suggestedListItems = suggestions
       .map(suggestedTerm => this.#renderTermSuggestion(suggestedTerm));
 
@@ -170,6 +171,10 @@ export class SearchWrapper extends BaseComponent {
 
       const listContainer = autocompleteContainer.querySelector('ul');
 
+      if (!listContainer) {
+        return;
+      }
+
       switch (this.#propertiesSuggestionsPosition) {
         case "start":
           listContainer.prepend(...suggestedListItems);
@@ -183,10 +188,11 @@ export class SearchWrapper extends BaseComponent {
           console.warn("Invalid position for property suggestions!");
       }
 
+      const parentScrollTop = targetInput.parentElement?.scrollTop ?? 0;
 
       autocompleteContainer.style.position = 'absolute';
       autocompleteContainer.style.left = `${targetInput.offsetLeft}px`;
-      autocompleteContainer.style.top = `${targetInput.offsetTop + targetInput.offsetHeight - targetInput.parentElement.scrollTop}px`;
+      autocompleteContainer.style.top = `${targetInput.offsetTop + targetInput.offsetHeight - parentScrollTop}px`;
 
       document.body.append(autocompleteContainer);
     })
@@ -194,30 +200,28 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Loosely estimate where current selected search term is located and return it if found.
-   * @param {Token[]} tokens Search value to find the actively selected term from.
-   * @param {number} userSelectionIndex The index of the user selection.
-   * @return {Token|null} Search term object or NULL if nothing found.
+   * @param tokens Search value to find the actively selected term from.
+   * @param userSelectionIndex The index of the user selection.
+   * @return Search term object or NULL if nothing found.
    */
-  static #findActiveSearchTermPosition(tokens, userSelectionIndex) {
+  static #findActiveSearchTermPosition(tokens: Token[], userSelectionIndex: number): Token | null {
     return tokens.find(
       token => token.index < userSelectionIndex && token.index + token.value.length >= userSelectionIndex
-    );
+    ) ?? null;
   }
 
   /**
    * Regular expression to search the properties' syntax.
-   * @type {RegExp}
    */
   static #propertySearchTermHeadingRegExp = /^(?<name>[a-z\d_]+)(?<op_syntax>\.(?<op>[a-z]*))?(?<value_syntax>:(?<value>.*))?$/;
 
   /**
    * Create a list of suggested elements using the input received from the user.
-   * @param {string} searchTermValue Original decoded term received from the user.
+   * @param searchTermValue Original decoded term received from the user.
    * @return {string[]} List of suggestions. Could be empty.
    */
-  static #resolveSuggestionsFromTerm(searchTermValue) {
-    /** @type {string[]} */
-    const suggestionsList = [];
+  static #resolveSuggestionsFromTerm(searchTermValue: string): string[] {
+    const suggestionsList: string[] = [];
 
     this.#propertySearchTermHeadingRegExp.lastIndex = 0;
     const parsedResult = this.#propertySearchTermHeadingRegExp.exec(searchTermValue);
@@ -226,22 +230,28 @@ export class SearchWrapper extends BaseComponent {
       return suggestionsList;
     }
 
-    const propertyName = parsedResult.groups.name;
+    const propertyName = parsedResult.groups?.name;
+
+    if (!propertyName) {
+      return suggestionsList;
+    }
+
     const propertyType = this.#properties.get(propertyName);
-    const hasOperatorSyntax = Boolean(parsedResult.groups.op_syntax);
-    const hasValueSyntax = Boolean(parsedResult.groups.value_syntax);
+    const hasOperatorSyntax = Boolean(parsedResult.groups?.op_syntax);
+    const hasValueSyntax = Boolean(parsedResult.groups?.value_syntax);
 
     // No suggestions for values for now, maybe could add suggestions for namespaces like my:*
-    if (hasValueSyntax) {
+    if (hasValueSyntax && propertyType) {
       if (this.#typeValues.has(propertyType)) {
-        const givenValue = parsedResult.groups.value;
+        const givenValue = parsedResult.groups?.value;
+        const candidateValues = this.#typeValues.get(propertyType) || [];
 
-        for (let candidateValue of this.#typeValues.get(propertyType)) {
+        for (let candidateValue of candidateValues) {
           if (givenValue && !candidateValue.startsWith(givenValue)) {
             continue;
           }
 
-          suggestionsList.push(`${propertyName}${parsedResult.groups.op_syntax ?? ''}:${candidateValue}`);
+          suggestionsList.push(`${propertyName}${parsedResult.groups?.op_syntax ?? ''}:${candidateValue}`);
         }
       }
 
@@ -249,11 +259,12 @@ export class SearchWrapper extends BaseComponent {
     }
 
     // If at least one dot placed, start suggesting operators
-    if (hasOperatorSyntax) {
+    if (hasOperatorSyntax && propertyType) {
       if (this.#typeOperators.has(propertyType)) {
-        const operatorName = parsedResult.groups.op;
+        const operatorName = parsedResult.groups?.op;
+        const candidateOperators = this.#typeOperators.get(propertyType) ?? [];
 
-        for (let candidateOperator of this.#typeOperators.get(propertyType)) {
+        for (let candidateOperator of candidateOperators) {
           if (operatorName && !candidateOperator.startsWith(operatorName)) {
             continue;
           }
@@ -279,11 +290,10 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Render a single suggestion item and connect required events to interact with the user.
-   * @param {string} suggestedTerm Term to use for suggestion item.
-   * @return {HTMLElement} Resulting element.
+   * @param suggestedTerm Term to use for suggestion item.
+   * @return Resulting element.
    */
-  #renderTermSuggestion(suggestedTerm) {
-    /** @type {HTMLElement} */
+  #renderTermSuggestion(suggestedTerm: string): HTMLElement {
     const suggestionItem = document.createElement('li');
     suggestionItem.classList.add('autocomplete__item', 'autocomplete__item--property');
     suggestionItem.dataset.value = suggestedTerm;
@@ -311,10 +321,10 @@ export class SearchWrapper extends BaseComponent {
 
   /**
    * Automatically replace the last active token stored in the variable with the new value.
-   * @param {string} suggestedTerm Term to replace the value with.
+   * @param suggestedTerm Term to replace the value with.
    */
-  #replaceLastActiveTokenWithSuggestion(suggestedTerm) {
-    if (!this.#lastTermToken) {
+  #replaceLastActiveTokenWithSuggestion(suggestedTerm: string) {
+    if (!this.#lastTermToken || !this.#searchField) {
       return;
     }
 
@@ -334,10 +344,10 @@ export class SearchWrapper extends BaseComponent {
   /**
    * Find the selected suggestion item(s) and unselect them. Similar to the logic implemented by the Philomena's
    * front-end.
-   * @param {HTMLElement} suggestedElement Target element to search from. If element is disconnected from the DOM,
-   * search will be halted.
+   * @param suggestedElement Target element to search from. If element is disconnected from the DOM, search will be
+   * halted.
    */
-  static #findAndResetSelectedSuggestion(suggestedElement) {
+  static #findAndResetSelectedSuggestion(suggestedElement: HTMLElement) {
     if (!suggestedElement.parentElement) {
       return;
     }

@@ -2,11 +2,10 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { SearchWrapper } from "$lib/components/SearchWrapper";
 
 class SiteHeaderWrapper extends BaseComponent {
-  /** @type {SearchWrapper|null} */
-  #searchWrapper = null;
+  #searchWrapper: SearchWrapper | null = null;
 
   build() {
-    const searchForm = this.container.querySelector('.header__search');
+    const searchForm = this.container.querySelector<HTMLElement>('.header__search');
     this.#searchWrapper = searchForm && new SearchWrapper(searchForm) || null;
   }
 
@@ -17,7 +16,7 @@ class SiteHeaderWrapper extends BaseComponent {
   }
 }
 
-export function initializeSiteHeader(siteHeaderElement) {
+export function initializeSiteHeader(siteHeaderElement: HTMLElement) {
   new SiteHeaderWrapper(siteHeaderElement)
     .initialize();
 }

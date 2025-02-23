@@ -1,37 +1,44 @@
-<script>
-    import MenuLink from "$components/ui/menu/MenuItem.svelte";
+<script lang="ts">
+  import MenuLink from "$components/ui/menu/MenuItem.svelte";
+  import type { Snippet } from "svelte";
+  import type { FormEventHandler, MouseEventHandler } from "svelte/elements";
 
-    /**
-     * @type {boolean}
-     */
-    export let checked;
+  interface MenuRadioItemProps {
+    checked: boolean;
+    name: string;
+    value: string;
+    href?: string | null;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLInputElement>;
+    oninput?: FormEventHandler<HTMLInputElement>;
+  }
 
-    /**
-     * @type {string}
-     */
-    export let name;
+  let {
+    checked,
+    name,
+    value,
+    href = null,
+    children,
+    onclick,
+    oninput,
+  }: MenuRadioItemProps = $props();
 
-    /**
-     * @type {string}
-     */
-    export let value;
-
-    /**
-     * @type {string|null}
-     */
-    export let href = null;
+  function stopPropagationAndPassCallback(originalEvent: MouseEvent) {
+    originalEvent.stopPropagation();
+    onclick?.(originalEvent as MouseEvent & { currentTarget: HTMLInputElement });
+  }
 </script>
 
 <MenuLink {href}>
-    <input type="radio" {name} {value} {checked} on:input on:click|stopPropagation>
-    <slot></slot>
+  <input {checked} {name} onclick={stopPropagationAndPassCallback} {oninput} type="radio" {value}>
+  {@render children?.()}
 </MenuLink>
 
 <style lang="scss">
-    :global(.menu-item) input {
-        width: 16px;
-        height: 16px;
-        margin-right: 6px;
-        flex-shrink: 0;
-    }
+  :global(.menu-item) input {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
 </style>

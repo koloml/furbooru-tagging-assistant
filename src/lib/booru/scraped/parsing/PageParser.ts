@@ -1,17 +1,12 @@
 export default class PageParser {
-  /** @type {string} */
-  #url;
-  /** @type {DocumentFragment|null} */
-  #fragment = null;
+  readonly #url: string;
+  #fragment: DocumentFragment | null = null;
 
-  constructor(url) {
+  constructor(url: string) {
     this.#url = url;
   }
 
-  /**
-   * @return {Promise<DocumentFragment>}
-   */
-  async resolveFragment() {
+  async resolveFragment(): Promise<DocumentFragment> {
     if (this.#fragment) {
       return this.#fragment;
     }
@@ -34,12 +29,12 @@ export default class PageParser {
   /**
    * Create a document fragment from the following response.
    *
-   * @param {Response} response Response to create a fragment from. Note, that this response will be used. If you need
-   * to use the same response somewhere else, then you need to pass a cloned version of the response.
+   * @param response Response to create a fragment from. Note, that this response will be used. If you need to use the
+   * same response somewhere else, then you need to pass a cloned version of the response.
    *
-   * @return {Promise<DocumentFragment>} Resulting document fragment ready for processing.
+   * @return Resulting document fragment ready for processing.
    */
-  static async resolveFragmentFromResponse(response) {
+  static async resolveFragmentFromResponse(response: Response): Promise<DocumentFragment> {
     const documentFragment = document.createDocumentFragment();
     const template = document.createElement('template');
     template.innerHTML = await response.text();

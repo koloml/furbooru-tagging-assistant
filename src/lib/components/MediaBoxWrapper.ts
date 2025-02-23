@@ -5,23 +5,18 @@ import { on } from "$lib/components/events/comms";
 import { eventTagsUpdated } from "$lib/components/events/maintenance-popup-events";
 
 export class MediaBoxWrapper extends BaseComponent {
-  #thumbnailContainer = null;
-  #imageLinkElement = null;
-
-  /** @type {Map<string,string>|null} */
-  #tagsAndAliases = null;
+  #thumbnailContainer: HTMLElement | null = null;
+  #imageLinkElement: HTMLAnchorElement | null = null;
+  #tagsAndAliases: Map<string, string> | null = null;
 
   init() {
     this.#thumbnailContainer = this.container.querySelector('.image-container');
-    this.#imageLinkElement = this.#thumbnailContainer.querySelector('a');
+    this.#imageLinkElement = this.#thumbnailContainer?.querySelector('a') || null;
 
     on(this, eventTagsUpdated, this.#onTagsUpdatedRefreshTagsAndAliases.bind(this));
   }
 
-  /**
-   * @param {CustomEvent<Map<string,string>|null>} tagsUpdatedEvent
-   */
-  #onTagsUpdatedRefreshTagsAndAliases(tagsUpdatedEvent) {
+  #onTagsUpdatedRefreshTagsAndAliases(tagsUpdatedEvent: CustomEvent<Map<string, string> | null>) {
     const updatedMap = tagsUpdatedEvent.detail;
 
     if (!(updatedMap instanceof Map)) {
@@ -32,18 +27,13 @@ export class MediaBoxWrapper extends BaseComponent {
   }
 
   #calculateMediaBoxTags() {
-    /** @type {string[]|string[]} */
-    const
-      tagAliases = this.#thumbnailContainer.dataset.imageTagAliases?.split(', ') || [],
-      actualTags = this.#imageLinkElement.title.split(' | Tagged: ')[1]?.split(', ') || [];
+    const tagAliases: string[] = this.#thumbnailContainer?.dataset.imageTagAliases?.split(', ') || [];
+    const actualTags = this.#imageLinkElement?.title.split(' | Tagged: ')[1]?.split(', ') || [];
 
     return buildTagsAndAliasesMap(tagAliases, actualTags);
   }
 
-  /**
-   * @return {Map<string, string>|null}
-   */
-  get tagsAndAliases() {
+  get tagsAndAliases(): Map<string, string> | null {
     if (!this.#tagsAndAliases) {
       this.#tagsAndAliases = this.#calculateMediaBoxTags();
     }
@@ -51,26 +41,31 @@ export class MediaBoxWrapper extends BaseComponent {
     return this.#tagsAndAliases;
   }
 
-  get imageId() {
-    return parseInt(
-      this.container.dataset.imageId
-    );
+  get imageId(): number {
+    const imageId = this.container.dataset.imageId;
+
+    if (!imageId) {
+      throw new Error('Missing image ID');
+    }
+
+    return parseInt(imageId);
   }
 
-  /**
-   * @return {App.ImageURIs}
-   */
-  get imageLinks() {
-    return JSON.parse(this.#thumbnailContainer.dataset.uris);
+  get imageLinks(): App.ImageURIs {
+    const jsonUris = this.#thumbnailContainer?.dataset.uris;
+
+    if (!jsonUris) {
+      throw new Error('Missing URIs!');
+    }
+
+    return JSON.parse(jsonUris);
   }
 }
 
 /**
  * Wrap the media box element into the special wrapper.
- * @param {HTMLElement} mediaBoxContainer
- * @param {HTMLElement[]} childComponentElements
  */
-export function initializeMediaBox(mediaBoxContainer, childComponentElements) {
+export function initializeMediaBox(mediaBoxContainer: HTMLElement, childComponentElements: HTMLElement[]) {
   new MediaBoxWrapper(mediaBoxContainer)
     .initialize();
 
@@ -80,17 +75,12 @@ export function initializeMediaBox(mediaBoxContainer, childComponentElements) {
   }
 }
 
-/**
- * @param {NodeListOf<HTMLElement>} mediaBoxesList
- */
-export function calculateMediaBoxesPositions(mediaBoxesList) {
+export function calculateMediaBoxesPositions(mediaBoxesList: NodeListOf<HTMLElement>) {
   window.addEventListener('resize', () => {
-    /** @type {HTMLElement|null} */
-    let lastMediaBox = null,
-      /** @type {number|null} */
-      lastMediaBoxPosition = null;
+    let lastMediaBox: HTMLElement | null = null;
+    let lastMediaBoxPosition: number | null = null;
 
-    for (let mediaBoxElement of mediaBoxesList) {
+    for (const mediaBoxElement of mediaBoxesList) {
       const yPosition = mediaBoxElement.getBoundingClientRect().y;
       const isOnTheSameLine = yPosition === lastMediaBoxPosition;
 
