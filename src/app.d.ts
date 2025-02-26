@@ -4,6 +4,9 @@ import MaintenanceProfile from "$entities/MaintenanceProfile";
 import type TagGroup from "$entities/TagGroup";
 
 declare global {
+  // Helper type to not deal with differences between the setTimeout of @types/node and usual web browser's type.
+  type Timeout = ReturnType<typeof setTimeout>;
+
   namespace App {
     // interface Error {}
     // interface Locals {}

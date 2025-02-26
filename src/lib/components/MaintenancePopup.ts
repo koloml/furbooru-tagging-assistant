@@ -30,7 +30,7 @@ export class MaintenancePopup extends BaseComponent {
   #tagsToAdd: Set<string> = new Set();
   #isPlanningToSubmit: boolean = false;
   #isSubmitting: boolean = false;
-  #tagsSubmissionTimer: number | null = null;
+  #tagsSubmissionTimer: Timeout | null = null;
   #emitter = emitterAt(this);
 
   /**
