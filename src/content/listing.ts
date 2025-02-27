@@ -4,8 +4,7 @@ import { calculateMediaBoxesPositions, initializeMediaBox } from "$lib/component
 import { createMaintenanceStatusIcon } from "$lib/components/MaintenanceStatusIcon";
 import { createImageShowFullscreenButton } from "$lib/components/ImageShowFullscreenButton";
 
-/** @type {NodeListOf<HTMLElement>} */
-const mediaBoxes = document.querySelectorAll('.media-box');
+const mediaBoxes = document.querySelectorAll<HTMLElement>('.media-box');
 
 mediaBoxes.forEach(mediaBoxElement => {
   initializeMediaBox(mediaBoxElement, [

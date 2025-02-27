@@ -47,7 +47,7 @@ export class ImageShowFullscreenButton extends BaseComponent {
   }
 
   #onButtonClicked() {
-    const imageLinks = this.#mediaBoxTools?.mediaBox.imageLinks;
+    const imageLinks = this.#mediaBoxTools?.mediaBox?.imageLinks;
 
     if (!imageLinks) {
       throw new Error('Failed to resolve image links from media box tools!');
