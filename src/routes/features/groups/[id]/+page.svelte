@@ -6,25 +6,28 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import TagGroup from "$entities/TagGroup";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const groupPermalinks = permalinks.groups;
 
   let groupId = $derived<string>(page.params.id);
   let group = $derived<TagGroup | null>($tagGroups.find(group => group.id === groupId) || null);
 
   $effect(() => {
     if (groupId === 'new') {
-      goto('/features/groups/new/edit');
+      goto(groupPermalinks.edit('new'));
       return;
     }
 
     if (!group) {
       console.warn(`Group ${groupId} not found.`);
-      goto('/features/groups');
+      goto(groupPermalinks.list());
     }
   })
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={groupPermalinks.list()} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if group}
@@ -32,7 +35,7 @@
 {/if}
 <Menu>
   <hr>
-  <MenuItem href="/features/groups/{groupId}/edit" icon="wrench">Edit Group</MenuItem>
-  <MenuItem href="/features/groups/{groupId}/export" icon="file-export">Export Group</MenuItem>
-  <MenuItem href="/features/groups/{groupId}/delete" icon="trash">Delete Group</MenuItem>
+  <MenuItem href={groupPermalinks.edit(groupId)} icon="wrench">Edit Group</MenuItem>
+  <MenuItem href={groupPermalinks.export(groupId)} icon="file-export">Export Group</MenuItem>
+  <MenuItem href={groupPermalinks.delete(groupId)} icon="trash">Delete Group</MenuItem>
 </Menu>

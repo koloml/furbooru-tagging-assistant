@@ -5,13 +5,16 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import type TagGroup from "$entities/TagGroup";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const groupPermalinks = permalinks.groups;
 
   const groupId = $derived<string>(page.params.id);
   const targetGroup = $derived<TagGroup | undefined>($tagGroups.find(group => group.id === groupId));
 
   $effect(() => {
     if (!targetGroup) {
-      goto('/features/groups');
+      goto(groupPermalinks.list());
     }
   })
 
@@ -22,12 +25,12 @@
     }
 
     await targetGroup.delete();
-    await goto('/features/groups');
+    await goto(groupPermalinks.list());
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={groupPermalinks.detail(groupId)} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if targetGroup}
@@ -37,7 +40,7 @@
   <Menu>
     <hr>
     <MenuItem onclick={deleteGroup}>Yes</MenuItem>
-    <MenuItem href="/features/groups/{groupId}">No</MenuItem>
+    <MenuItem href={groupPermalinks.detail(groupId)}>No</MenuItem>
   </Menu>
 {:else}
   <p>Loading...</p>

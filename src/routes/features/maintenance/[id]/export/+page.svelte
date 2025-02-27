@@ -8,6 +8,9 @@
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const profilePermalinks = permalinks.profiles;
 
   let isCompressedProfileShown = $state(true);
 
@@ -18,7 +21,7 @@
 
   $effect(() => {
     if (!profile) {
-      goto('/features/maintenance/');
+      goto(profilePermalinks.list());
     }
   });
 
@@ -30,7 +33,7 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance/{profileId}" icon="arrow-left">
+  <MenuItem href={profilePermalinks.detail(profileId)} icon="arrow-left">
     Back
   </MenuItem>
   <hr>

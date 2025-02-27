@@ -8,8 +8,10 @@
   import TagGroup from "$entities/TagGroup";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
 
   const groupTransporter = new EntitiesTransporter(TagGroup);
+  const groupPermalinks = permalinks.groups;
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -52,7 +54,7 @@
     }
 
     candidateGroup.save().then(() => {
-      goto(`/features/groups`);
+      goto(groupPermalinks.list());
     });
   }
 
@@ -64,13 +66,13 @@
     const clonedProfile = new TagGroup(crypto.randomUUID(), candidateGroup.settings);
     clonedProfile.settings.name += ` (Clone ${new Date().toISOString()})`;
     clonedProfile.save().then(() => {
-      goto(`/features/groups`);
+      goto(groupPermalinks.list());
     });
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={groupPermalinks.list()} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if errorMessage}

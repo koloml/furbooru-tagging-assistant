@@ -8,6 +8,9 @@
   import TagGroup from "$entities/TagGroup";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const groupPermalinks = permalinks.groups;
 
   let isEncodedGroupShown = $state(true);
 
@@ -16,7 +19,7 @@
 
   $effect(() => {
     if (!group) {
-      goto('/features/groups');
+      goto(groupPermalinks.list());
     }
   });
 
@@ -32,7 +35,7 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={groupPermalinks.delete(groupId)} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>

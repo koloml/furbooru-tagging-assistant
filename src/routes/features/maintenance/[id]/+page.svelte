@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { run } from 'svelte/legacy';
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { page } from "$app/state";
@@ -8,7 +7,9 @@
   import ProfileView from "$components/features/ProfileView.svelte";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
-  import { onMount } from "svelte";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const profilePermalinks = permalinks.profiles;
 
   let profileId = $derived(page.params.id);
   let profile = $derived<MaintenanceProfile|null>(
@@ -17,13 +18,13 @@
 
   $effect(() => {
     if (profileId === 'new') {
-      goto('/features/maintenance/new/edit');
+      goto(profilePermalinks.edit('new'));
       return;
     }
 
     if (!profile) {
       console.warn(`Profile ${profileId} not found.`);
-      goto('/features/maintenance');
+      goto(profilePermalinks.list());
     }
   });
 
@@ -45,7 +46,7 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={profilePermalinks.list()} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if profile}
@@ -53,14 +54,14 @@
 {/if}
 <Menu>
   <hr>
-  <MenuItem href="/features/maintenance/{profileId}/edit" icon="wrench">Edit Profile</MenuItem>
+  <MenuItem href={profilePermalinks.edit(profileId)} icon="wrench">Edit Profile</MenuItem>
   <MenuCheckboxItem bind:checked={isActiveProfile}>
     Activate Profile
   </MenuCheckboxItem>
-  <MenuItem href="/features/maintenance/{profileId}/export" icon="file-export">
+  <MenuItem href={profilePermalinks.export(profileId)} icon="file-export">
     Export Profile
   </MenuItem>
-  <MenuItem href="/features/maintenance/{profileId}/delete" icon="trash">
+  <MenuItem href={profilePermalinks.delete(profileId)} icon="trash">
     Delete Profile
   </MenuItem>
 </Menu>

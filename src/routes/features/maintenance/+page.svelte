@@ -4,6 +4,9 @@
   import MenuRadioItem from "$components/ui/menu/MenuRadioItem.svelte";
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const profilePermalinks = permalinks.profiles;
 
   let profiles = $derived<MaintenanceProfile[]>(
     $maintenanceProfiles.sort((a, b) => a.settings.name.localeCompare(b.settings.name))
@@ -24,12 +27,12 @@
 
 <Menu>
   <MenuItem href="/" icon="arrow-left">Back</MenuItem>
-  <MenuItem href="/features/maintenance/new/edit" icon="plus">Create New</MenuItem>
+  <MenuItem href={profilePermalinks.edit('new')} icon="plus">Create New</MenuItem>
   {#if profiles.length}
     <hr>
   {/if}
   {#each profiles as profile}
-    <MenuRadioItem href="/features/maintenance/{profile.id}"
+    <MenuRadioItem href={profilePermalinks.detail(profile.id)}
                    name="active-profile"
                    value={profile.id}
                    checked={$activeProfileStore === profile.id}
@@ -38,6 +41,6 @@
     </MenuRadioItem>
   {/each}
   <hr>
-  <MenuItem href="#" onclick={resetActiveProfile}>Reset Active Profile</MenuItem>
-  <MenuItem href="/features/maintenance/import">Import Profile</MenuItem>
+  <MenuItem onclick={resetActiveProfile}>Reset Active Profile</MenuItem>
+  <MenuItem href={profilePermalinks.import()}>Import Profile</MenuItem>
 </Menu>

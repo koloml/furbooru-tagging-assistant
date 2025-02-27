@@ -8,8 +8,10 @@
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import { goto } from "$app/navigation";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
 
   const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
+  const profilePermalinks = permalinks.profiles;
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -52,7 +54,7 @@
     }
 
     candidateProfile.save().then(() => {
-      goto(`/features/maintenance`);
+      goto(profilePermalinks.list());
     });
   }
 
@@ -64,13 +66,13 @@
     const clonedProfile = new MaintenanceProfile(crypto.randomUUID(), candidateProfile.settings);
     clonedProfile.settings.name += ` (Clone ${new Date().toISOString()})`;
     clonedProfile.save().then(() => {
-      goto(`/features/maintenance`);
+      goto(profilePermalinks.list());
     });
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={profilePermalinks.list()} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if errorMessage}

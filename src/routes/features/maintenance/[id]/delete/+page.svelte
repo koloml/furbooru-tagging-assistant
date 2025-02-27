@@ -5,6 +5,9 @@
   import { page } from "$app/state";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const profilePermalinks = permalinks.profiles;
 
   const profileId = $derived(page.params.id);
   const targetProfile = $derived<MaintenanceProfile | null>(
@@ -13,7 +16,7 @@
 
   $effect(() => {
     if (!targetProfile) {
-      goto('/features/maintenance');
+      goto(profilePermalinks.list());
     }
   });
 
@@ -24,12 +27,12 @@
     }
 
     await targetProfile.delete();
-    await goto('/features/maintenance');
+    await goto(profilePermalinks.list());
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance/{profileId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={profilePermalinks.detail(profileId)} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if targetProfile}
@@ -39,7 +42,7 @@
   <Menu>
     <hr>
     <MenuItem onclick={deleteProfile}>Yes</MenuItem>
-    <MenuItem href="/features/maintenance/{profileId}">No</MenuItem>
+    <MenuItem href={profilePermalinks.detail(profileId)}>No</MenuItem>
   </Menu>
 {:else}
   <p>Loading...</p>

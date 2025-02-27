@@ -4,6 +4,7 @@
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
 
   let activeProfile = $derived<MaintenanceProfile | null>(
     $maintenanceProfiles.find(profile => profile.id === $activeProfileStore) || null
@@ -16,13 +17,13 @@
 
 <Menu>
   {#if activeProfile}
-    <MenuCheckboxItem checked oninput={turnOffActiveProfile} href="/features/maintenance/{activeProfile.id}">
+    <MenuCheckboxItem checked oninput={turnOffActiveProfile} href={permalinks.profiles.detail(activeProfile.id)}>
       Active Profile: {activeProfile.settings.name}
     </MenuCheckboxItem>
     <hr>
   {/if}
-  <MenuItem href="/features/maintenance">Tagging Profiles</MenuItem>
-  <MenuItem href="/features/groups">Tag Groups</MenuItem>
+  <MenuItem href={permalinks.profiles.list()}>Tagging Profiles</MenuItem>
+  <MenuItem href={permalinks.groups.list()}>Tag Groups</MenuItem>
   <hr>
   <MenuItem href="/preferences">Preferences</MenuItem>
   <MenuItem href="/about">About</MenuItem>

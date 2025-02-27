@@ -11,6 +11,9 @@
   import TagsEditor from "$components/tags/TagsEditor.svelte";
   import TagGroup from "$entities/TagGroup";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
+
+  const groupPermalinks = permalinks.groups;
 
   let groupId = $derived(page.params.id);
 
@@ -21,6 +24,12 @@
 
     return $tagGroups.find(group => group.id === groupId) || null;
   });
+
+  const backPermalink = $derived(
+    groupId === 'new'
+      ? groupPermalinks.list()
+      : groupPermalinks.detail(groupId)
+  );
 
   let groupName = $state<string>('');
   let tagsList = $state<string[]>([]);
@@ -33,7 +42,7 @@
     }
 
     if (!targetGroup) {
-      goto('/features/groups');
+      goto(groupPermalinks.list());
       return;
     }
 
@@ -55,12 +64,12 @@
     targetGroup.settings.category = tagCategory;
 
     await targetGroup.save();
-    await goto(`/features/groups/${targetGroup.id}`);
+    await goto(groupPermalinks.detail(targetGroup.id));
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href={backPermalink} icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>

@@ -9,7 +9,9 @@
   import { goto } from "$app/navigation";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { permalinks } from "$lib/extension/EntityPermalinks";
 
+  const profilePermalinks = permalinks.profiles;
 
   let profileId = $derived(page.params.id);
 
@@ -21,6 +23,12 @@
     return $maintenanceProfiles.find(profile => profile.id === profileId) || null;
   });
 
+  const backPermalink = $derived(
+    profileId === 'new'
+      ? profilePermalinks.list()
+      : profilePermalinks.detail(profileId)
+  );
+
   let profileName = $state('');
   let tagsList = $state<string[]>([]);
 
@@ -30,7 +38,7 @@
     }
 
     if (!targetProfile) {
-      goto('/features/maintenance');
+      goto(profilePermalinks.list());
       return;
     }
 
@@ -49,12 +57,12 @@
     targetProfile.settings.temporary = false;
 
     await targetProfile.save();
-    await goto('/features/maintenance/' + targetProfile.id);
+    await goto(profilePermalinks.detail(targetProfile.id));
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance{profileId === 'new' ? '' : '/' + profileId}" icon="arrow-left">
+  <MenuItem href={backPermalink} icon="arrow-left">
     Back
   </MenuItem>
   <hr>
