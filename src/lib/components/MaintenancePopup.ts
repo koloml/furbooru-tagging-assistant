@@ -30,7 +30,7 @@ export class MaintenancePopup extends BaseComponent {
   #tagsToAdd: Set<string> = new Set();
   #isPlanningToSubmit: boolean = false;
   #isSubmitting: boolean = false;
-  #tagsSubmissionTimer: number | null = null;
+  #tagsSubmissionTimer: Timeout | null = null;
   #emitter = emitterAt(this);
 
   /**
@@ -70,6 +70,10 @@ export class MaintenancePopup extends BaseComponent {
 
     const mediaBox = this.#mediaBoxTools.mediaBox;
 
+    if (!mediaBox) {
+      throw new Error('Media box component not found!');
+    }
+
     mediaBox.on('mouseout', this.#onMouseLeftArea.bind(this));
     mediaBox.on('mouseover', this.#onMouseEnteredArea.bind(this));
   }
@@ -83,7 +87,7 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   #refreshTagsList() {
-    if (!this.#mediaBoxTools) {
+    if (!this.#mediaBoxTools?.mediaBox) {
       return;
     }
 
@@ -109,11 +113,11 @@ export class MaintenancePopup extends BaseComponent {
         this.#tagsList[index] = tagElement;
         this.#tagsListElement.appendChild(tagElement);
 
-        const isPresent = currentPostTags.has(tagName);
+        const isPresent = currentPostTags?.has(tagName);
 
         tagElement.classList.toggle('is-present', isPresent);
         tagElement.classList.toggle('is-missing', !isPresent);
-        tagElement.classList.toggle('is-aliased', isPresent && currentPostTags.get(tagName) !== tagName);
+        tagElement.classList.toggle('is-aliased', isPresent && currentPostTags?.get(tagName) !== tagName);
 
         // Just to prevent duplication, we need to include this tag to the map of suggested invalid tags
         if (tagsBlacklist.includes(tagName)) {
@@ -193,7 +197,7 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   async #onSubmissionTimerPassed() {
-    if (!this.#isPlanningToSubmit || this.#isSubmitting || !this.#mediaBoxTools) {
+    if (!this.#isPlanningToSubmit || this.#isSubmitting || !this.#mediaBoxTools?.mediaBox) {
       return;
     }
 
@@ -264,7 +268,7 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   #revealInvalidTags() {
-    if (!this.#mediaBoxTools) {
+    if (!this.#mediaBoxTools?.mediaBox) {
       return;
     }
 

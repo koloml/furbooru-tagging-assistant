@@ -6,7 +6,7 @@ export default class CustomCategoriesResolver {
   #tagCategories = new Map<string, string>();
   #compiledRegExps = new Map<RegExp, string>();
   #tagDropdowns: TagDropdownWrapper[] = [];
-  #nextQueuedUpdate = -1;
+  #nextQueuedUpdate: Timeout | null = null;
 
   constructor() {
     TagGroup.subscribe(this.#onTagGroupsReceived.bind(this));
@@ -24,7 +24,9 @@ export default class CustomCategoriesResolver {
   }
 
   #queueUpdatingTags() {
-    clearTimeout(this.#nextQueuedUpdate);
+    if (this.#nextQueuedUpdate) {
+      clearTimeout(this.#nextQueuedUpdate);
+    }
 
     this.#nextQueuedUpdate = setTimeout(
       this.#updateUnprocessedTags.bind(this),
