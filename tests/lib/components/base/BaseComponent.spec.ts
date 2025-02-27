@@ -1,9 +1,6 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
-
-function randomString() {
-  return crypto.randomUUID();
-}
+import { randomString } from "$tests/utils";
 
 describe('BaseComponent', () => {
   it('should bind the component to the element', () => {
