@@ -93,6 +93,13 @@ export default class CustomCategoriesResolver {
           categoryName
         );
       }
+
+      for (let tagSuffix of tagGroup.settings.suffixes) {
+        this.#compiledRegExps.set(
+          new RegExp(`${escapeRegExp(tagSuffix)}$`),
+          categoryName
+        );
+      }
     }
 
     this.#queueUpdatingTags();
