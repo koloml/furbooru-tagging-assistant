@@ -60,6 +60,14 @@
     await targetGroup.save();
     await goto(`/features/groups/${targetGroup.id}`);
   }
+
+  function mapPrefixNames(tagName: string): string {
+    return `${tagName}*`;
+  }
+
+  function mapSuffixNames(tagName: string): string {
+    return `*${tagName}`;
+  }
 </script>
 
 <Menu>
@@ -80,12 +88,12 @@
   </TagsColorContainer>
   <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tag Prefixes">
-      <TagsEditor bind:tags={prefixesList}/>
+      <TagsEditor bind:tags={prefixesList} mapTagNames={mapPrefixNames}/>
     </FormControl>
   </TagsColorContainer>
   <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tag Suffixes">
-      <TagsEditor bind:tags={suffixesList}/>
+      <TagsEditor bind:tags={suffixesList} mapTagNames={mapSuffixNames}/>
     </FormControl>
   </TagsColorContainer>
 </FormContainer>
