@@ -25,6 +25,7 @@
   let groupName = $state<string>('');
   let tagsList = $state<string[]>([]);
   let prefixesList = $state<string[]>([]);
+  let suffixesList = $state<string[]>([]);
   let tagCategory = $state<string>('');
 
   $effect(() => {
@@ -40,6 +41,7 @@
     groupName = targetGroup.settings.name;
     tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
     prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
+    suffixesList = [...targetGroup.settings.suffixes].sort((a, b) => a.localeCompare(b));
     tagCategory = targetGroup.settings.category;
   });
 
@@ -52,10 +54,19 @@
     targetGroup.settings.name = groupName;
     targetGroup.settings.tags = [...tagsList];
     targetGroup.settings.prefixes = [...prefixesList];
+    targetGroup.settings.suffixes = [...suffixesList];
     targetGroup.settings.category = tagCategory;
 
     await targetGroup.save();
     await goto(`/features/groups/${targetGroup.id}`);
+  }
+
+  function mapPrefixNames(tagName: string): string {
+    return `${tagName}*`;
+  }
+
+  function mapSuffixNames(tagName: string): string {
+    return `*${tagName}`;
   }
 </script>
 
@@ -77,7 +88,12 @@
   </TagsColorContainer>
   <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tag Prefixes">
-      <TagsEditor bind:tags={prefixesList}/>
+      <TagsEditor bind:tags={prefixesList} mapTagNames={mapPrefixNames}/>
+    </FormControl>
+  </TagsColorContainer>
+  <TagsColorContainer targetCategory={tagCategory}>
+    <FormControl label="Tag Suffixes">
+      <TagsEditor bind:tags={suffixesList} mapTagNames={mapSuffixNames}/>
     </FormControl>
   </TagsColorContainer>
 </FormContainer>

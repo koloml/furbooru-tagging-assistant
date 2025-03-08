@@ -4,10 +4,12 @@
   interface TagEditorProps {
     // List of tags to edit. Any duplicated tags present in the array will be removed on the first edit.
     tags?: string[];
+    mapTagNames?: (tagName: string) => string;
   }
 
   let {
-    tags = $bindable([])
+    tags = $bindable([]),
+    mapTagNames,
   }: TagEditorProps = $props();
 
   let uniqueTags = $state<Set<string>>(new Set());
@@ -87,7 +89,7 @@
 <div class="tags-editor">
   {#each uniqueTags.values() as tagName}
     <div class="tag">
-      {tagName}
+      {mapTagNames?.(tagName) ?? tagName}
       <span class="remove" onclick={createTagRemoveHandler(tagName)}
             onkeydown={createTagRemoveHandler(tagName)}
             role="button" tabindex="0">x</span>
