@@ -6,6 +6,7 @@ export interface TagGroupSettings {
   prefixes: string[];
   suffixes: string[];
   category: string;
+  separate: boolean;
 }
 
 export default class TagGroup extends StorageEntity<TagGroupSettings> {
@@ -15,7 +16,8 @@ export default class TagGroup extends StorageEntity<TagGroupSettings> {
       tags: settings.tags || [],
       prefixes: settings.prefixes || [],
       suffixes: settings.suffixes || [],
-      category: settings.category || ''
+      category: settings.category || '',
+      separate: Boolean(settings.separate),
     });
   }
 
