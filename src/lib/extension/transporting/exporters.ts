@@ -21,6 +21,7 @@ const entitiesExporters: ExportersMap = {
       tags: entity.settings.tags,
       prefixes: entity.settings.prefixes,
       suffixes: entity.settings.suffixes,
+      category: entity.settings.category,
     }
   }
 };
