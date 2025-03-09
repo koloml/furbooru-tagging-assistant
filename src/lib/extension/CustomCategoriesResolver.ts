@@ -3,8 +3,8 @@ import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
 
 export default class CustomCategoriesResolver {
-  #tagCategories = new Map<string, string>();
-  #compiledRegExps = new Map<RegExp, string>();
+  #exactGroupMatches = new Map<string, TagGroup>();
+  #regExpGroupMatches = new Map<RegExp, TagGroup>();
   #tagDropdowns: TagDropdownWrapper[] = [];
   #nextQueuedUpdate: Timeout | null = null;
 
@@ -16,7 +16,7 @@ export default class CustomCategoriesResolver {
   public addElement(tagDropdown: TagDropdownWrapper): void {
     this.#tagDropdowns.push(tagDropdown);
 
-    if (!this.#tagCategories.size && !this.#compiledRegExps.size) {
+    if (!this.#exactGroupMatches.size && !this.#regExpGroupMatches.size) {
       return;
     }
 
@@ -51,23 +51,23 @@ export default class CustomCategoriesResolver {
   #applyCustomCategoryForExactMatches(tagDropdown: TagDropdownWrapper): boolean {
     const tagName = tagDropdown.tagName!;
 
-    if (!this.#tagCategories.has(tagName)) {
+    if (!this.#exactGroupMatches.has(tagName)) {
       return true;
     }
 
-    tagDropdown.tagCategory = this.#tagCategories.get(tagName)!;
+    tagDropdown.tagCategory = this.#exactGroupMatches.get(tagName)!.settings.category;
     return false;
   }
 
   #matchCustomCategoryByRegExp(tagDropdown: TagDropdownWrapper) {
     const tagName = tagDropdown.tagName!;
 
-    for (const targetRegularExpression of this.#compiledRegExps.keys()) {
+    for (const targetRegularExpression of this.#regExpGroupMatches.keys()) {
       if (!targetRegularExpression.test(tagName)) {
         continue;
       }
 
-      tagDropdown.tagCategory = this.#compiledRegExps.get(targetRegularExpression)!;
+      tagDropdown.tagCategory = this.#regExpGroupMatches.get(targetRegularExpression)!.settings.category;
       return false;
     }
 
@@ -75,31 +75,29 @@ export default class CustomCategoriesResolver {
   }
 
   #onTagGroupsReceived(tagGroups: TagGroup[]) {
-    this.#tagCategories.clear();
-    this.#compiledRegExps.clear();
+    this.#exactGroupMatches.clear();
+    this.#regExpGroupMatches.clear();
 
     if (!tagGroups.length) {
       return;
     }
 
     for (const tagGroup of tagGroups) {
-      const categoryName = tagGroup.settings.category;
-
       for (const tagName of tagGroup.settings.tags) {
-        this.#tagCategories.set(tagName, categoryName);
+        this.#exactGroupMatches.set(tagName, tagGroup);
       }
 
       for (const tagPrefix of tagGroup.settings.prefixes) {
-        this.#compiledRegExps.set(
+        this.#regExpGroupMatches.set(
           new RegExp(`^${escapeRegExp(tagPrefix)}`),
-          categoryName
+          tagGroup,
         );
       }
 
       for (let tagSuffix of tagGroup.settings.suffixes) {
-        this.#compiledRegExps.set(
+        this.#regExpGroupMatches.set(
           new RegExp(`${escapeRegExp(tagSuffix)}$`),
-          categoryName
+          tagGroup,
         );
       }
     }
