@@ -10,7 +10,7 @@ export default class TagSettings extends CacheableSettings<TagSettingsFields> {
   }
 
   async resolveGroupSeparation() {
-    return this._resolveSetting("groupSeparation", false);
+    return this._resolveSetting("groupSeparation", true);
   }
 
   async setGroupSeparation(value: boolean) {
