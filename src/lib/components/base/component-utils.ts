@@ -1,6 +1,6 @@
 import type { BaseComponent } from "$lib/components/base/BaseComponent";
 
-const instanceSymbol = Symbol('instance');
+const instanceSymbol = Symbol.for('instance');
 
 interface ElementWithComponent<T> extends HTMLElement {
   [instanceSymbol]?: T;

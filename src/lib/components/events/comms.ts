@@ -3,12 +3,14 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import type { FullscreenViewerEventsMap } from "$lib/components/events/fullscreen-viewer-events";
 import type { BooruEventsMap } from "$lib/components/events/booru-events";
 import type { TagsFormEventsMap } from "$lib/components/events/tags-form-events";
+import type { TagDropdownEvents } from "$lib/components/events/tag-dropdown-events";
 
 type EventsMapping =
   MaintenancePopupEventsMap
   & FullscreenViewerEventsMap
   & BooruEventsMap
-  & TagsFormEventsMap;
+  & TagsFormEventsMap
+  & TagDropdownEvents;
 
 type EventCallback<EventDetails> = (event: CustomEvent<EventDetails>) => void;
 export type UnsubscribeFunction = () => void;

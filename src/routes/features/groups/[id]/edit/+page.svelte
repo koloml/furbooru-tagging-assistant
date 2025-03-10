@@ -11,6 +11,7 @@
   import TagsEditor from "$components/tags/TagsEditor.svelte";
   import TagGroup from "$entities/TagGroup";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import CheckboxField from "$components/ui/forms/CheckboxField.svelte";
 
   let groupId = $derived(page.params.id);
 
@@ -26,7 +27,8 @@
   let tagsList = $state<string[]>([]);
   let prefixesList = $state<string[]>([]);
   let suffixesList = $state<string[]>([]);
-  let tagCategory = $state<string>('');
+  let tagCategory = $state<string>('')
+  let separateGroup = $state<boolean>(false);
 
   $effect(() => {
     if (groupId === 'new') {
@@ -43,6 +45,7 @@
     prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
     suffixesList = [...targetGroup.settings.suffixes].sort((a, b) => a.localeCompare(b));
     tagCategory = targetGroup.settings.category;
+    separateGroup = targetGroup.settings.separate;
   });
 
   async function saveGroup() {
@@ -56,6 +59,7 @@
     targetGroup.settings.prefixes = [...prefixesList];
     targetGroup.settings.suffixes = [...suffixesList];
     targetGroup.settings.category = tagCategory;
+    targetGroup.settings.separate = separateGroup;
 
     await targetGroup.save();
     await goto(`/features/groups/${targetGroup.id}`);
@@ -71,12 +75,17 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/groups/{groupId !== 'new' ? '' : groupId}" icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>
   <FormControl label="Group Name">
     <TextField bind:value={groupName} placeholder="Group Name"></TextField>
+  </FormControl>
+  <FormControl>
+    <CheckboxField bind:checked={separateGroup}>
+      Display tags found by this group in separate list after all other tags.
+    </CheckboxField>
   </FormControl>
   <FormControl label="Group Color">
     <TagCategorySelectField bind:value={tagCategory}/>
