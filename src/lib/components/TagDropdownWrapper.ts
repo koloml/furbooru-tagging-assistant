@@ -5,6 +5,8 @@ import { getComponent } from "$lib/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
 import { on } from "$lib/components/events/comms";
 import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
+import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
+import type TagGroup from "$entities/TagGroup";
 
 const categoriesResolver = new CustomCategoriesResolver();
 
@@ -51,6 +53,23 @@ export class TagDropdownWrapper extends BaseComponent {
         this.#updateButtons();
       }
     });
+
+    on(this, eventTagCustomGroupResolved, this.#onTagGroupResolved.bind(this));
+  }
+
+  #onTagGroupResolved(resolvedGroupEvent: CustomEvent<TagGroup | null>) {
+    if (this.originalCategory) {
+      return;
+    }
+
+    const maybeTagGroup = resolvedGroupEvent.detail;
+
+    if (!maybeTagGroup) {
+      this.tagCategory = this.originalCategory;
+      return;
+    }
+
+    this.tagCategory = maybeTagGroup.settings.category;
   }
 
   get tagName() {
@@ -188,7 +207,7 @@ export class TagDropdownWrapper extends BaseComponent {
    * @param onActiveProfileChange Callback to call when profile was
    * changed.
    */
-  static #watchActiveProfile(onActiveProfileChange: (profile: MaintenanceProfile|null) => void) {
+  static #watchActiveProfile(onActiveProfileChange: (profile: MaintenanceProfile | null) => void) {
     let lastActiveProfile: string | null = null;
 
     this.#maintenanceSettings.subscribe((settings) => {

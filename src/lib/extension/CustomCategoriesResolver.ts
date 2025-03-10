@@ -1,6 +1,8 @@
 import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
+import { emit } from "$lib/components/events/comms";
+import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
 
 export default class CustomCategoriesResolver {
   #exactGroupMatches = new Map<string, TagGroup>();
@@ -36,7 +38,6 @@ export default class CustomCategoriesResolver {
 
   #updateUnprocessedTags() {
     this.#tagDropdowns
-      .filter(CustomCategoriesResolver.#skipTagsWithOriginalCategory)
       .filter(this.#applyCustomCategoryForExactMatches.bind(this))
       .filter(this.#matchCustomCategoryByRegExp.bind(this))
       .forEach(CustomCategoriesResolver.#resetToOriginalCategory);
@@ -55,7 +56,12 @@ export default class CustomCategoriesResolver {
       return true;
     }
 
-    tagDropdown.tagCategory = this.#exactGroupMatches.get(tagName)!.settings.category;
+    emit(
+      tagDropdown,
+      eventTagCustomGroupResolved,
+      this.#exactGroupMatches.get(tagName)!
+    );
+
     return false;
   }
 
@@ -67,7 +73,12 @@ export default class CustomCategoriesResolver {
         continue;
       }
 
-      tagDropdown.tagCategory = this.#regExpGroupMatches.get(targetRegularExpression)!.settings.category;
+      emit(
+        tagDropdown,
+        eventTagCustomGroupResolved,
+        this.#regExpGroupMatches.get(targetRegularExpression)!
+      );
+
       return false;
     }
 
@@ -105,12 +116,12 @@ export default class CustomCategoriesResolver {
     this.#queueUpdatingTags();
   }
 
-  static #skipTagsWithOriginalCategory(tagDropdown: TagDropdownWrapper): boolean {
-    return !tagDropdown.originalCategory;
-  }
-
   static #resetToOriginalCategory(tagDropdown: TagDropdownWrapper): void {
-    tagDropdown.tagCategory = tagDropdown.originalCategory;
+    emit(
+      tagDropdown,
+      eventTagCustomGroupResolved,
+      null,
+    );
   }
 
   static #unprocessedTagsTimeout = 0;
