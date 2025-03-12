@@ -46,6 +46,14 @@
         },
         {
             "matches": [
+                "*://*.furbooru.org/images/*"
+            ],
+            "js": [
+                "src/content/tags-editor.ts"
+            ]
+        },
+        {
+            "matches": [
                 "*://*.furbooru.org/images?*",
                 "*://*.furbooru.org/images/*",
                 "*://*.furbooru.org/images/*/tag_changes",
@@ -60,14 +68,6 @@
             ],
             "js": [
                 "src/content/tags.ts"
-            ]
-        },
-        {
-            "matches": [
-                "*://*.furbooru.org/images/*"
-            ],
-            "js": [
-                "src/content/tags-editor.ts"
             ]
         }
     ],
