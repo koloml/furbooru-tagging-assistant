@@ -75,7 +75,7 @@
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId !== 'new' ? '' : groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/groups/{groupId === 'new' ? '' : groupId}" icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>
