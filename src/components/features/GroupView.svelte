@@ -9,7 +9,8 @@
   let { group }: GroupViewProps = $props();
 
   let sortedTagsList = $derived<string[]>(group.settings.tags.sort((a, b) => a.localeCompare(b))),
-    sortedPrefixes = $derived<string[]>(group.settings.prefixes.sort((a, b) => a.localeCompare(b)));
+    sortedPrefixes = $derived<string[]>(group.settings.prefixes.sort((a, b) => a.localeCompare(b))),
+    sortedSuffixes = $derived<string[]>(group.settings.suffixes.sort((a, b) => a.localeCompare(b)));
 
 </script>
 
@@ -36,6 +37,18 @@
       <div class="tags-list">
         {#each sortedPrefixes as prefixName}
           <span class="tag">{prefixName}*</span>
+        {/each}
+      </div>
+    </TagsColorContainer>
+  </div>
+{/if}
+{#if sortedSuffixes.length}
+  <div class="block">
+    <strong>Suffixes:</strong>
+    <TagsColorContainer targetCategory={group.settings.category}>
+      <div class="tags-list">
+        {#each sortedSuffixes as suffixName}
+          <span class="tag">*{suffixName}</span>
         {/each}
       </div>
     </TagsColorContainer>

@@ -11,6 +11,7 @@
   import TagsEditor from "$components/tags/TagsEditor.svelte";
   import TagGroup from "$entities/TagGroup";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import CheckboxField from "$components/ui/forms/CheckboxField.svelte";
 
   let groupId = $derived(page.params.id);
 
@@ -25,7 +26,9 @@
   let groupName = $state<string>('');
   let tagsList = $state<string[]>([]);
   let prefixesList = $state<string[]>([]);
-  let tagCategory = $state<string>('');
+  let suffixesList = $state<string[]>([]);
+  let tagCategory = $state<string>('')
+  let separateGroup = $state<boolean>(false);
 
   $effect(() => {
     if (groupId === 'new') {
@@ -40,7 +43,9 @@
     groupName = targetGroup.settings.name;
     tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));
     prefixesList = [...targetGroup.settings.prefixes].sort((a, b) => a.localeCompare(b));
+    suffixesList = [...targetGroup.settings.suffixes].sort((a, b) => a.localeCompare(b));
     tagCategory = targetGroup.settings.category;
+    separateGroup = targetGroup.settings.separate;
   });
 
   async function saveGroup() {
@@ -52,20 +57,35 @@
     targetGroup.settings.name = groupName;
     targetGroup.settings.tags = [...tagsList];
     targetGroup.settings.prefixes = [...prefixesList];
+    targetGroup.settings.suffixes = [...suffixesList];
     targetGroup.settings.category = tagCategory;
+    targetGroup.settings.separate = separateGroup;
 
     await targetGroup.save();
     await goto(`/features/groups/${targetGroup.id}`);
   }
+
+  function mapPrefixNames(tagName: string): string {
+    return `${tagName}*`;
+  }
+
+  function mapSuffixNames(tagName: string): string {
+    return `*${tagName}`;
+  }
 </script>
 
 <Menu>
-  <MenuItem href="/features/groups/{groupId}" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/groups/{groupId === 'new' ? '' : groupId}" icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 <FormContainer>
   <FormControl label="Group Name">
     <TextField bind:value={groupName} placeholder="Group Name"></TextField>
+  </FormControl>
+  <FormControl>
+    <CheckboxField bind:checked={separateGroup}>
+      Display tags found by this group in separate list after all other tags.
+    </CheckboxField>
   </FormControl>
   <FormControl label="Group Color">
     <TagCategorySelectField bind:value={tagCategory}/>
@@ -77,7 +97,12 @@
   </TagsColorContainer>
   <TagsColorContainer targetCategory={tagCategory}>
     <FormControl label="Tag Prefixes">
-      <TagsEditor bind:tags={prefixesList}/>
+      <TagsEditor bind:tags={prefixesList} mapTagNames={mapPrefixNames}/>
+    </FormControl>
+  </TagsColorContainer>
+  <TagsColorContainer targetCategory={tagCategory}>
+    <FormControl label="Tag Suffixes">
+      <TagsEditor bind:tags={suffixesList} mapTagNames={mapSuffixNames}/>
     </FormControl>
   </TagsColorContainer>
 </FormContainer>

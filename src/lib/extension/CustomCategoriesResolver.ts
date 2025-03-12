@@ -1,12 +1,14 @@
 import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
+import { emit } from "$lib/components/events/comms";
+import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
 
 export default class CustomCategoriesResolver {
-  #tagCategories = new Map<string, string>();
-  #compiledRegExps = new Map<RegExp, string>();
+  #exactGroupMatches = new Map<string, TagGroup>();
+  #regExpGroupMatches = new Map<RegExp, TagGroup>();
   #tagDropdowns: TagDropdownWrapper[] = [];
-  #nextQueuedUpdate = -1;
+  #nextQueuedUpdate: Timeout | null = null;
 
   constructor() {
     TagGroup.subscribe(this.#onTagGroupsReceived.bind(this));
@@ -16,7 +18,7 @@ export default class CustomCategoriesResolver {
   public addElement(tagDropdown: TagDropdownWrapper): void {
     this.#tagDropdowns.push(tagDropdown);
 
-    if (!this.#tagCategories.size && !this.#compiledRegExps.size) {
+    if (!this.#exactGroupMatches.size && !this.#regExpGroupMatches.size) {
       return;
     }
 
@@ -24,7 +26,9 @@ export default class CustomCategoriesResolver {
   }
 
   #queueUpdatingTags() {
-    clearTimeout(this.#nextQueuedUpdate);
+    if (this.#nextQueuedUpdate) {
+      clearTimeout(this.#nextQueuedUpdate);
+    }
 
     this.#nextQueuedUpdate = setTimeout(
       this.#updateUnprocessedTags.bind(this),
@@ -34,7 +38,6 @@ export default class CustomCategoriesResolver {
 
   #updateUnprocessedTags() {
     this.#tagDropdowns
-      .filter(CustomCategoriesResolver.#skipTagsWithOriginalCategory)
       .filter(this.#applyCustomCategoryForExactMatches.bind(this))
       .filter(this.#matchCustomCategoryByRegExp.bind(this))
       .forEach(CustomCategoriesResolver.#resetToOriginalCategory);
@@ -49,23 +52,33 @@ export default class CustomCategoriesResolver {
   #applyCustomCategoryForExactMatches(tagDropdown: TagDropdownWrapper): boolean {
     const tagName = tagDropdown.tagName!;
 
-    if (!this.#tagCategories.has(tagName)) {
+    if (!this.#exactGroupMatches.has(tagName)) {
       return true;
     }
 
-    tagDropdown.tagCategory = this.#tagCategories.get(tagName)!;
+    emit(
+      tagDropdown,
+      eventTagCustomGroupResolved,
+      this.#exactGroupMatches.get(tagName)!
+    );
+
     return false;
   }
 
   #matchCustomCategoryByRegExp(tagDropdown: TagDropdownWrapper) {
     const tagName = tagDropdown.tagName!;
 
-    for (const targetRegularExpression of this.#compiledRegExps.keys()) {
+    for (const targetRegularExpression of this.#regExpGroupMatches.keys()) {
       if (!targetRegularExpression.test(tagName)) {
         continue;
       }
 
-      tagDropdown.tagCategory = this.#compiledRegExps.get(targetRegularExpression)!;
+      emit(
+        tagDropdown,
+        eventTagCustomGroupResolved,
+        this.#regExpGroupMatches.get(targetRegularExpression)!
+      );
+
       return false;
     }
 
@@ -73,24 +86,29 @@ export default class CustomCategoriesResolver {
   }
 
   #onTagGroupsReceived(tagGroups: TagGroup[]) {
-    this.#tagCategories.clear();
-    this.#compiledRegExps.clear();
+    this.#exactGroupMatches.clear();
+    this.#regExpGroupMatches.clear();
 
     if (!tagGroups.length) {
       return;
     }
 
     for (const tagGroup of tagGroups) {
-      const categoryName = tagGroup.settings.category;
-
       for (const tagName of tagGroup.settings.tags) {
-        this.#tagCategories.set(tagName, categoryName);
+        this.#exactGroupMatches.set(tagName, tagGroup);
       }
 
       for (const tagPrefix of tagGroup.settings.prefixes) {
-        this.#compiledRegExps.set(
+        this.#regExpGroupMatches.set(
           new RegExp(`^${escapeRegExp(tagPrefix)}`),
-          categoryName
+          tagGroup,
+        );
+      }
+
+      for (let tagSuffix of tagGroup.settings.suffixes) {
+        this.#regExpGroupMatches.set(
+          new RegExp(`${escapeRegExp(tagSuffix)}$`),
+          tagGroup,
         );
       }
     }
@@ -98,12 +116,12 @@ export default class CustomCategoriesResolver {
     this.#queueUpdatingTags();
   }
 
-  static #skipTagsWithOriginalCategory(tagDropdown: TagDropdownWrapper): boolean {
-    return !tagDropdown.originalCategory;
-  }
-
   static #resetToOriginalCategory(tagDropdown: TagDropdownWrapper): void {
-    tagDropdown.tagCategory = tagDropdown.originalCategory;
+    emit(
+      tagDropdown,
+      eventTagCustomGroupResolved,
+      null,
+    );
   }
 
   static #unprocessedTagsTimeout = 0;

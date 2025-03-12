@@ -1,4 +1,4 @@
-import ChromeEvent from "./ChromeEvent";
+import ChromeStorageChangeEvent from "$tests/mocks/ChromeStorageChangeEvent";
 
 type ChangedEventCallback = (changes: chrome.storage.StorageChange) => void
 
@@ -13,8 +13,20 @@ export default class ChromeStorageArea implements chrome.storage.StorageArea {
     })
   });
   set = vi.fn((...args: any[]): Promise<void> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      const change: Record<string, chrome.storage.StorageChange> = {};
+      const setter = args[0];
+
+      for (let targetKey of Object.keys(setter)) {
+        change[targetKey] = {
+          oldValue: this.#mockedData[targetKey] ?? undefined,
+          newValue: setter[targetKey],
+        };
+      }
+
       this.#mockedData = Object.assign(this.#mockedData, args[0]);
+      this.onChanged.mockEmitStorageChange(change);
+
       resolve();
     })
   });
@@ -23,7 +35,16 @@ export default class ChromeStorageArea implements chrome.storage.StorageArea {
       const key = args[0];
 
       if (typeof key === 'string') {
+        const change: chrome.storage.StorageChange = {
+          oldValue: this.#mockedData[key],
+        };
+
         delete this.#mockedData[key];
+
+        this.onChanged.mockEmitStorageChange({
+          [key]: change
+        });
+
         resolve();
       }
 
@@ -58,7 +79,7 @@ export default class ChromeStorageArea implements chrome.storage.StorageArea {
     });
   });
   setAccessLevel = vi.fn();
-  onChanged = new ChromeEvent<ChangedEventCallback>();
+  onChanged = new ChromeStorageChangeEvent();
   getKeys = vi.fn();
 
   insertMockedData(data: Record<string, any>) {
