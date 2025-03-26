@@ -196,6 +196,13 @@ export function initializeAllTagsLists() {
 
 export function watchForUpdatedTagLists() {
   on(document, eventFormEditorUpdated, event => {
-    event.detail.closest('#image_tags_and_source')
+    const tagsListElement = event.detail.closest<HTMLElement>('#image_tags_and_source');
+
+    if (!tagsListElement || getComponent(tagsListElement)) {
+      return;
+    }
+
+    new TagsListBlock(tagsListElement)
+      .initialize();
   });
 }
