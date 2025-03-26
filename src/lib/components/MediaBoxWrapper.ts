@@ -3,7 +3,6 @@ import { getComponent } from "$lib/components/base/component-utils";
 import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
 import { on } from "$lib/components/events/comms";
 import { eventTagsUpdated } from "$lib/components/events/maintenance-popup-events";
-import onMessageExternal = chrome.runtime.onMessageExternal;
 
 export class MediaBoxWrapper extends BaseComponent {
   #thumbnailContainer: HTMLElement | null = null;
