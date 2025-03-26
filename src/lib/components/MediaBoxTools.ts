@@ -2,7 +2,7 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import { MaintenancePopup } from "$lib/components/MaintenancePopup";
 import { on } from "$lib/components/events/comms";
-import { eventActiveProfileChanged } from "$lib/components/events/maintenance-popup-events";
+import { EVENT_ACTIVE_PROFILE_CHANGED } from "$lib/components/events/maintenance-popup-events";
 import type { MediaBoxWrapper } from "$lib/components/MediaBoxWrapper";
 import type MaintenanceProfile from "$entities/MaintenanceProfile";
 
@@ -39,7 +39,7 @@ export class MediaBoxTools extends BaseComponent {
       }
     }
 
-    on(this, eventActiveProfileChanged, this.#onActiveProfileChanged.bind(this));
+    on(this, EVENT_ACTIVE_PROFILE_CHANGED, this.#onActiveProfileChanged.bind(this));
   }
 
   #onActiveProfileChanged(profileChangedEvent: CustomEvent<MaintenanceProfile | null>) {

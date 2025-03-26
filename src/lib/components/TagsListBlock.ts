@@ -2,9 +2,9 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import type TagGroup from "$entities/TagGroup";
 import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import { on } from "$lib/components/events/comms";
-import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
+import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
 import { getComponent } from "$lib/components/base/component-utils";
-import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
 import TagSettings from "$lib/extension/settings/TagSettings";
 
 export class TagsListBlock extends BaseComponent {
@@ -32,7 +32,7 @@ export class TagsListBlock extends BaseComponent {
 
     on(
       this,
-      eventTagCustomGroupResolved,
+      EVENT_TAG_GROUP_RESOLVED,
       this.#onTagDropdownCustomGroupResolved.bind(this)
     );
   }
@@ -195,7 +195,7 @@ export function initializeAllTagsLists() {
 }
 
 export function watchForUpdatedTagLists() {
-  on(document, eventFormEditorUpdated, event => {
+  on(document, EVENT_FORM_EDITOR_UPDATED, event => {
     event.detail.closest('#image_tags_and_source')
   });
 }

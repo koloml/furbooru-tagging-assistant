@@ -1,15 +1,15 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import { emit, on, type UnsubscribeFunction } from "$lib/components/events/comms";
-import { eventFetchComplete } from "$lib/components/events/booru-events";
-import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
+import { EVENT_FETCH_COMPLETE } from "$lib/components/events/booru-events";
+import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
 
 export class TagsForm extends BaseComponent {
   protected init() {
     // Site sending the event when form is submitted vie Fetch API. We use this event to reload our logic here.
     const unsubscribe = on(
       this.container,
-      eventFetchComplete,
+      EVENT_FETCH_COMPLETE,
       () => this.#waitAndDetectUpdatedForm(unsubscribe),
     );
   }
@@ -36,7 +36,7 @@ export class TagsForm extends BaseComponent {
       const fullTagEditor = tagFormComponent.parentTagEditorElement;
 
       if (fullTagEditor) {
-        emit(document.body, eventFormEditorUpdated, fullTagEditor);
+        emit(document.body, EVENT_FORM_EDITOR_UPDATED, fullTagEditor);
       } else {
         console.info('Tag form is not in the tag editor. Event is not sent.');
       }

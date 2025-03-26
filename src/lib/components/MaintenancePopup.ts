@@ -6,9 +6,9 @@ import ScrapedAPI from "$lib/booru/scraped/ScrapedAPI";
 import { tagsBlacklist } from "$config/tags";
 import { emitterAt } from "$lib/components/events/comms";
 import {
-  eventActiveProfileChanged,
-  eventMaintenanceStateChanged,
-  eventTagsUpdated
+  EVENT_ACTIVE_PROFILE_CHANGED,
+  EVENT_MAINTENANCE_STATE_CHANGED,
+  EVENT_TAGS_UPDATED
 } from "$lib/components/events/maintenance-popup-events";
 import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
 
@@ -83,7 +83,7 @@ export class MaintenancePopup extends BaseComponent {
     this.container.classList.toggle('is-active', activeProfile !== null);
     this.#refreshTagsList();
 
-    this.#emitter.emit(eventActiveProfileChanged, activeProfile);
+    this.#emitter.emit(EVENT_ACTIVE_PROFILE_CHANGED, activeProfile);
   }
 
   #refreshTagsList() {
@@ -177,7 +177,7 @@ export class MaintenancePopup extends BaseComponent {
       }
 
       this.#isPlanningToSubmit = true;
-      this.#emitter.emit(eventMaintenanceStateChanged, 'waiting');
+      this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'waiting');
     }
   }
 
@@ -204,7 +204,7 @@ export class MaintenancePopup extends BaseComponent {
     this.#isPlanningToSubmit = false;
     this.#isSubmitting = true;
 
-    this.#emitter.emit(eventMaintenanceStateChanged, 'processing');
+    this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'processing');
 
     let maybeTagsAndAliasesAfterUpdate;
 
@@ -246,17 +246,17 @@ export class MaintenancePopup extends BaseComponent {
 
       MaintenancePopup.#notifyAboutPendingSubmission(false);
 
-      this.#emitter.emit(eventMaintenanceStateChanged, 'failed');
+      this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'failed');
       this.#isSubmitting = false;
 
       return;
     }
 
     if (maybeTagsAndAliasesAfterUpdate) {
-      this.#emitter.emit(eventTagsUpdated, maybeTagsAndAliasesAfterUpdate);
+      this.#emitter.emit(EVENT_TAGS_UPDATED, maybeTagsAndAliasesAfterUpdate);
     }
 
-    this.#emitter.emit(eventMaintenanceStateChanged, 'complete');
+    this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'complete');
 
     this.#tagsToAdd.clear();
     this.#tagsToRemove.clear();

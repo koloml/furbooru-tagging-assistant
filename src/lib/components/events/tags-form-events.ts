@@ -1,5 +1,5 @@
-export const eventFormEditorUpdated = 'tags-form-updated';
+export const EVENT_FORM_EDITOR_UPDATED = 'tags-form-updated';
 
 export interface TagsFormEventsMap {
-  [eventFormEditorUpdated]: HTMLElement;
+  [EVENT_FORM_EDITOR_UPDATED]: HTMLElement;
 }
