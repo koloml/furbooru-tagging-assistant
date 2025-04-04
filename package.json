@@ -22,7 +22,7 @@
         "cheerio": "^1.0.0",
         "jsdom": "^26.0.0",
         "sass": "^1.86.3",
-        "svelte": "^5.23.0",
+        "svelte": "^5.25.6",
         "svelte-check": "^4.1.5",
         "typescript": "^5.8.2",
         "vite": "^6.2.5",
