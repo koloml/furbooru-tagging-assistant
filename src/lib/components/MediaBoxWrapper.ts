@@ -90,5 +90,10 @@ export function calculateMediaBoxesPositions(mediaBoxesList: NodeListOf<HTMLElem
       lastMediaBox = mediaBoxElement;
       lastMediaBoxPosition = yPosition;
     }
+
+    // Last-ever media box is checked separately
+    if (lastMediaBox && !lastMediaBox.nextElementSibling) {
+      lastMediaBox.classList.add('media-box--last');
+    }
   })
 }
