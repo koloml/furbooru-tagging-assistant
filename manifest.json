@@ -1,7 +1,7 @@
 {
     "name": "Furbooru Tagging Assistant",
     "description": "Experimental extension with a set of tools to make the tagging faster and easier. Made specifically for Furbooru.",
-    "version": "0.4.1",
+    "version": "0.4.4",
     "browser_specific_settings": {
         "gecko": {
             "id": "furbooru-tagging-assistant@thecore.city"
@@ -27,7 +27,7 @@
                 "*://*.furbooru.org/galleries/*"
             ],
             "js": [
-                "src/content/listing.js"
+                "src/content/listing.ts"
             ],
             "css": [
                 "src/styles/content/listing.scss"
@@ -38,10 +38,18 @@
                 "*://*.furbooru.org/*"
             ],
             "js": [
-                "src/content/header.js"
+                "src/content/header.ts"
             ],
             "css": [
                 "src/styles/content/header.scss"
+            ]
+        },
+        {
+            "matches": [
+                "*://*.furbooru.org/images/*"
+            ],
+            "js": [
+                "src/content/tags-editor.ts"
             ]
         },
         {
@@ -59,15 +67,7 @@
                 "*://*.furbooru.org/filters/*"
             ],
             "js": [
-                "src/content/tags.js"
-            ]
-        },
-        {
-            "matches": [
-                "*://*.furbooru.org/images/*"
-            ],
-            "js": [
-                "src/content/tags-editor.js"
+                "src/content/tags.ts"
             ]
         }
     ],

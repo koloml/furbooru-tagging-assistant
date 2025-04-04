@@ -1,30 +1,31 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import { on } from "$lib/components/events/comms";
-import { eventMaintenanceStateChanged } from "$lib/components/events/maintenance-popup-events";
+import { EVENT_MAINTENANCE_STATE_CHANGED } from "$lib/components/events/maintenance-popup-events";
+import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
 
 export class MaintenanceStatusIcon extends BaseComponent {
-  /** @type {import('./MediaBoxTools').MediaBoxTools} */
-  #mediaBoxTools;
+  #mediaBoxTools: MediaBoxTools | null = null;
 
   build() {
     this.container.innerText = '🔧';
   }
 
   init() {
+    if (!this.container.parentElement) {
+      throw new Error('Missing parent element for the maintenance status icon!');
+    }
+
     this.#mediaBoxTools = getComponent(this.container.parentElement);
 
     if (!this.#mediaBoxTools) {
       throw new Error('Status icon element initialized outside of the media box!');
     }
 
-    on(this.#mediaBoxTools, eventMaintenanceStateChanged, this.#onMaintenanceStateChanged.bind(this));
+    on(this.#mediaBoxTools, EVENT_MAINTENANCE_STATE_CHANGED, this.#onMaintenanceStateChanged.bind(this));
   }
 
-  /**
-   * @param {CustomEvent<string>} stateChangeEvent
-   */
-  #onMaintenanceStateChanged(stateChangeEvent) {
+  #onMaintenanceStateChanged(stateChangeEvent: CustomEvent<string>) {
     // TODO Replace those with FontAwesome icons later. Those icons can probably be sourced from the website itself.
     switch (stateChangeEvent.detail) {
       case "ready":

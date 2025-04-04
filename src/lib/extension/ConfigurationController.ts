@@ -2,12 +2,16 @@ import StorageHelper, { type StorageChangeSubscriber } from "$lib/browser/Storag
 
 export default class ConfigurationController {
   readonly #configurationName: string;
+  readonly #storage: StorageHelper;
 
   /**
    * @param {string} configurationName Name of the configuration to work with.
+   * @param {StorageHelper} [storage] Selected storage where the settings are stored in. If not provided, local storage
+   * is used.
    */
-  constructor(configurationName: string) {
+  constructor(configurationName: string, storage: StorageHelper = new StorageHelper(chrome.storage.local)) {
     this.#configurationName = configurationName;
+    this.#storage = storage;
   }
 
   /**
@@ -19,7 +23,7 @@ export default class ConfigurationController {
    * @return The setting value or the default value if the setting does not exist.
    */
   async readSetting<Type = any, DefaultType = any>(settingName: string, defaultValue: DefaultType | null = null): Promise<Type | DefaultType> {
-    const settings = await ConfigurationController.#storageHelper.read(this.#configurationName, {});
+    const settings = await this.#storage.read(this.#configurationName, {});
     return settings[settingName] ?? defaultValue;
   }
 
@@ -32,11 +36,11 @@ export default class ConfigurationController {
    * @return {Promise<void>}
    */
   async writeSetting(settingName: string, value: any): Promise<void> {
-    const settings = await ConfigurationController.#storageHelper.read(this.#configurationName, {});
+    const settings = await this.#storage.read(this.#configurationName, {});
 
     settings[settingName] = value;
 
-    ConfigurationController.#storageHelper.write(this.#configurationName, settings);
+    this.#storage.write(this.#configurationName, settings);
   }
 
   /**
@@ -45,11 +49,11 @@ export default class ConfigurationController {
    * @param {string} settingName Setting name to delete.
    */
   async deleteSetting(settingName: string): Promise<void> {
-    const settings = await ConfigurationController.#storageHelper.read(this.#configurationName, {});
+    const settings = await this.#storage.read(this.#configurationName, {});
 
     delete settings[settingName];
 
-    ConfigurationController.#storageHelper.write(this.#configurationName, settings);
+    this.#storage.write(this.#configurationName, settings);
   }
 
   /**
@@ -69,10 +73,8 @@ export default class ConfigurationController {
       callback(changes[this.#configurationName].newValue);
     }
 
-    ConfigurationController.#storageHelper.subscribe(subscriber);
+    this.#storage.subscribe(subscriber);
 
-    return () => ConfigurationController.#storageHelper.unsubscribe(subscriber);
+    return () => this.#storage.unsubscribe(subscriber);
   }
-
-  static #storageHelper = new StorageHelper(chrome.storage.local);
 }

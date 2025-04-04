@@ -2,17 +2,16 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import { MaintenancePopup } from "$lib/components/MaintenancePopup";
 import { on } from "$lib/components/events/comms";
-import { eventActiveProfileChanged } from "$lib/components/events/maintenance-popup-events";
+import { EVENT_ACTIVE_PROFILE_CHANGED } from "$lib/components/events/maintenance-popup-events";
+import type { MediaBoxWrapper } from "$lib/components/MediaBoxWrapper";
+import type MaintenanceProfile from "$entities/MaintenanceProfile";
 
 export class MediaBoxTools extends BaseComponent {
-  /** @type {import('./MediaBoxWrapper').MediaBoxWrapper|null} */
-  #mediaBox;
-
-  /** @type {MaintenancePopup|null} */
-  #maintenancePopup = null;
+  #mediaBox: MediaBoxWrapper | null = null;
+  #maintenancePopup: MaintenancePopup | null = null;
 
   init() {
-    const mediaBoxElement = this.container.closest('.media-box');
+    const mediaBoxElement = this.container.closest<HTMLElement>('.media-box');
 
     if (!mediaBoxElement) {
       throw new Error('Toolbox element initialized outside of the media box!');
@@ -21,6 +20,10 @@ export class MediaBoxTools extends BaseComponent {
     this.#mediaBox = getComponent(mediaBoxElement);
 
     for (let childElement of this.container.children) {
+      if (!(childElement instanceof HTMLElement)) {
+        continue;
+      }
+
       const component = getComponent(childElement);
 
       if (!component) {
@@ -36,37 +39,28 @@ export class MediaBoxTools extends BaseComponent {
       }
     }
 
-    on(this, eventActiveProfileChanged, this.#onActiveProfileChanged.bind(this));
+    on(this, EVENT_ACTIVE_PROFILE_CHANGED, this.#onActiveProfileChanged.bind(this));
   }
 
-  /**
-   * @param {CustomEvent<import('$entities/MaintenanceProfile').default|null>} profileChangedEvent
-   */
-  #onActiveProfileChanged(profileChangedEvent) {
+  #onActiveProfileChanged(profileChangedEvent: CustomEvent<MaintenanceProfile | null>) {
     this.container.classList.toggle('has-active-profile', profileChangedEvent.detail !== null);
   }
 
-  /**
-   * @return {MaintenancePopup|null}
-   */
-  get maintenancePopup() {
+  get maintenancePopup(): MaintenancePopup | null {
     return this.#maintenancePopup;
   }
 
-  /**
-   * @return {import('./MediaBoxWrapper').MediaBoxWrapper|null}
-   */
-  get mediaBox() {
+  get mediaBox(): MediaBoxWrapper | null {
     return this.#mediaBox;
   }
 }
 
 /**
  * Create a maintenance popup element.
- * @param {HTMLElement[]} childrenElements List of children elements to append to the component.
- * @return {HTMLElement} The maintenance popup element.
+ * @param childrenElements List of children elements to append to the component.
+ * @return The maintenance popup element.
  */
-export function createMediaBoxTools(...childrenElements) {
+export function createMediaBoxTools(...childrenElements: HTMLElement[]): HTMLElement {
   const mediaBoxToolsContainer = document.createElement('div');
   mediaBoxToolsContainer.classList.add('media-box-tools');
 

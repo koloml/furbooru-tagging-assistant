@@ -3,45 +3,40 @@ import MaintenanceProfile from "$entities/MaintenanceProfile";
 import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
 import { getComponent } from "$lib/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
+import { on } from "$lib/components/events/comms";
+import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
+import type TagGroup from "$entities/TagGroup";
 
-const isTagEditorProcessedKey = Symbol();
 const categoriesResolver = new CustomCategoriesResolver();
 
 export class TagDropdownWrapper extends BaseComponent {
   /**
    * Container with dropdown elements to insert options into.
-   * @type {HTMLElement}
    */
-  #dropdownContainer;
+  #dropdownContainer: HTMLElement | null = null;
 
   /**
    * Button to add or remove the current tag into/from the active profile.
-   * @type {HTMLAnchorElement|null}
    */
-  #toggleOnExistingButton = null;
+  #toggleOnExistingButton: HTMLAnchorElement | null = null;
 
   /**
    * Button to create a new profile, make it active and add the current tag into the active profile.
-   * @type {HTMLAnchorElement|null}
    */
-  #addToNewButton = null;
+  #addToNewButton: HTMLAnchorElement | null = null;
 
   /**
    * Local clone of the currently active profile used for updating the list of tags.
-   * @type {MaintenanceProfile|null}
    */
-  #activeProfile = null;
+  #activeProfile: MaintenanceProfile | null = null;
 
   /**
    * Is cursor currently entered the dropdown.
-   * @type {boolean}
    */
-  #isEntered = false;
+  #isEntered: boolean = false;
 
-  /**
-   * @type {string|undefined|null}
-   */
-  #originalCategory = null;
+  #originalCategory: string | undefined | null = null;
 
   build() {
     this.#dropdownContainer = this.container.querySelector('.dropdown__content');
@@ -58,6 +53,23 @@ export class TagDropdownWrapper extends BaseComponent {
         this.#updateButtons();
       }
     });
+
+    on(this, EVENT_TAG_GROUP_RESOLVED, this.#onTagGroupResolved.bind(this));
+  }
+
+  #onTagGroupResolved(resolvedGroupEvent: CustomEvent<TagGroup | null>) {
+    if (this.originalCategory) {
+      return;
+    }
+
+    const maybeTagGroup = resolvedGroupEvent.detail;
+
+    if (!maybeTagGroup) {
+      this.tagCategory = this.originalCategory;
+      return;
+    }
+
+    this.tagCategory = maybeTagGroup.settings.category;
   }
 
   get tagName() {
@@ -116,7 +128,7 @@ export class TagDropdownWrapper extends BaseComponent {
       );
 
       if (!this.#addToNewButton.isConnected) {
-        this.#dropdownContainer.append(this.#addToNewButton);
+        this.#dropdownContainer?.append(this.#addToNewButton);
       }
     } else {
       this.#addToNewButton?.remove();
@@ -130,15 +142,16 @@ export class TagDropdownWrapper extends BaseComponent {
 
       const profileName = this.#activeProfile.settings.name;
       let profileSpecificButtonText = `Add to profile "${profileName}"`;
+      const tagName = this.tagName;
 
-      if (this.#activeProfile.settings.tags.includes(this.tagName)) {
+      if (tagName && this.#activeProfile.settings.tags.includes(tagName)) {
         profileSpecificButtonText = `Remove from profile "${profileName}"`;
       }
 
       this.#toggleOnExistingButton.innerText = profileSpecificButtonText;
 
       if (!this.#toggleOnExistingButton.isConnected) {
-        this.#dropdownContainer.append(this.#toggleOnExistingButton);
+        this.#dropdownContainer?.append(this.#toggleOnExistingButton);
       }
 
       return;
@@ -148,6 +161,12 @@ export class TagDropdownWrapper extends BaseComponent {
   }
 
   async #onAddToNewClicked() {
+    const tagName = this.tagName;
+
+    if (!tagName) {
+      throw new Error('Missing tag name to create the profile!');
+    }
+
     const profile = new MaintenanceProfile(crypto.randomUUID(), {
       name: 'Temporary Profile (' + (new Date().toISOString()) + ')',
       tags: [this.tagName],
@@ -166,6 +185,10 @@ export class TagDropdownWrapper extends BaseComponent {
     const tagsList = new Set(this.#activeProfile.settings.tags);
     const targetTagName = this.tagName;
 
+    if (!targetTagName) {
+      throw new Error('Missing tag name!');
+    }
+
     if (tagsList.has(targetTagName)) {
       tagsList.delete(targetTagName);
     } else {
@@ -181,14 +204,14 @@ export class TagDropdownWrapper extends BaseComponent {
 
   /**
    * Watch for changes to active profile.
-   * @param {(profile: MaintenanceProfile|null) => void} onActiveProfileChange Callback to call when profile was
+   * @param onActiveProfileChange Callback to call when profile was
    * changed.
    */
-  static #watchActiveProfile(onActiveProfileChange) {
-    let lastActiveProfile;
+  static #watchActiveProfile(onActiveProfileChange: (profile: MaintenanceProfile | null) => void) {
+    let lastActiveProfile: string | null = null;
 
     this.#maintenanceSettings.subscribe((settings) => {
-      lastActiveProfile = settings.activeProfile;
+      lastActiveProfile = settings.activeProfile ?? null;
 
       this.#maintenanceSettings
         .resolveActiveProfileAsObject()
@@ -199,7 +222,8 @@ export class TagDropdownWrapper extends BaseComponent {
       const activeProfile = profiles
         .find(profile => profile.id === lastActiveProfile);
 
-      onActiveProfileChange(activeProfile);
+      onActiveProfileChange(activeProfile ?? null
+      );
     });
 
     this.#maintenanceSettings
@@ -212,12 +236,11 @@ export class TagDropdownWrapper extends BaseComponent {
 
   /**
    * Create element for dropdown.
-   * @param {string} text Base text for the option.
-   * @param {(event: MouseEvent) => void} onClickHandler Click handler. Event will be prevented by default.
-   * @return {HTMLAnchorElement}
+   * @param text Base text for the option.
+   * @param onClickHandler Click handler. Event will be prevented by default.
+   * @return
    */
-  static #createDropdownLink(text, onClickHandler) {
-    /** @type {HTMLAnchorElement} */
+  static #createDropdownLink(text: string, onClickHandler: (event: MouseEvent) => void): HTMLAnchorElement {
     const dropdownLink = document.createElement('a');
     dropdownLink.href = '#';
     dropdownLink.innerText = text;
@@ -232,7 +255,7 @@ export class TagDropdownWrapper extends BaseComponent {
   }
 }
 
-export function wrapTagDropdown(element) {
+export function wrapTagDropdown(element: HTMLElement) {
   // Skip initialization when tag component is already wrapped
   if (getComponent(element)) {
     return;
@@ -244,6 +267,8 @@ export function wrapTagDropdown(element) {
   categoriesResolver.addElement(tagDropdown);
 }
 
+const processedElementsSet = new WeakSet<HTMLElement>();
+
 export function watchTagDropdownsInTagsEditor() {
   // We only need to watch for new editor elements if there is a tag editor present on the page
   if (!document.querySelector('#image_tags_and_source')) {
@@ -251,26 +276,35 @@ export function watchTagDropdownsInTagsEditor() {
   }
 
   document.body.addEventListener('mouseover', event => {
-    /** @type {HTMLElement} */
     const targetElement = event.target;
 
-    if (targetElement[isTagEditorProcessedKey]) {
+    if (!(targetElement instanceof HTMLElement)) {
       return;
     }
 
-    /** @type {HTMLElement|null} */
-    const closestTagEditor = targetElement.closest('#image_tags_and_source');
-
-    if (!closestTagEditor || closestTagEditor[isTagEditorProcessedKey]) {
-      targetElement[isTagEditorProcessedKey] = true;
+    if (processedElementsSet.has(targetElement)) {
       return;
     }
 
-    targetElement[isTagEditorProcessedKey] = true;
-    closestTagEditor[isTagEditorProcessedKey] = true;
+    const closestTagEditor = targetElement.closest<HTMLElement>('#image_tags_and_source');
 
-    for (const tagDropdownElement of closestTagEditor.querySelectorAll('.tag.dropdown')) {
+    if (!closestTagEditor || processedElementsSet.has(closestTagEditor)) {
+      processedElementsSet.add(targetElement);
+      return;
+    }
+
+    processedElementsSet.add(targetElement);
+    processedElementsSet.add(closestTagEditor);
+
+    for (const tagDropdownElement of closestTagEditor.querySelectorAll<HTMLElement>('.tag.dropdown')) {
       wrapTagDropdown(tagDropdownElement);
     }
-  })
+  });
+
+  // When form is submitted, its DOM is completely updated. We need to fetch those tags in this case.
+  on(document.body, EVENT_FORM_EDITOR_UPDATED, event => {
+    for (const tagDropdownElement of event.detail.querySelectorAll<HTMLElement>('.tag.dropdown')) {
+      wrapTagDropdown(tagDropdownElement);
+    }
+  });
 }

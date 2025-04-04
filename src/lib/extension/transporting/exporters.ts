@@ -27,7 +27,9 @@ const entitiesExporters: ExportersMap = {
       name: entity.settings.name,
       tags: entity.settings.tags,
       prefixes: entity.settings.prefixes,
+      suffixes: entity.settings.suffixes,
       category: entity.settings.category,
+      separate: entity.settings.separate,
     }
   }
 };

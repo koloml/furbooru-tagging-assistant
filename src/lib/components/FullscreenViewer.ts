@@ -1,30 +1,22 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
-import MiscSettings from "$lib/extension/settings/MiscSettings";
+import MiscSettings, { type FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
+import { emit, on } from "$lib/components/events/comms";
+import { EVENT_SIZE_LOADED } from "$lib/components/events/fullscreen-viewer-events";
 
 export class FullscreenViewer extends BaseComponent {
-  /** @type {HTMLVideoElement} */
-  #videoElement = document.createElement('video');
-  /** @type {HTMLImageElement} */
-  #imageElement = document.createElement('img');
-  #spinnerElement = document.createElement('i');
-  #sizeSelectorElement = document.createElement('select');
-  #closeButtonElement = document.createElement('i');
-  /** @type {number|null} */
-  #touchId = null;
-  /** @type {number|null} */
-  #startX = null;
-  /** @type {number|null} */
-  #startY = null;
-  /** @type {boolean|null} */
-  #isClosingSwipeStarted = null;
-  #isSizeFetched = false;
-  /** @type {App.ImageURIs|null} */
-  #currentURIs = null;
+  #videoElement: HTMLVideoElement = document.createElement('video');
+  #imageElement: HTMLImageElement = document.createElement('img');
+  #spinnerElement: HTMLElement = document.createElement('i');
+  #sizeSelectorElement: HTMLSelectElement = document.createElement('select');
+  #closeButtonElement: HTMLElement = document.createElement('i');
+  #touchId: number | null = null;
+  #startX: number | null = null;
+  #startY: number | null = null;
+  #isClosingSwipeStarted: boolean | null = null;
+  #isSizeFetched: boolean = false;
+  #currentURIs: App.ImageURIs | null = null;
 
-  /**
-   * @protected
-   */
-  build() {
+  protected build() {
     this.container.classList.add('fullscreen-viewer');
 
     this.container.append(
@@ -71,10 +63,7 @@ export class FullscreenViewer extends BaseComponent {
     this.container.classList.remove('loading');
   }
 
-  /**
-   * @param {TouchEvent} event
-   */
-  #onTouchStart(event) {
+  #onTouchStart(event: TouchEvent) {
     if (this.#touchId !== null) {
       return;
     }
@@ -88,14 +77,12 @@ export class FullscreenViewer extends BaseComponent {
     this.#touchId = firstTouch.identifier;
     this.#startX = firstTouch.clientX;
     this.#startY = firstTouch.clientY;
+
     this.container.classList.add(FullscreenViewer.#swipeState);
   }
 
-  /**
-   * @param {TouchEvent} event
-   */
-  #onTouchEnd(event) {
-    if (this.#touchId === null) {
+  #onTouchEnd(event: TouchEvent) {
+    if (this.#touchId === null || this.#startY === null) {
       return;
     }
 
@@ -126,11 +113,8 @@ export class FullscreenViewer extends BaseComponent {
     });
   }
 
-  /**
-   * @param {TouchEvent} event
-   */
-  #onTouchMove(event) {
-    if (this.#touchId === null) {
+  #onTouchMove(event: TouchEvent) {
+    if (this.#touchId === null || this.#startY === null || this.#startX === null) {
       return;
     }
 
@@ -179,23 +163,17 @@ export class FullscreenViewer extends BaseComponent {
     }
   }
 
-  /**
-   * @param {KeyboardEvent} event
-   */
-  #onDocumentKeyPressed(event) {
+  #onDocumentKeyPressed(event: KeyboardEvent) {
     if (event.code === 'Escape' || event.code === 'Esc') {
       this.#close();
     }
   }
 
-  /**
-   * @param {import("$lib/extension/settings/MiscSettings").FullscreenViewerSize} size
-   */
-  #onSizeResolved(size) {
+  #onSizeResolved(size: FullscreenViewerSize) {
     this.#sizeSelectorElement.value = size;
     this.#isSizeFetched = true;
 
-    this.emit('size-loaded');
+    emit(this.container, EVENT_SIZE_LOADED, size);
   }
 
   #watchForSizeSelectionChanges() {
@@ -232,7 +210,7 @@ export class FullscreenViewer extends BaseComponent {
     this.#currentURIs = null;
 
     this.container.classList.remove(FullscreenViewer.#shownState);
-    document.body.style.overflow = null;
+    document.body.style.removeProperty('overflow');
 
     requestAnimationFrame(() => {
       this.#videoElement.volume = 0;
@@ -241,16 +219,18 @@ export class FullscreenViewer extends BaseComponent {
     });
   }
 
-  /**
-   * @param {App.ImageURIs} imageUris
-   * @return {Promise<string|null>}
-   */
-  async #resolveCurrentSelectedSizeUrl(imageUris) {
+  async #resolveCurrentSelectedSizeUrl(imageUris: App.ImageURIs): Promise<string | null> {
     if (!this.#isSizeFetched) {
-      await new Promise(resolve => this.on('size-loaded', resolve))
+      await new Promise(
+        resolve => on(
+          this.container,
+          EVENT_SIZE_LOADED,
+          resolve
+        ),
+      );
     }
 
-    let targetSize = this.#sizeSelectorElement.value;
+    let targetSize: FullscreenViewerSize | string = this.#sizeSelectorElement.value;
 
     if (!imageUris.hasOwnProperty(targetSize)) {
       targetSize = FullscreenViewer.#fallbackSize;
@@ -264,13 +244,10 @@ export class FullscreenViewer extends BaseComponent {
       return null;
     }
 
-    return imageUris[targetSize];
+    return imageUris[targetSize as FullscreenViewerSize];
   }
 
-  /**
-   * @param {App.ImageURIs} imageUris
-   */
-  async show(imageUris) {
+  async show(imageUris: App.ImageURIs): Promise<void> {
     this.#currentURIs = imageUris;
 
     const url = await this.#resolveCurrentSelectedSizeUrl(imageUris);
@@ -308,11 +285,7 @@ export class FullscreenViewer extends BaseComponent {
     this.container.append(this.#imageElement);
   }
 
-  /**
-   * @param {string} url
-   * @return {boolean}
-   */
-  static #isVideoUrl(url) {
+  static #isVideoUrl(url: string): boolean {
     return url.endsWith('.mp4') || url.endsWith('.webm');
   }
 
@@ -324,10 +297,7 @@ export class FullscreenViewer extends BaseComponent {
   static #swipeState = 'swiped';
   static #minRequiredDistance = 50;
 
-  /**
-   * @type {Record<import("$lib/extension/settings/MiscSettings").FullscreenViewerSize, string>}
-   */
-  static #previewSizes = {
+  static #previewSizes: Record<FullscreenViewerSize, string> = {
     full: 'Full',
     large: 'Large',
     medium: 'Medium',
