@@ -4,8 +4,8 @@ import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
 import { getComponent } from "$lib/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
 import { on } from "$lib/components/events/comms";
-import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
-import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
+import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
 import type TagGroup from "$entities/TagGroup";
 
 const categoriesResolver = new CustomCategoriesResolver();
@@ -54,7 +54,7 @@ export class TagDropdownWrapper extends BaseComponent {
       }
     });
 
-    on(this, eventTagCustomGroupResolved, this.#onTagGroupResolved.bind(this));
+    on(this, EVENT_TAG_GROUP_RESOLVED, this.#onTagGroupResolved.bind(this));
   }
 
   #onTagGroupResolved(resolvedGroupEvent: CustomEvent<TagGroup | null>) {
@@ -302,7 +302,7 @@ export function watchTagDropdownsInTagsEditor() {
   });
 
   // When form is submitted, its DOM is completely updated. We need to fetch those tags in this case.
-  on(document.body, eventFormEditorUpdated, event => {
+  on(document.body, EVENT_FORM_EDITOR_UPDATED, event => {
     for (const tagDropdownElement of event.detail.querySelectorAll<HTMLElement>('.tag.dropdown')) {
       wrapTagDropdown(tagDropdownElement);
     }

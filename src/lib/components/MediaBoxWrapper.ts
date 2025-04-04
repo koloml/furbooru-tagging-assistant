@@ -2,7 +2,7 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import { getComponent } from "$lib/components/base/component-utils";
 import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
 import { on } from "$lib/components/events/comms";
-import { eventTagsUpdated } from "$lib/components/events/maintenance-popup-events";
+import { EVENT_TAGS_UPDATED } from "$lib/components/events/maintenance-popup-events";
 
 export class MediaBoxWrapper extends BaseComponent {
   #thumbnailContainer: HTMLElement | null = null;
@@ -13,7 +13,7 @@ export class MediaBoxWrapper extends BaseComponent {
     this.#thumbnailContainer = this.container.querySelector('.image-container');
     this.#imageLinkElement = this.#thumbnailContainer?.querySelector('a') || null;
 
-    on(this, eventTagsUpdated, this.#onTagsUpdatedRefreshTagsAndAliases.bind(this));
+    on(this, EVENT_TAGS_UPDATED, this.#onTagsUpdatedRefreshTagsAndAliases.bind(this));
   }
 
   #onTagsUpdatedRefreshTagsAndAliases(tagsUpdatedEvent: CustomEvent<Map<string, string> | null>) {
@@ -89,6 +89,11 @@ export function calculateMediaBoxesPositions(mediaBoxesList: NodeListOf<HTMLElem
 
       lastMediaBox = mediaBoxElement;
       lastMediaBoxPosition = yPosition;
+    }
+
+    // Last-ever media box is checked separately
+    if (lastMediaBox && !lastMediaBox.nextElementSibling) {
+      lastMediaBox.classList.add('media-box--last');
     }
   })
 }

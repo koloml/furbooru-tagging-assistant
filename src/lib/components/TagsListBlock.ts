@@ -2,13 +2,18 @@ import { BaseComponent } from "$lib/components/base/BaseComponent";
 import type TagGroup from "$entities/TagGroup";
 import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import { on } from "$lib/components/events/comms";
-import { eventFormEditorUpdated } from "$lib/components/events/tags-form-events";
+import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
 import { getComponent } from "$lib/components/base/component-utils";
-import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
 import TagSettings from "$lib/extension/settings/TagSettings";
 
 export class TagsListBlock extends BaseComponent {
+  #tagsListButtonsContainer: HTMLElement | null = null;
   #tagsListContainer: HTMLElement | null = null;
+
+  #toggleGroupingButton = document.createElement('a');
+  #toggleGroupingButtonIcon = document.createElement('i');
+
   #tagSettings = new TagSettings();
 
   #shouldDisplaySeparation = false;
@@ -21,7 +26,21 @@ export class TagsListBlock extends BaseComponent {
   #isReorderingPlanned = false;
 
   protected build() {
+    this.#tagsListButtonsContainer = this.container.querySelector('.block.tagsauce .block__header__buttons');
     this.#tagsListContainer = this.container.querySelector('.tag-list');
+
+    this.#toggleGroupingButton.innerText = ' Grouping';
+    this.#toggleGroupingButton.href = 'javascript:void(0)';
+    this.#toggleGroupingButton.classList.add('button', 'button--link', 'button--inline');
+    this.#toggleGroupingButton.title = 'Toggle the global groups separation option. This will only toggle global ' +
+      'setting without changing the separation of specific groups.';
+
+    this.#toggleGroupingButtonIcon.classList.add('fas', TagsListBlock.#iconGroupingDisabled);
+    this.#toggleGroupingButton.prepend(this.#toggleGroupingButtonIcon);
+
+    if (this.#tagsListButtonsContainer) {
+      this.#tagsListButtonsContainer.append(this.#toggleGroupingButton);
+    }
   }
 
   init() {
@@ -32,9 +51,11 @@ export class TagsListBlock extends BaseComponent {
 
     on(
       this,
-      eventTagCustomGroupResolved,
+      EVENT_TAG_GROUP_RESOLVED,
       this.#onTagDropdownCustomGroupResolved.bind(this)
     );
+
+    this.#toggleGroupingButton.addEventListener('click', this.#onToggleGroupingClicked.bind(this));
   }
 
   #onTagSeparationChange(isSeparationEnabled: boolean) {
@@ -44,6 +65,12 @@ export class TagsListBlock extends BaseComponent {
 
     this.#shouldDisplaySeparation = isSeparationEnabled;
     this.#reorderSeparatedGroups();
+    this.#updateToggleSeparationButton();
+  }
+
+  #updateToggleSeparationButton() {
+    this.#toggleGroupingButtonIcon.classList.toggle(TagsListBlock.#iconGroupingEnabled, this.#shouldDisplaySeparation);
+    this.#toggleGroupingButtonIcon.classList.toggle(TagsListBlock.#iconGroupingDisabled, !this.#shouldDisplaySeparation);
   }
 
   #onTagDropdownCustomGroupResolved(resolvedCustomGroupEvent: CustomEvent<TagGroup | null>) {
@@ -72,6 +99,11 @@ export class TagsListBlock extends BaseComponent {
 
       requestAnimationFrame(this.#reorderSeparatedGroups.bind(this));
     }
+  }
+
+  #onToggleGroupingClicked(event: Event) {
+    event.preventDefault();
+    void this.#tagSettings.setGroupSeparation(!this.#shouldDisplaySeparation);
   }
 
   #handleTagGroupChanges(tagGroup: TagGroup) {
@@ -181,6 +213,9 @@ export class TagsListBlock extends BaseComponent {
   static #orderCssVariableForGroup(groupId: string): string {
     return `--ta-order-${groupId}`;
   }
+
+  static #iconGroupingDisabled = 'fa-folder';
+  static #iconGroupingEnabled = 'fa-folder-tree';
 }
 
 export function initializeAllTagsLists() {
@@ -195,7 +230,14 @@ export function initializeAllTagsLists() {
 }
 
 export function watchForUpdatedTagLists() {
-  on(document, eventFormEditorUpdated, event => {
-    event.detail.closest('#image_tags_and_source')
+  on(document, EVENT_FORM_EDITOR_UPDATED, event => {
+    const tagsListElement = event.detail.closest<HTMLElement>('#image_tags_and_source');
+
+    if (!tagsListElement || getComponent(tagsListElement)) {
+      return;
+    }
+
+    new TagsListBlock(tagsListElement)
+      .initialize();
   });
 }
