@@ -1,7 +1,7 @@
 import { BaseComponent } from "$lib/components/base/BaseComponent";
 import MiscSettings, { type FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
 import { emit, on } from "$lib/components/events/comms";
-import { eventSizeLoaded } from "$lib/components/events/fullscreen-viewer-events";
+import { EVENT_SIZE_LOADED } from "$lib/components/events/fullscreen-viewer-events";
 
 export class FullscreenViewer extends BaseComponent {
   #videoElement: HTMLVideoElement = document.createElement('video');
@@ -173,7 +173,7 @@ export class FullscreenViewer extends BaseComponent {
     this.#sizeSelectorElement.value = size;
     this.#isSizeFetched = true;
 
-    emit(this.container, eventSizeLoaded, size);
+    emit(this.container, EVENT_SIZE_LOADED, size);
   }
 
   #watchForSizeSelectionChanges() {
@@ -224,7 +224,7 @@ export class FullscreenViewer extends BaseComponent {
       await new Promise(
         resolve => on(
           this.container,
-          eventSizeLoaded,
+          EVENT_SIZE_LOADED,
           resolve
         ),
       );

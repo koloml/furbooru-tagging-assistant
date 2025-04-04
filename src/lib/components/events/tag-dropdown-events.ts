@@ -1,7 +1,7 @@
 import type TagGroup from "$entities/TagGroup";
 
-export const eventTagCustomGroupResolved = 'tag-group-resolved';
+export const EVENT_TAG_GROUP_RESOLVED = 'tag-group-resolved';
 
 export interface TagDropdownEvents {
-    [eventTagCustomGroupResolved]: TagGroup | null;
+  [EVENT_TAG_GROUP_RESOLVED]: TagGroup | null;
 }

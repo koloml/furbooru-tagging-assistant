@@ -1,7 +1,7 @@
 import type { FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
 
-export const eventSizeLoaded = 'size-loaded';
+export const EVENT_SIZE_LOADED = 'size-loaded';
 
 export interface FullscreenViewerEventsMap {
-  [eventSizeLoaded]: FullscreenViewerSize;
+  [EVENT_SIZE_LOADED]: FullscreenViewerSize;
 }

@@ -2,7 +2,7 @@ import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
 import { emit } from "$lib/components/events/comms";
-import { eventTagCustomGroupResolved } from "$lib/components/events/tag-dropdown-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
 
 export default class CustomCategoriesResolver {
   #exactGroupMatches = new Map<string, TagGroup>();
@@ -58,7 +58,7 @@ export default class CustomCategoriesResolver {
 
     emit(
       tagDropdown,
-      eventTagCustomGroupResolved,
+      EVENT_TAG_GROUP_RESOLVED,
       this.#exactGroupMatches.get(tagName)!
     );
 
@@ -75,7 +75,7 @@ export default class CustomCategoriesResolver {
 
       emit(
         tagDropdown,
-        eventTagCustomGroupResolved,
+        EVENT_TAG_GROUP_RESOLVED,
         this.#regExpGroupMatches.get(targetRegularExpression)!
       );
 
@@ -119,7 +119,7 @@ export default class CustomCategoriesResolver {
   static #resetToOriginalCategory(tagDropdown: TagDropdownWrapper): void {
     emit(
       tagDropdown,
-      eventTagCustomGroupResolved,
+      EVENT_TAG_GROUP_RESOLVED,
       null,
     );
   }
