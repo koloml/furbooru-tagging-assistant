@@ -18,6 +18,38 @@ class ManifestProcessor {
   }
 
   /**
+   * Collect all the content scripts & stylesheets for single build action.
+   *
+   * @returns {Set<string>}
+   */
+  collectContentScripts() {
+    const contentScripts = this.#manifestObject.content_scripts;
+
+    if (!contentScripts) {
+      console.info('No content scripts to collect.');
+      return new Set();
+    }
+
+    const entryPoints = new Set();
+
+    for (let entry of contentScripts) {
+      if (entry.js) {
+        for (let jsPath of entry.js) {
+          entryPoints.add(jsPath);
+        }
+      }
+
+      if (entry.css) {
+        for (let cssPath of entry.css) {
+          entryPoints.add(cssPath);
+        }
+      }
+    }
+
+    return entryPoints;
+  }
+
+  /**
    * Map over every content script defined in the manifest. If no content scripts defined, no calls will be made to the
    * callback.
    *
