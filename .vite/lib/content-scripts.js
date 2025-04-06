@@ -1,5 +1,5 @@
-import {build} from "vite";
-import {createHash} from "crypto";
+import { build } from "vite";
+import { createHash } from "crypto";
 import path from "path";
 import fs from "fs";
 
@@ -56,69 +56,167 @@ function makeAliases(rootDir) {
 }
 
 /**
- * Build the selected script separately.
- * @param {AssetBuildOptions} buildOptions Building options for the script.
- * @return {Promise<string>} Result file path.
+ * @param {import('rollup').OutputChunk} chunk
+ * @param {import('rollup').OutputBundle} bundle
+ * @param {Set<import('rollup').OutputChunk>} processedChunks
+ * @return string[]
  */
-export async function buildScript(buildOptions) {
-  const outputBaseName = createOutputBaseName(buildOptions.input);
+function collectChunkDependencies(chunk, bundle, processedChunks = new Set()) {
+  if (processedChunks.has(chunk) || !chunk.imports) {
+    return [];
+  }
 
+  processedChunks.add(chunk);
+
+  return chunk.imports.concat(
+    chunk.imports
+      .map(importedChunkName => {
+        const module = bundle[importedChunkName];
+
+        if (module.type === 'chunk') {
+          return collectChunkDependencies(module, bundle, processedChunks);
+        }
+
+        return [];
+      })
+      .flat()
+  );
+}
+
+/**
+ * @param {(fileName: string, dependencies: string[]) => void} onDependencyResolvedCallback
+ * @returns {import('vite').Plugin}
+ */
+function collectDependenciesForManifestBuilding(onDependencyResolvedCallback) {
+  return {
+    name: 'extract-dependencies-for-content-scripts',
+    enforce: "post",
+    /**
+     * @param {any} options
+     * @param {import('rollup').OutputBundle} bundle
+     */
+    writeBundle(options, bundle) {
+      Object.keys(bundle).forEach(fileName => {
+        const chunk = bundle[fileName];
+
+        if (chunk.type !== "chunk" || !chunk.facadeModuleId) {
+          return;
+        }
+
+        const dependencies = Array.from(
+          new Set(
+            collectChunkDependencies(chunk, bundle)
+          )
+        );
+
+        onDependencyResolvedCallback(fileName, dependencies);
+      });
+    }
+  }
+}
+
+/**
+ * Second revision of the building logic for the content scripts. This method tries to address duplication of
+ * dependencies generated with the previous method, where every single content script was built separately.
+ * @param {BatchBuildOptions} buildOptions
+ * @returns {Promise<Map<string, string[]>>}
+ */
+export async function buildScriptsAndStyles(buildOptions) {
+  /** @type {Map<string, string[]>} */
+  const pathsReplacement = new Map();
+  /** @type {Map<string, string[]>} */
+  const pathsReplacementByOutputPath = new Map();
+
+  const amdScriptsInput = {};
+  const libsAndStylesInput = {};
+
+  for (const inputPath of buildOptions.inputs) {
+    let outputExtension = path.extname(inputPath);
+
+    if (outputExtension === '.scss') {
+      outputExtension = '.css';
+    }
+
+    if (outputExtension === '.ts') {
+      outputExtension = '.js';
+    }
+
+    const outputPath = createOutputBaseName(inputPath);
+    const replacementsArray = [`${outputPath}${outputExtension}`];
+
+    pathsReplacement.set(inputPath, replacementsArray);
+
+    if (outputExtension === '.css' || inputPath.includes('/deps/')) {
+      libsAndStylesInput[outputPath] = inputPath;
+      continue;
+    }
+
+    pathsReplacementByOutputPath.set(outputPath + '.js', replacementsArray);
+
+    amdScriptsInput[outputPath] = inputPath;
+  }
+
+  const aliasesSettings = makeAliases(buildOptions.rootDir);
+
+  // Building all scripts together with AMD loader in mind
   await build({
     configFile: false,
     publicDir: false,
     build: {
       rollupOptions: {
-        input: {
-          [outputBaseName]: buildOptions.input
-        },
+        input: amdScriptsInput,
         output: {
           dir: buildOptions.outputDir,
-          entryFileNames: '[name].js'
+          entryFileNames: '[name].js',
+          chunkFileNames: 'chunks/[name]-[hash].js',
+          // ManifestV3 doesn't allow to use modern ES modules syntax, so we build all content scripts as AMD modules.
+          format: "amd",
+          inlineDynamicImports: false,
+          amd: {
+            // amd-lite requires names even for the entry-point scripts, so we should make sure to add those.
+            autoId: true,
+          }
         }
       },
       emptyOutDir: false,
     },
     resolve: {
-      alias: makeAliases(buildOptions.rootDir)
+      alias: aliasesSettings,
     },
     plugins: [
-      wrapScriptIntoIIFE()
+      wrapScriptIntoIIFE(),
+      collectDependenciesForManifestBuilding((fileName, dependencies) => {
+        pathsReplacementByOutputPath
+          .get(fileName)
+          ?.push(...dependencies);
+      }),
     ]
   });
 
-  return path.resolve(buildOptions.outputDir, `${outputBaseName}.js`);
-}
-
-/**
- * Build the selected stylesheet.
- * @param {AssetBuildOptions} buildOptions Build options for the stylesheet.
- * @return {Promise<string>} Result file path.
- */
-export async function buildStyle(buildOptions) {
-  const outputBaseName = createOutputBaseName(buildOptions.input);
-
+  // Build styles separately because AMD converts styles to JS files.
   await build({
     configFile: false,
     publicDir: false,
     build: {
       rollupOptions: {
-        input: {
-          [outputBaseName]: buildOptions.input
-        },
+        input: libsAndStylesInput,
         output: {
           dir: buildOptions.outputDir,
           entryFileNames: '[name].js',
           assetFileNames: '[name].[ext]',
         }
       },
-      emptyOutDir: false,
+      emptyOutDir: false
     },
     resolve: {
-      alias: makeAliases(buildOptions.rootDir)
-    }
+      alias: aliasesSettings,
+    },
+    plugins: [
+      wrapScriptIntoIIFE(),
+    ]
   });
 
-  return path.resolve(buildOptions.outputDir, `${outputBaseName}.css`);
+  return pathsReplacement;
 }
 
 /**
@@ -126,4 +224,12 @@ export async function buildStyle(buildOptions) {
  * @property {string} input Full path to the input file to build.
  * @property {string} outputDir Destination folder for the script.
  * @property {string} rootDir Root directory of the repository.
+ */
+
+/**
+ * @typedef {Object} BatchBuildOptions
+ * @property {Set<string>} inputs Set of all scripts and styles to build.
+ * @property {string} outputDir Destination folder for the assets.
+ * @property {string} rootDir Root directory of the repository.
+ * @property {(fileName: string, dependencies: string[]) => void} onDependenciesResolved Callback for dependencies.
  */
