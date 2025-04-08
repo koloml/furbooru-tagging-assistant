@@ -21,21 +21,3 @@ export function findDeepObject(targetObject: Record<string, any>, path: string[]
 
   return result;
 }
-
-/**
- * Matches all the characters needing replacement.
- *
- * Gathered from right here: https://stackoverflow.com/a/3561711/16048617. Because I don't want to introduce some
- * library for that.
- */
-const unsafeRegExpCharacters: RegExp = /[/\-\\^$*+?.()|[\]{}]/g;
-
-/**
- * Escape all the RegExp syntax-related characters in the following value.
- * @param value Original value.
- * @return Resulting value with all needed characters escaped.
- */
-export function escapeRegExp(value: string): string {
-  unsafeRegExpCharacters.lastIndex = 0;
-  return value.replace(unsafeRegExpCharacters, "\\$&");
-}

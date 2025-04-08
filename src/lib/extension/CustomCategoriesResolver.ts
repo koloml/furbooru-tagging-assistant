@@ -1,6 +1,6 @@
 import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
 import TagGroup from "$entities/TagGroup";
-import { escapeRegExp } from "$lib/utils";
+import { escape as escapeRegExp } from "@std/regexp";
 import { emit } from "$lib/components/events/comms";
 import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
 
