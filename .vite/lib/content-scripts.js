@@ -175,7 +175,9 @@ export async function buildScriptsAndStyles(buildOptions) {
           amd: {
             // amd-lite requires names even for the entry-point scripts, so we should make sure to add those.
             autoId: true,
-          }
+          },
+          // All these modules are not intended to be used outside of extension anyway
+          minifyInternalExports: true,
         }
       },
       emptyOutDir: false,
