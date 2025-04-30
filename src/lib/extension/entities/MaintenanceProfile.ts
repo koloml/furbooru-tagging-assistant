@@ -30,5 +30,5 @@ export default class MaintenanceProfile extends StorageEntity<MaintenanceProfile
     return super.save();
   }
 
-  public static readonly _entityName = "profiles";
+  public static readonly _entityName: keyof App.EntityNamesMap = "profiles";
 }
