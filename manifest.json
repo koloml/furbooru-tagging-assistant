@@ -43,17 +43,6 @@
         },
         {
             "matches": [
-                "*://*.furbooru.org/*"
-            ],
-            "js": [
-                "src/content/header.ts"
-            ],
-            "css": [
-                "src/styles/content/header.scss"
-            ]
-        },
-        {
-            "matches": [
                 "*://*.furbooru.org/images/*"
             ],
             "js": [
