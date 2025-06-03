@@ -17,7 +17,7 @@
         "@sveltejs/vite-plugin-svelte": "^5.0.3",
         "@types/chrome": "^0.0.313",
         "@types/node": "^22.14.0",
-        "@vitest/coverage-v8": "^3.1.1",
+        "@vitest/coverage-v8": "^3.2.0",
         "cheerio": "^1.0.0",
         "jsdom": "^26.0.0",
         "sass": "^1.89.1",
