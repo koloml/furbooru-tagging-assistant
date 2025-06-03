@@ -3,8 +3,10 @@ import { createMediaBoxTools } from "$lib/components/MediaBoxTools";
 import { calculateMediaBoxesPositions, initializeMediaBox } from "$lib/components/MediaBoxWrapper";
 import { createMaintenanceStatusIcon } from "$lib/components/MaintenanceStatusIcon";
 import { createImageShowFullscreenButton } from "$lib/components/ImageShowFullscreenButton";
+import { initializeImageListContainer } from "$lib/components/listing/ImageListContainer";
 
 const mediaBoxes = document.querySelectorAll<HTMLElement>('.media-box');
+const imageListContainer = document.querySelector<HTMLElement>('#imagelist-container');
 
 mediaBoxes.forEach(mediaBoxElement => {
   initializeMediaBox(mediaBoxElement, [
@@ -22,3 +24,7 @@ mediaBoxes.forEach(mediaBoxElement => {
 });
 
 calculateMediaBoxesPositions(mediaBoxes);
+
+if (imageListContainer) {
+  initializeImageListContainer(imageListContainer);
+}
