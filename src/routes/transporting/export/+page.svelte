@@ -53,11 +53,25 @@
     });
   }
 
-  function toggleSelectionOnUserInput() {
-    requestAnimationFrame(() => {
-      $maintenanceProfiles.forEach(profile => exportedEntities.profiles[profile.id] = exportAllProfiles);
-      $tagGroups.forEach(group => exportedEntities.groups[group.id] = exportAllGroups);
-    });
+  /**
+   * Create a handler to toggle on or off specific entity type.
+   * @param targetEntity Code of the entity.
+   */
+  function createToggleAllOnUserInput(targetEntity: keyof App.EntityNamesMap) {
+    return () => {
+      requestAnimationFrame(() => {
+        switch (targetEntity) {
+          case "profiles":
+            $maintenanceProfiles.forEach(profile => exportedEntities.profiles[profile.id] = exportAllProfiles);
+            break;
+          case "groups":
+            $tagGroups.forEach(group => exportedEntities.groups[group.id] = exportAllGroups);
+            break;
+          default:
+            console.warn(`Trying to toggle unsupported entity type: ${targetEntity}`);
+        }
+      });
+    }
   }
 
   function toggleExportedStringDisplay() {
@@ -74,7 +88,7 @@
     <MenuItem href="/transporting" icon="arrow-left">Back</MenuItem>
     <hr>
     {#if $maintenanceProfiles.length}
-      <MenuCheckboxItem bind:checked={exportAllProfiles} oninput={toggleSelectionOnUserInput}>
+      <MenuCheckboxItem bind:checked={exportAllProfiles} oninput={createToggleAllOnUserInput('profiles')}>
         Export All Profiles
       </MenuCheckboxItem>
       {#each $maintenanceProfiles as profile}
@@ -85,7 +99,7 @@
       <hr>
     {/if}
     {#if $tagGroups.length}
-      <MenuCheckboxItem bind:checked={exportAllGroups} oninput={toggleSelectionOnUserInput}>
+      <MenuCheckboxItem bind:checked={exportAllGroups} oninput={createToggleAllOnUserInput('groups')}>
         Export All Groups
       </MenuCheckboxItem>
       {#each $tagGroups as group}
