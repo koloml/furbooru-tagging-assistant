@@ -32,6 +32,10 @@ export default class EntitiesTransporter<EntityType> {
     this.#targetEntityConstructor = entityConstructor;
   }
 
+  isCorrectEntity(entityObject: unknown): entityObject is EntityType {
+    return entityObject instanceof this.#targetEntityConstructor;
+  }
+
   importFromObject(importedObject: Record<string, any>): EntityType {
     validateImportedEntity(
       this.#entityName,
@@ -60,8 +64,8 @@ export default class EntitiesTransporter<EntityType> {
     )
   }
 
-  exportToJSON(entityObject: EntityType): string {
-    if (!(entityObject instanceof this.#targetEntityConstructor)) {
+  exportToObject(entityObject: EntityType) {
+    if (!this.isCorrectEntity(entityObject)) {
       throw new TypeError('Transporter should be connected to the same entity to export!');
     }
 
@@ -69,12 +73,18 @@ export default class EntitiesTransporter<EntityType> {
       throw new TypeError('Only storage entities could be exported!');
     }
 
-    const exportableObject = exportEntityToObject(
+    return exportEntityToObject(
       this.#entityName,
       entityObject
     );
+  }
 
-    return JSON.stringify(exportableObject, null, 2);
+  exportToJSON(entityObject: EntityType): string {
+    return JSON.stringify(
+      this.exportToObject(entityObject),
+      null,
+      2
+    );
   }
 
   exportToCompressedJSON(entityObject: EntityType): string {

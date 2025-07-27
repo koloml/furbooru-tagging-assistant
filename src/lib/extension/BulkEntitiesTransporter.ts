@@ -1,5 +1,5 @@
 import type StorageEntity from "$lib/extension/base/StorageEntity";
-import { decompressFromEncodedURIComponent } from "lz-string";
+import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from "lz-string";
 import type { ImportableElementsList, ImportableEntityObject } from "$lib/extension/transporting/importables";
 import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
 import MaintenanceProfile from "$entities/MaintenanceProfile";
@@ -39,6 +39,30 @@ export default class BulkEntitiesTransporter {
   parseAndImportFromCompressedJSON(compressedJsonString: string): StorageEntity[] {
     return this.parseAndImportFromJSON(
       decompressFromEncodedURIComponent(compressedJsonString)
+    );
+  }
+
+  exportToJSON(entities: StorageEntity[]): string {
+    return JSON.stringify({
+      $type: 'list',
+      elements: entities
+        .map(entity => {
+          switch (true) {
+            case entity instanceof MaintenanceProfile:
+              return BulkEntitiesTransporter.#transporters.profiles.exportToObject(entity);
+            case entity instanceof TagGroup:
+              return BulkEntitiesTransporter.#transporters.groups.exportToObject(entity);
+          }
+
+          return null;
+        })
+        .filter(value => !!value)
+    } as ImportableElementsList<ImportableEntityObject<StorageEntity>>, null, 2);
+  }
+
+  exportToCompressedJSON(entities: StorageEntity[]): string {
+    return compressToEncodedURIComponent(
+      this.exportToJSON(entities)
     );
   }
 
