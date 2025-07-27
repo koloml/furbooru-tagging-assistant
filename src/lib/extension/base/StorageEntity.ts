@@ -24,18 +24,22 @@ export default abstract class StorageEntity<SettingsType extends Object = {}> {
     return this.#settings;
   }
 
+  get type() {
+    return (this.constructor as typeof StorageEntity)._entityName;
+  }
+
   public static readonly _entityName: keyof App.EntityNamesMap | "entity" = "entity";
 
   async save() {
     await EntitiesController.updateEntity(
-      (this.constructor as typeof StorageEntity)._entityName,
+      this.type,
       this
     );
   }
 
   async delete() {
     await EntitiesController.deleteEntity(
-      (this.constructor as typeof StorageEntity)._entityName,
+      this.type,
       this.id
     );
   }
