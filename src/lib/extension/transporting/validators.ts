@@ -21,8 +21,8 @@ type EntitiesValidationMap = {
  */
 const entitiesValidators: EntitiesValidationMap = {
   profiles: importedObject => {
-    if (importedObject.v !== 1) {
-      throw new Error('Unsupported version!');
+    if (!importedObject.v || importedObject.v > 2) {
+      throw new Error('Unsupported profile version!');
     }
 
     if (
