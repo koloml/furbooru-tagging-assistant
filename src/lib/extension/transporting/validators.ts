@@ -1,32 +1,12 @@
 import type StorageEntity from "$lib/extension/base/StorageEntity";
-
-/**
- * Base information on the object which should be present on every entity.
- */
-interface BaseImportableObject {
-  /**
-   * Numeric version of the entity for upgrading.
-   */
-  v: number;
-  /**
-   * Unique ID of the entity.
-   */
-  id: string;
-}
-
-/**
- * Utility type which combines base importable object and the entity type interfaces together. It strips away any types
- * defined for the properties, since imported object can not be trusted and should be type-checked by the validators.
- */
-type ImportableObject<EntityType extends StorageEntity> = { [ObjectKey in keyof BaseImportableObject]: any }
-  & { [SettingKey in keyof EntityType["settings"]]: any };
+import type { ImportableEntityObject } from "$lib/extension/transporting/importables";
 
 /**
  * Function for validating the entities.
  * @todo Probably would be better to replace the throw-catch method with some kind of result-error returning type.
  *   Errors are only properly definable in the JSDoc.
  */
-type ValidationFunction<EntityType extends StorageEntity> = (importedObject: ImportableObject<EntityType>) => void;
+type ValidationFunction<EntityType extends StorageEntity> = (importedObject: ImportableEntityObject<EntityType>) => void;
 
 /**
  * Mapping of validation functions for all entities present in the extension. Key is a name of entity and value is a
@@ -37,38 +17,69 @@ type EntitiesValidationMap = {
 };
 
 /**
+ * Check if the following value is defined, not empty and is of correct type.
+ * @param value Value to be checked.
+ */
+function validateRequiredString(value: unknown): boolean {
+  return Boolean(value && typeof value === 'string');
+}
+
+/**
+ * Check if the following value is not set or is a valid array.
+ * @param value Value to be checked.
+ */
+function validateOptionalArray(value: unknown): boolean {
+  return typeof value === 'undefined' || value === null || Array.isArray(value);
+}
+
+/**
  * Map of validators for each entity. Function should throw the error if validation failed.
  */
 const entitiesValidators: EntitiesValidationMap = {
   profiles: importedObject => {
-    if (importedObject.v !== 1) {
-      throw new Error('Unsupported version!');
+    if (!importedObject.v || importedObject.v > 2) {
+      throw new Error('Unsupported profile version!');
     }
 
     if (
-      !importedObject.id
-      || typeof importedObject.id !== "string"
-      || !importedObject.name
-      || typeof importedObject.name !== "string"
-      || !importedObject.tags
-      || !Array.isArray(importedObject.tags)
+      !validateRequiredString(importedObject?.id)
+      || !validateRequiredString(importedObject?.name)
+      || !validateOptionalArray(importedObject?.tags)
     ) {
       throw new Error('Invalid profile format detected!');
     }
-  }
+  },
+  groups: importedObject => {
+    if (!importedObject.v || importedObject.v > 2) {
+      throw new Error('Unsupported group version!');
+    }
+
+    if (
+      !validateRequiredString(importedObject?.id)
+      || !validateRequiredString(importedObject?.name)
+      || !validateOptionalArray(importedObject?.tags)
+      || !validateOptionalArray(importedObject?.prefixes)
+      || !validateOptionalArray(importedObject?.suffixes)
+    ) {
+      throw new Error('Invalid group format detected!');
+    }
+  },
 };
 
 /**
  * Validate the structure of the entity.
- * @param importedObject Object imported from JSON.
  * @param entityName Name of the entity to validate. Should be loaded from the entity class.
+ * @param importedObject Object imported from JSON.
  * @throws {Error} Error in case validation failed with the reason stored in the message.
  */
-export function validateImportedEntity(importedObject: any, entityName: string) {
+export function validateImportedEntity<EntityName extends keyof App.EntityNamesMap>(
+  entityName: EntityName,
+  importedObject: any
+) {
   if (!entitiesValidators.hasOwnProperty(entityName)) {
     console.error(`Trying to validate entity without the validator present! Entity name: ${entityName}`);
     return;
   }
 
-  entitiesValidators[entityName as keyof EntitiesValidationMap]!.call(null, importedObject);
+  entitiesValidators[entityName]!.call(null, importedObject);
 }

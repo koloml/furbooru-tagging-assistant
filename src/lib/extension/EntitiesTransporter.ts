@@ -12,7 +12,13 @@ export default class EntitiesTransporter<EntityType> {
    */
   get #entityName() {
     // How the hell should I even do this?
-    return ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+    const entityName = ((this.#targetEntityConstructor as any) as typeof StorageEntity)._entityName;
+
+    if (entityName === "entity") {
+      throw new Error("Generic entity name encountered!");
+    }
+
+    return entityName;
   }
 
   /**
@@ -26,16 +32,16 @@ export default class EntitiesTransporter<EntityType> {
     this.#targetEntityConstructor = entityConstructor;
   }
 
-  importFromJSON(jsonString: string): EntityType {
-    const importedObject = this.#tryParsingAsJSON(jsonString);
+  isCorrectEntity(entityObject: unknown): entityObject is EntityType {
+    return entityObject instanceof this.#targetEntityConstructor;
+  }
 
-    if (!importedObject) {
-      throw new Error('Invalid JSON!');
-    }
-
+  importFromObject(importedObject: Record<string, any>): EntityType {
+    // TODO: There should be an auto-upgrader somewhere before the validation. So if even the older version of schema
+    //       was used, we still will will be able to pass the validation. For now we only have non-breaking changes.
     validateImportedEntity(
+      this.#entityName,
       importedObject,
-      this.#entityName
     );
 
     return new this.#targetEntityConstructor(
@@ -44,14 +50,24 @@ export default class EntitiesTransporter<EntityType> {
     );
   }
 
+  importFromJSON(jsonString: string): EntityType {
+    const importedObject = this.#tryParsingAsJSON(jsonString);
+
+    if (!importedObject) {
+      throw new Error('Invalid JSON!');
+    }
+
+    return this.importFromObject(importedObject);
+  }
+
   importFromCompressedJSON(compressedJsonString: string): EntityType {
     return this.importFromJSON(
       decompressFromEncodedURIComponent(compressedJsonString)
     )
   }
 
-  exportToJSON(entityObject: EntityType): string {
-    if (!(entityObject instanceof this.#targetEntityConstructor)) {
+  exportToObject(entityObject: EntityType) {
+    if (!this.isCorrectEntity(entityObject)) {
       throw new TypeError('Transporter should be connected to the same entity to export!');
     }
 
@@ -59,12 +75,18 @@ export default class EntitiesTransporter<EntityType> {
       throw new TypeError('Only storage entities could be exported!');
     }
 
-    const exportableObject = exportEntityToObject(
-      entityObject,
-      this.#entityName
+    return exportEntityToObject(
+      this.#entityName,
+      entityObject
     );
+  }
 
-    return JSON.stringify(exportableObject, null, 2);
+  exportToJSON(entityObject: EntityType): string {
+    return JSON.stringify(
+      this.exportToObject(entityObject),
+      null,
+      2
+    );
   }
 
   exportToCompressedJSON(entityObject: EntityType): string {
