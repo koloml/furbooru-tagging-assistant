@@ -37,6 +37,8 @@ export default class EntitiesTransporter<EntityType> {
   }
 
   importFromObject(importedObject: Record<string, any>): EntityType {
+    // TODO: There should be an auto-upgrader somewhere before the validation. So if even the older version of schema
+    //       was used, we still will will be able to pass the validation. For now we only have non-breaking changes.
     validateImportedEntity(
       this.#entityName,
       importedObject,
