@@ -17,6 +17,22 @@ type EntitiesValidationMap = {
 };
 
 /**
+ * Check if the following value is defined, not empty and is of correct type.
+ * @param value Value to be checked.
+ */
+function validateRequiredString(value: unknown): boolean {
+  return Boolean(value && typeof value === 'string');
+}
+
+/**
+ * Check if the following value is not set or is a valid array.
+ * @param value Value to be checked.
+ */
+function validateOptionalArray(value: unknown): boolean {
+  return typeof value === 'undefined' || value === null || Array.isArray(value);
+}
+
+/**
  * Map of validators for each entity. Function should throw the error if validation failed.
  */
 const entitiesValidators: EntitiesValidationMap = {
@@ -26,12 +42,9 @@ const entitiesValidators: EntitiesValidationMap = {
     }
 
     if (
-      !importedObject.id
-      || typeof importedObject.id !== "string"
-      || !importedObject.name
-      || typeof importedObject.name !== "string"
-      || !importedObject.tags
-      || !Array.isArray(importedObject.tags)
+      !validateRequiredString(importedObject?.id)
+      || !validateRequiredString(importedObject?.name)
+      || !validateOptionalArray(importedObject?.tags)
     ) {
       throw new Error('Invalid profile format detected!');
     }
