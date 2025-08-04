@@ -7,4 +7,5 @@
   <MenuItem href="/" icon="arrow-left">Back</MenuItem>
   <hr>
   <MenuItem href="/transporting/export">Export</MenuItem>
+  <MenuItem href="/transporting/import">Import</MenuItem>
 </Menu>
