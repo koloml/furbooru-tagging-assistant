@@ -9,8 +9,15 @@
     value?: string;
     href?: string;
     children?: Snippet;
+    /**
+     * Click event received by the checkbox input element.
+     */
     onclick?: MouseEventHandler<HTMLInputElement>;
     oninput?: FormEventHandler<HTMLInputElement>;
+    /**
+     * Click event received by the menu item instead of the checkbox element.
+     */
+    onitemclick?: MouseEventHandler<HTMLElement>;
   }
 
   let checkboxElement: HTMLInputElement;
@@ -23,6 +30,7 @@
     children,
     onclick,
     oninput,
+    onitemclick,
   }: MenuCheckboxItemProps = $props();
 
   /**
@@ -37,7 +45,17 @@
   /**
    * Check and try to toggle checkbox if href was not provided for the menu item.
    */
-  function maybeToggleCheckboxOnOuterLinkClicked() {
+  function maybeToggleCheckboxOnOuterLinkClicked(event: MouseEvent) {
+    // Call the event handler if present.
+    if (onitemclick) {
+      onitemclick(event as MouseEvent & {currentTarget: HTMLElement});
+
+      // If it was prevented, then don't attempt to run checkbox toggling workaround.
+      if (event.defaultPrevented) {
+        return;
+      }
+    }
+
     // When menu link does not contain any link, we should just treat clicks on it as toggle action on checkbox.
     if (!href) {
       checked = !checked;
