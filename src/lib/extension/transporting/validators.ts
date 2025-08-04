@@ -48,7 +48,22 @@ const entitiesValidators: EntitiesValidationMap = {
     ) {
       throw new Error('Invalid profile format detected!');
     }
-  }
+  },
+  groups: importedObject => {
+    if (!importedObject.v || importedObject.v > 2) {
+      throw new Error('Unsupported group version!');
+    }
+
+    if (
+      !validateRequiredString(importedObject?.id)
+      || !validateRequiredString(importedObject?.name)
+      || !validateOptionalArray(importedObject?.tags)
+      || !validateOptionalArray(importedObject?.prefixes)
+      || !validateOptionalArray(importedObject?.suffixes)
+    ) {
+      throw new Error('Invalid group format detected!');
+    }
+  },
 };
 
 /**
