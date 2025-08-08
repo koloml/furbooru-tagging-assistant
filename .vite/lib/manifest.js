@@ -124,7 +124,7 @@ export function loadManifest(filePath) {
 
 /**
  * @typedef {Object} ContentScriptsEntry
- * @property {string[]} mathces
+ * @property {string[]} matches
  * @property {string[]|undefined} js
  * @property {string[]|undefined} css
  */
