@@ -1,7 +1,7 @@
 import type StorageEntity from "$lib/extension/base/StorageEntity";
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from "lz-string";
 import type { ImportableElementsList, ImportableEntityObject } from "$lib/extension/transporting/importables";
-import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
+import EntitiesTransporter, { type SameSiteStatus } from "$lib/extension/EntitiesTransporter";
 import MaintenanceProfile from "$entities/MaintenanceProfile";
 import TagGroup from "$entities/TagGroup";
 
@@ -10,8 +10,16 @@ type TransportersMapping = {
 }
 
 export default class BulkEntitiesTransporter {
+  #lastSameSiteStatus: SameSiteStatus = null;
+
+  get lastImportSameSiteStatus() {
+    return this.#lastSameSiteStatus;
+  }
+
   parseAndImportFromJSON(jsonString: string): StorageEntity[] {
     let parsedObject: any;
+
+    this.#lastSameSiteStatus = null;
 
     try {
       parsedObject = JSON.parse(jsonString);
@@ -23,7 +31,11 @@ export default class BulkEntitiesTransporter {
       throw new TypeError('Invalid or unsupported object!');
     }
 
-    return parsedObject.elements
+    this.#lastSameSiteStatus = EntitiesTransporter.checkIsSameSiteImportedObject(parsedObject);
+
+    let hasDifferentStatuses = false;
+
+    const resultEntities = parsedObject.elements
       .map(importableObject => {
         if (!(importableObject.$type in BulkEntitiesTransporter.#transporters)) {
           console.warn('Attempting to import unsupported entity: ' + importableObject.$type);
@@ -31,9 +43,21 @@ export default class BulkEntitiesTransporter {
         }
 
         const transporter = BulkEntitiesTransporter.#transporters[importableObject.$type as keyof App.EntityNamesMap];
-        return transporter.importFromObject(importableObject);
+        const resultEntity = transporter.importFromObject(importableObject);
+
+        if (transporter.lastImportSameSiteStatus !== this.#lastSameSiteStatus) {
+          hasDifferentStatuses = true;
+        }
+
+        return resultEntity;
       })
       .filter(maybeEntity => !!maybeEntity);
+
+    if (hasDifferentStatuses) {
+      this.#lastSameSiteStatus = 'unknown';
+    }
+
+    return resultEntities;
   }
 
   parseAndImportFromCompressedJSON(compressedJsonString: string): StorageEntity[] {
@@ -77,5 +101,20 @@ export default class BulkEntitiesTransporter {
   static #transporters: TransportersMapping = {
     profiles: new EntitiesTransporter(MaintenanceProfile),
     groups: new EntitiesTransporter(TagGroup),
+  }
+
+  /**
+   * Check if the imported object is created for the same site extension or not.
+   * @param importedObject Object to check.
+   * @private
+   */
+  static #checkIsSameSiteImportedObject(importedObject: Record<string, any>): SameSiteStatus {
+    if (!('$site' in importedObject)) {
+      return "unknown";
+    }
+
+    return importedObject.$site === __CURRENT_SITE__
+      ? "same"
+      : "different";
   }
 }
