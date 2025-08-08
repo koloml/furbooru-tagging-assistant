@@ -13,6 +13,7 @@
   import ProfileView from "$components/features/ProfileView.svelte";
   import GroupView from "$components/features/GroupView.svelte";
   import { goto } from "$app/navigation";
+  import type { SameSiteStatus } from "$lib/extension/EntitiesTransporter";
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -50,6 +51,8 @@
 
   const transporter = new BulkEntitiesTransporter();
 
+  let lastImportStatus = $state<SameSiteStatus>(null);
+
   function tryBulkImport() {
     importedProfiles = [];
     importedGroups = [];
@@ -74,6 +77,8 @@
       errorMessage = importError instanceof Error ? importError.message : 'Unknown error!';
       return;
     }
+
+    lastImportStatus = transporter.lastImportSameSiteStatus;
 
     if (importedEntities.length) {
       for (const targetImportedEntity of importedEntities) {
@@ -180,7 +185,25 @@
 {:else}
   <Menu>
     <MenuItem onclick={cancelImport} icon="arrow-left">Cancel Import</MenuItem>
-    <hr>
+    {#if lastImportStatus !== 'same'}
+      <hr>
+    {/if}
+  </Menu>
+  {#if lastImportStatus === "different"}
+    <p class="warning">
+      <b>Warning!</b>
+      Looks like these entities were exported for the different extension! There are many differences between tagging
+      systems of Furobooru and Derpibooru, so make sure to check if these settings are correct before using them!
+    </p>
+  {/if}
+  {#if lastImportStatus === 'unknown'}
+    <p class="warning">
+      <b>Warning!</b>
+      We couldn't verify if these settings are meant for this site or not. There are many differences between tagging
+      systems of Furbooru and Derpibooru, so make sure to check if these settings are correct before using them.
+    </p>
+  {/if}
+  <Menu>
     {#if importedProfiles.length}
       <hr>
       <MenuCheckboxItem bind:checked={saveAllProfiles} oninput={createToggleAllOnUserInput('profiles')}>
@@ -234,12 +257,16 @@
 <style lang="scss">
   @use '$styles/colors';
 
-  .error {
+  .error, .warning {
     padding: 5px 24px;
     margin: {
       left: -24px;
       right: -24px;
     }
+  }
+
+  .warning {
+    background: colors.$warning-background;
   }
 
   .error {
