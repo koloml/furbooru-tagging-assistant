@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use 'environment';
 
 $background: #15121a;
 
@@ -55,3 +56,31 @@ $error-background: #7a2725;
 
 $warning-background: #7d4825;
 $warning-border: #95562c;
+
+@if environment.$current-site == 'derpibooru' {
+  $background: #141a24;
+
+  $text: #e0e0e0;
+  $text-gray: #90a1bb;
+
+  $link: #478acc;
+  $link-hover: #b099dd;
+
+  $header: #284371;
+  $header-toolbar: #1c3252;
+  $header-hover-background: #1d3153;
+  $header-mobile-link-hover: #546c99;
+
+  $footer: #1d242f;
+  $footer-text: $text-gray;
+
+  $block-header: #252d3c;
+  $block-border: #2d3649;
+  $block-background: #1d242f;
+  $block-background-alternate: #171d26;
+
+  $media-box-border: #3d4657;
+
+  $input-background: #282e39;
+  $input-border: #575e6b;
+}
