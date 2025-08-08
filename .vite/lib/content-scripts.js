@@ -159,6 +159,19 @@ export async function buildScriptsAndStyles(buildOptions) {
   }
 
   const aliasesSettings = makeAliases(buildOptions.rootDir);
+  const defineConstants = {
+    __CURRENT_SITE__: JSON.stringify('furbooru'),
+    __CURRENT_SITE_NAME__: JSON.stringify('Furbooru'),
+  };
+
+  const derpibooruSwapPlugin = SwapDefinedVariablesPlugin({
+    envVariable: 'SITE',
+    expectedValue: 'derpibooru',
+    define: {
+      __CURRENT_SITE__: JSON.stringify('derpibooru'),
+      __CURRENT_SITE_NAME__: JSON.stringify('Derpibooru'),
+    }
+  });
 
   // Building all scripts together with AMD loader in mind
   await build({
@@ -194,16 +207,9 @@ export async function buildScriptsAndStyles(buildOptions) {
           .get(fileName)
           ?.push(...dependencies);
       }),
-      ScssViteReadEnvVariableFunctionPlugin(),
-      SwapDefinedVariablesPlugin({
-        envVariable: 'SITE',
-        expectedValue: 'derpibooru',
-        define: {
-          __CURRENT_SITE__: JSON.stringify('derpibooru'),
-          __CURRENT_SITE_NAME__: JSON.stringify('Derpibooru'),
-        }
-      }),
-    ]
+      derpibooruSwapPlugin,
+    ],
+    define: defineConstants,
   });
 
   // Build styles separately because AMD converts styles to JS files.
@@ -226,11 +232,10 @@ export async function buildScriptsAndStyles(buildOptions) {
     },
     plugins: [
       wrapScriptIntoIIFE(),
+      ScssViteReadEnvVariableFunctionPlugin(),
+      derpibooruSwapPlugin,
     ],
-    define: {
-      __CURRENT_SITE__: JSON.stringify('furbooru'),
-      __CURRENT_SITE_NAME__: JSON.stringify('Furbooru'),
-    }
+    define: defineConstants,
   });
 
   return pathsReplacement;
