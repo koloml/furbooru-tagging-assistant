@@ -2,6 +2,8 @@ import { build } from "vite";
 import { createHash } from "crypto";
 import path from "path";
 import fs from "fs";
+import { SwapDefinedVariablesPlugin } from "../plugins/swap-defined-variables.js";
+import { ScssViteReadEnvVariableFunctionPlugin } from "../plugins/scss-read-env-variable-function.js";
 
 /**
  * Create the result base file name for the file.
@@ -192,6 +194,15 @@ export async function buildScriptsAndStyles(buildOptions) {
           .get(fileName)
           ?.push(...dependencies);
       }),
+      ScssViteReadEnvVariableFunctionPlugin(),
+      SwapDefinedVariablesPlugin({
+        envVariable: 'SITE',
+        expectedValue: 'derpibooru',
+        define: {
+          __CURRENT_SITE__: JSON.stringify('derpibooru'),
+          __CURRENT_SITE_NAME__: JSON.stringify('Derpibooru'),
+        }
+      }),
     ]
   });
 
@@ -215,7 +226,11 @@ export async function buildScriptsAndStyles(buildOptions) {
     },
     plugins: [
       wrapScriptIntoIIFE(),
-    ]
+    ],
+    define: {
+      __CURRENT_SITE__: JSON.stringify('furbooru'),
+      __CURRENT_SITE_NAME__: JSON.stringify('Furbooru'),
+    }
   });
 
   return pathsReplacement;
