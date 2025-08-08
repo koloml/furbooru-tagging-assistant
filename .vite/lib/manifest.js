@@ -87,6 +87,53 @@ class ManifestProcessor {
   }
 
   /**
+   * Find all patterns in content scripts and host permissions and replace the hostname to the different one.
+   *
+   * @param {string|string[]} singleOrMultipleHostnames One or multiple hostnames to replace the original hostname with.
+   */
+  replaceHostTo(singleOrMultipleHostnames) {
+    if (typeof singleOrMultipleHostnames === 'string') {
+      singleOrMultipleHostnames = [singleOrMultipleHostnames];
+    }
+
+    this.#manifestObject.host_permissions = singleOrMultipleHostnames.map(hostname => `*://*.${hostname}/`);
+
+    this.#manifestObject.content_scripts?.forEach(entry => {
+      entry.matches = entry.matches.reduce((resultMatches, originalMatchPattern) => {
+        for (const updatedHostname of singleOrMultipleHostnames) {
+          resultMatches.push(
+            originalMatchPattern.replace(
+              /\*:\/\/\*\.[a-z]+\.[a-z]+\//,
+              `*://*.${updatedHostname}/`
+            ),
+          );
+        }
+
+        return resultMatches;
+      }, []);
+    })
+  }
+
+  /**
+   * Set different identifier for Gecko-based browsers (Firefox).
+   *
+   * @param {string} id ID of the extension to use.
+   */
+  setGeckoIdentifier(id) {
+    this.#manifestObject.browser_specific_settings.gecko.id = id;
+  }
+
+  /**
+   * Set the different extension name.
+   *
+   * @param {string} booruName
+   */
+  replaceBooruNameWith(booruName) {
+    this.#manifestObject.name = this.#manifestObject.name.replaceAll('Furbooru', booruName);
+    this.#manifestObject.description = this.#manifestObject.description.replaceAll('Furbooru', booruName);
+  }
+
+  /**
    * Save the current state of the manifest into the selected file.
    *
    * @param {string} manifestFilePath File to write the resulting manifest to. Should be called after all the
@@ -118,8 +165,22 @@ export function loadManifest(filePath) {
 
 /**
  * @typedef {Object} Manifest
+ * @property {string} name
+ * @property {string} description
  * @property {string} version
+ * @property {BrowserSpecificSettings} browser_specific_settings
+ * @property {string[]} host_permissions
  * @property {ContentScriptsEntry[]|undefined} content_scripts
+ */
+
+/**
+ * @typedef {Object} BrowserSpecificSettings
+ * @property {GeckoSettings} gecko
+ */
+
+/**
+ * @typedef {Object} GeckoSettings
+ * @property {string} id
  */
 
 /**
