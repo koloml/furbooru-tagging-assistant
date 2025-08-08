@@ -1,5 +1,6 @@
 @use '$styles/colors';
 @use '$styles/booru-vars';
+@use '$styles/environment';
 
 // This will fix wierd misplacing of the modified media boxes in the listing.
 .js-resizable-media-container {
@@ -66,8 +67,16 @@
 
     .tag {
       cursor: pointer;
-      padding: 5px;
       user-select: none;
+
+      // Derpibooru has slight differences in how tags are displayed.
+      @if environment.$current-site == 'derpibooru' {
+        padding: 0 5px;
+        gap: 0;
+      }
+      @else {
+        padding: 5px;
+      }
 
       &:hover {
         background: booru-vars.$resolved-tag-color;
