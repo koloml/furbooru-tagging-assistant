@@ -45,6 +45,7 @@ export default class BulkEntitiesTransporter {
   exportToJSON(entities: StorageEntity[]): string {
     return JSON.stringify({
       $type: 'list',
+      $site: __CURRENT_SITE__,
       elements: entities
         .map(entity => {
           switch (true) {

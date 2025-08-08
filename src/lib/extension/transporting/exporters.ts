@@ -11,6 +11,7 @@ const entitiesExporters: ExportersMap = {
   profiles: entity => {
     return {
       $type: "profiles",
+      $site: __CURRENT_SITE__,
       v: 2,
       id: entity.id,
       name: entity.settings.name,
@@ -22,6 +23,7 @@ const entitiesExporters: ExportersMap = {
   groups: entity => {
     return {
       $type: "groups",
+      $site: __CURRENT_SITE__,
       v: 2,
       id: entity.id,
       name: entity.settings.name,

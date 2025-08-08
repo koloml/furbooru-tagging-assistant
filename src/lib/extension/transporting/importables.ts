@@ -5,6 +5,10 @@ export interface ImportableElement<Type extends string = string> {
    * Type of importable. Should be unique to properly import everything.
    */
   $type: Type;
+  /**
+   * Identifier of the site this element is built for.
+   */
+  $site?: string;
 }
 
 export interface ImportableElementsList<ElementsType extends ImportableElement = ImportableElement> extends ImportableElement<"list"> {
