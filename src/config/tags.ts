@@ -1,4 +1,4 @@
-export const tagsBlacklist: string[] = [
+export const tagsBlacklist: string[] = (__CURRENT_SITE__ === 'furbooru' ? [
   "anthro art",
   "anthro artist",
   "anthro cute",
@@ -63,4 +63,21 @@ export const tagsBlacklist: string[] = [
   "tagme",
   "upvotes galore",
   "wall of faves"
-];
+] : [
+  "tagme",
+  "tag me",
+  "not tagged",
+  "no tag",
+  "notag",
+  "notags",
+  "upvotes galore",
+  "downvotes galore",
+  "wall of faves",
+  "drama in the comments",
+  "drama in comments",
+  "tag needed",
+  "paywall",
+  "cringeworthy",
+  "solo oc",
+  "tag your shit"
+]);
