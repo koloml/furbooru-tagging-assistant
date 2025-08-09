@@ -1,5 +1,5 @@
 <header>
-  <a href="/">Furbooru Tagging Assistant</a>
+  <a href="/">{__CURRENT_SITE_NAME__} Tagging Assistant</a>
 </header>
 
 <style lang="scss">
