@@ -2,6 +2,8 @@ import { build } from "vite";
 import { createHash } from "crypto";
 import path from "path";
 import fs from "fs";
+import { SwapDefinedVariablesPlugin } from "../plugins/swap-defined-variables.js";
+import { ScssViteReadEnvVariableFunctionPlugin } from "../plugins/scss-read-env-variable-function.js";
 
 /**
  * Create the result base file name for the file.
@@ -157,6 +159,19 @@ export async function buildScriptsAndStyles(buildOptions) {
   }
 
   const aliasesSettings = makeAliases(buildOptions.rootDir);
+  const defineConstants = {
+    __CURRENT_SITE__: JSON.stringify('furbooru'),
+    __CURRENT_SITE_NAME__: JSON.stringify('Furbooru'),
+  };
+
+  const derpibooruSwapPlugin = SwapDefinedVariablesPlugin({
+    envVariable: 'SITE',
+    expectedValue: 'derpibooru',
+    define: {
+      __CURRENT_SITE__: JSON.stringify('derpibooru'),
+      __CURRENT_SITE_NAME__: JSON.stringify('Derpibooru'),
+    }
+  });
 
   // Building all scripts together with AMD loader in mind
   await build({
@@ -192,7 +207,9 @@ export async function buildScriptsAndStyles(buildOptions) {
           .get(fileName)
           ?.push(...dependencies);
       }),
-    ]
+      derpibooruSwapPlugin,
+    ],
+    define: defineConstants,
   });
 
   // Build styles separately because AMD converts styles to JS files.
@@ -215,7 +232,10 @@ export async function buildScriptsAndStyles(buildOptions) {
     },
     plugins: [
       wrapScriptIntoIIFE(),
-    ]
+      ScssViteReadEnvVariableFunctionPlugin(),
+      derpibooruSwapPlugin,
+    ],
+    define: defineConstants,
   });
 
   return pathsReplacement;

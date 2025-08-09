@@ -1,6 +1,12 @@
 <script>
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
+
+  let currentSiteUrl = 'https://furbooru.org';
+
+  if (__CURRENT_SITE__ === 'derpibooru') {
+    currentSiteUrl = 'https://derpibooru.org';
+  }
 </script>
 
 <Menu>
@@ -8,18 +14,26 @@
   <hr>
 </Menu>
 <h1>
-  Furbooru Tagging Assistant
+  {__CURRENT_SITE_NAME__} Tagging Assistant
 </h1>
 <p>
-  This is a tool made to help tag images on Furbooru more efficiently. It is currently in development and is not yet
-  ready for use, but it still can provide some useful functionality.
+  This is a small tool to make tagging on {__CURRENT_SITE_NAME__} just a little bit more convenient. Group tags with
+  your own rules; add or remove tags from the images without opening them up; preview images and videos on click and
+  a little bit more. This extension is highly unstable and might break at any point, so be aware.
 </p>
 <Menu>
   <hr>
-  <MenuItem href="https://furbooru.org" icon="globe" target="_blank">
-    Visit Furbooru
+  <MenuItem href={currentSiteUrl} icon="globe" target="_blank">
+    Visit {__CURRENT_SITE_NAME__}
   </MenuItem>
   <MenuItem href="https://github.com/koloml/furbooru-tagging-assistant" icon="info-circle" target="_blank">
     GitHub Repo
   </MenuItem>
 </Menu>
+
+<style>
+  h1, p {
+    margin-top: .5em;
+    margin-bottom: .5em;
+  }
+</style>

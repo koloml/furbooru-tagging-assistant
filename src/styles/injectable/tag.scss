@@ -1,4 +1,5 @@
 @use '../colors';
+@use '../environment';
 
 .tag {
   background: colors.$tag-background;
@@ -8,6 +9,10 @@
   font-size: 14px;
   padding: 0 4px;
   display: flex;
+
+  @if environment.$current-site == 'derpibooru' {
+    border: 1px solid colors.$tag-border;
+  }
 
   .remove {
     content: "x";

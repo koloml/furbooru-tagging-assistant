@@ -1,0 +1,20 @@
+@use 'sass:meta';
+@use 'sass:string';
+
+@function get-defined-constant($constant-name, $default-value: '') {
+  $resolved-value: $default-value;
+
+  @if meta.function-exists('vite-read-env-variable') {
+    $candidate-value: meta.call(meta.get-function('vite-read-env-variable'), $constant-name);
+
+    @if string.length($candidate-value) != 0 {
+      $resolved-value: $candidate-value
+    }
+  }
+
+  @return $resolved-value;
+}
+
+$current-site: get-defined-constant('__CURRENT_SITE__', 'furbooru');
+
+

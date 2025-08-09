@@ -67,6 +67,15 @@ export async function packExtension(settings) {
     return entry;
   })
 
+  if (process.env.SITE === 'derpibooru') {
+    manifest.replaceHostTo([
+      'derpibooru.org',
+      'trixiebooru.org'
+    ]);
+    manifest.replaceBooruNameWith('Derpibooru');
+    manifest.setGeckoIdentifier('derpibooru-tagging-assistant@thecore.city');
+  }
+
   manifest.passVersionFromPackage(path.resolve(settings.rootDir, 'package.json'));
   manifest.saveTo(path.resolve(settings.exportDir, 'manifest.json'));
 
