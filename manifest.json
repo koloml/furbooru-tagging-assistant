@@ -47,6 +47,9 @@
             ],
             "js": [
                 "src/content/tags-editor.ts"
+            ],
+            "css": [
+                "src/styles/content/tags-editor.scss"
             ]
         },
         {
