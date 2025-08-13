@@ -2,7 +2,21 @@ import { amdLite } from "amd-lite";
 
 const originalDefine = amdLite.define;
 
+/**
+ * Set of already defined modules. Used for deduplication.
+ */
+const definedModules = new Set<string>();
+
 amdLite.define = (name, dependencies, originalCallback) => {
+  // Chrome doesn't run the same content script multiple times, while Firefox does. Since each content script and their
+  // chunks are intended to be run only once, we should just ignore any attempts of running the same module more than
+  // once. Names of the modules are assumed to be unique.
+  if (definedModules.has(name)) {
+    return;
+  }
+
+  definedModules.add(name);
+
   return originalDefine(name, dependencies, function () {
     const callbackResult = originalCallback(...arguments);
 
