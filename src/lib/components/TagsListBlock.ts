@@ -134,6 +134,7 @@ export class TagsListBlock extends BaseComponent {
       heading.style.display = 'none';
       heading.style.order = `var(${TagsListBlock.#orderCssVariableForGroup(group.id)}, 0)`;
       heading.style.flexBasis = '100%';
+      heading.classList.add('tag-category-headline');
 
       // We're inserting heading to the top just to make sure that heading is always in front of the tags related to
       // this category.

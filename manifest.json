@@ -1,7 +1,7 @@
 {
     "name": "Furbooru Tagging Assistant",
     "description": "Small experimental extension for slightly quicker tagging experience. Furbooru Edition.",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "browser_specific_settings": {
         "gecko": {
             "id": "furbooru-tagging-assistant@thecore.city"
@@ -47,6 +47,9 @@
             ],
             "js": [
                 "src/content/tags-editor.ts"
+            ],
+            "css": [
+                "src/styles/content/tags-editor.scss"
             ]
         },
         {

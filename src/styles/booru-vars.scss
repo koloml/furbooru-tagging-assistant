@@ -1,6 +1,9 @@
 $background-color: var(--background-color);
 $media-border: var(--media-border);
 $media-box-color: var(--media-box-color);
+$padding-small: var(--padding-small);
+$padding-normal: var(--padding-normal);
+$padding-large: var(--padding-large);
 
 // These variables are defined dynamically based on the category of the tag
 $resolved-tag-background: var(--tag-background);

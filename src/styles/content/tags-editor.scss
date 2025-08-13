@@ -1,0 +1,23 @@
+@use '$styles/booru-vars';
+@use '$styles/environment';
+
+h2.tag-category-headline {
+  // Basic margin top and bottom values gathered from Chrome.
+  $base-margin-top: .83em;
+  $base-margin-bottom: .62em;
+
+  // Tag List element was updated to use flex & gaps. This should be applied to Furbooru later, once updates will be
+  // applied from the base Philomena version.
+  @if environment.$current-site == 'derpibooru' {
+    margin: {
+      top: calc(#{$base-margin-top} - #{booru-vars.$padding-small});
+      bottom: calc(#{$base-margin-bottom} - #{booru-vars.$padding-small});
+    }
+  }
+  @else {
+    margin: {
+      top: $base-margin-top;
+      bottom: $base-margin-bottom;
+    }
+  }
+}
