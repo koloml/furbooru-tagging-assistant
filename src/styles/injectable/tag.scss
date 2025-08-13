@@ -3,7 +3,6 @@
 
 .tag {
   background: colors.$tag-background;
-  line-height: 28px;
   color: colors.$tag-text;
   font-weight: 700;
   font-size: 14px;
@@ -12,6 +11,10 @@
 
   @if environment.$current-site == 'derpibooru' {
     border: 1px solid colors.$tag-border;
+    line-height: 24px;
+  }
+  @else {
+    line-height: 28px;
   }
 
   .remove {
