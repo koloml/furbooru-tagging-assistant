@@ -16,7 +16,8 @@ below.
 
 ### Derpibooru Tagging Assistant
 
-I wasn't able to release the extension for Derpibooru yet. Links will be available shortly.
+[![Get the Add-on on Firefox](.github/assets/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/derpibooru-tagging-assistant/)
+[![Get the extension on Chrome](.github/assets/chrome.png)](https://chromewebstore.google.com/detail/pnmbomcdbfcghgmegklfofncfigdielb)
 
 ## Features
 
