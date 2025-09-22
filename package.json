@@ -14,7 +14,7 @@
     },
     "devDependencies": {
         "@sveltejs/adapter-static": "^3.0.9",
-        "@sveltejs/kit": "^2.31.1",
+        "@sveltejs/kit": "^2.42.2",
         "@sveltejs/vite-plugin-svelte": "^6.1.2",
         "@types/chrome": "^0.0.326",
         "@types/node": "^22.17.2",
