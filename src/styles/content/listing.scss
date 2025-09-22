@@ -68,15 +68,8 @@
     .tag {
       cursor: pointer;
       user-select: none;
-
-      // Derpibooru has slight differences in how tags are displayed.
-      @if environment.$current-site == 'derpibooru' {
-        padding: 0 5px;
-        gap: 0;
-      }
-      @else {
-        padding: 5px;
-      }
+      padding: 0 5px;
+      gap: 0;
 
       &:hover {
         background: booru-vars.$resolved-tag-color;
