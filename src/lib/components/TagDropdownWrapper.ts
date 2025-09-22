@@ -148,11 +148,10 @@ export class TagDropdownWrapper extends BaseComponent {
         profileSpecificButtonText = `Remove from profile "${profileName}"`;
       }
 
-      // Derpibooru has icons in dropdown. Make sure to only edit text and keep the icon untouched. Also, add the space
-      // before the text to make space between text and icon.
-      if (__CURRENT_SITE__ === 'derpibooru' && this.#toggleOnExistingButton.lastChild instanceof Text) {
+      if (this.#toggleOnExistingButton.lastChild instanceof Text) {
         this.#toggleOnExistingButton.lastChild.textContent = ` ${profileSpecificButtonText}`;
       } else {
+        // Just in case last child is missing, then update the text on the full element.
         this.#toggleOnExistingButton.textContent = profileSpecificButtonText;
       }
 
@@ -251,16 +250,11 @@ export class TagDropdownWrapper extends BaseComponent {
     dropdownLink.href = '#';
     dropdownLink.className = 'tag__dropdown__link';
 
-    // Derpibooru has an icon in dropdown item. Create the icon and place the text with additional space in front of it.
-    if (__CURRENT_SITE__ === 'derpibooru') {
-      const dropdownLinkIcon = document.createElement('i');
-      dropdownLinkIcon.classList.add('fa', 'fa-tags');
+    const dropdownLinkIcon = document.createElement('i');
+    dropdownLinkIcon.classList.add('fa', 'fa-tags');
 
-      dropdownLink.textContent = ` ${text}`;
-      dropdownLink.insertAdjacentElement('afterbegin', dropdownLinkIcon);
-    } else {
-      dropdownLink.textContent = text;
-    }
+    dropdownLink.textContent = ` ${text}`;
+    dropdownLink.insertAdjacentElement('afterbegin', dropdownLinkIcon);
 
     dropdownLink.addEventListener('click', event => {
       event.preventDefault();
