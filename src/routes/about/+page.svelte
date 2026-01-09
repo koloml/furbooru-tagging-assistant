@@ -1,6 +1,7 @@
 <script>
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
+  import { PLUGIN_NAME } from "$lib/constants";
 
   let currentSiteUrl = 'https://furbooru.org';
 
@@ -14,7 +15,7 @@
   <hr>
 </Menu>
 <h1>
-  {__CURRENT_SITE_NAME__} Tagging Assistant
+  {PLUGIN_NAME}
 </h1>
 <p>
   This is a small tool to make tagging on {__CURRENT_SITE_NAME__} just a little bit more convenient. Group tags with

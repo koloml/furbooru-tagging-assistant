@@ -1,5 +1,9 @@
+<script lang="ts">
+  import { PLUGIN_NAME } from "$lib/constants";
+</script>
+
 <header>
-  <a href="/">{__CURRENT_SITE_NAME__} Tagging Assistant</a>
+  <a href="/">{PLUGIN_NAME}</a>
 </header>
 
 <style lang="scss">
