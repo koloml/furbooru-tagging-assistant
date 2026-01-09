@@ -8,6 +8,7 @@
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import { goto } from "$app/navigation";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
+  import { popupTitle } from "$stores/popup";
 
   const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
 
@@ -17,6 +18,11 @@
   let candidateProfile = $state<MaintenanceProfile | null>(null);
   let existingProfile = $state<MaintenanceProfile | null>(null);
 
+  $effect(() => {
+    $popupTitle = candidateProfile
+      ? 'Confirm Imported Tagging Profile'
+      : 'Import Tagging Profile';
+  })
   function tryImportingProfile() {
     candidateProfile = null;
     existingProfile = null;

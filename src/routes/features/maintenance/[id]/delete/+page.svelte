@@ -5,6 +5,7 @@
   import { page } from "$app/state";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { popupTitle } from "$stores/popup";
 
   const profileId = $derived(page.params.id);
   const targetProfile = $derived<MaintenanceProfile | null>(
@@ -14,6 +15,8 @@
   $effect(() => {
     if (!targetProfile) {
       goto('/features/maintenance');
+    } else {
+      $popupTitle = `Deleting Tagging Profile: ${targetProfile.settings.name}`
     }
   });
 

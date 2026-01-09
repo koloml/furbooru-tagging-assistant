@@ -8,6 +8,7 @@
   import TagGroup from "$entities/TagGroup";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import { popupTitle } from "$stores/popup";
 
   let isEncodedGroupShown = $state(true);
 
@@ -17,6 +18,8 @@
   $effect(() => {
     if (!group) {
       goto('/features/groups');
+    } else {
+      $popupTitle = `Export Tag Group: ${group.settings.name}`;
     }
   });
 

@@ -2,6 +2,7 @@
   import StorageViewer from "$components/debugging/StorageViewer.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
+  import { popupTitle } from "$stores/popup";
 
   let pathArray = $derived.by<string[]>(() => {
     const pathString = page.params.path;
@@ -30,6 +31,10 @@
     if (!storageName) {
       goto("/preferences/debug/storage");
     }
+
+    $popupTitle = storageName
+      ? 'Inspecting: ' + storageName
+      : 'Storage Inspector';
   });
 </script>
 

@@ -2,6 +2,9 @@
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { PLUGIN_NAME } from "$lib/constants";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'About';
 
   let currentSiteUrl = 'https://furbooru.org';
 

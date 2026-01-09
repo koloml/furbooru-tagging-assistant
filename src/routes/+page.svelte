@@ -4,6 +4,9 @@
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = null;
 
   let activeProfile = $derived<MaintenanceProfile | null>(
     $maintenanceProfiles.find(profile => profile.id === $activeProfileStore) || null

@@ -12,6 +12,7 @@
   import TagGroup from "$entities/TagGroup";
   import { tagGroups } from "$stores/entities/tag-groups";
   import CheckboxField from "$components/ui/forms/CheckboxField.svelte";
+  import { popupTitle } from "$stores/popup";
 
   let groupId = $derived(page.params.id);
 
@@ -32,6 +33,7 @@
 
   $effect(() => {
     if (groupId === 'new') {
+      $popupTitle = 'Create Tag Group';
       return;
     }
 
@@ -39,6 +41,8 @@
       goto('/features/groups');
       return;
     }
+
+    $popupTitle = `Edit Tag Group: ${targetGroup.settings.name}`;
 
     groupName = targetGroup.settings.name;
     tagsList = [...targetGroup.settings.tags].sort((a, b) => a.localeCompare(b));

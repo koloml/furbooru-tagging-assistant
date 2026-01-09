@@ -8,6 +8,7 @@
   import TagGroup from "$entities/TagGroup";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { tagGroups } from "$stores/entities/tag-groups";
+  import { popupTitle } from "$stores/popup";
 
   const groupTransporter = new EntitiesTransporter(TagGroup);
 
@@ -16,6 +17,12 @@
 
   let candidateGroup = $state<TagGroup | null>(null);
   let existingGroup = $state<TagGroup | null>(null);
+
+  $effect(() => {
+    $popupTitle = candidateGroup
+      ? 'Confirm Imported Tag Group'
+      : 'Import Tag Group';
+  });
 
   function tryImportingGroup() {
     candidateGroup = null;
