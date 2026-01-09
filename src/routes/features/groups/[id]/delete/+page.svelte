@@ -5,6 +5,7 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import type TagGroup from "$entities/TagGroup";
+  import { popupTitle } from "$stores/popup";
 
   const groupId = $derived<string>(page.params.id);
   const targetGroup = $derived<TagGroup | undefined>($tagGroups.find(group => group.id === groupId));
@@ -12,6 +13,8 @@
   $effect(() => {
     if (!targetGroup) {
       goto('/features/groups');
+    } else {
+      $popupTitle = `Deleting Tag Group: ${targetGroup.settings.name}`;
     }
   })
 

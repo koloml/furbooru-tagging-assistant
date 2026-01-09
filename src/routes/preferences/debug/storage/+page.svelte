@@ -2,6 +2,9 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import Menu from "$components/ui/menu/Menu.svelte";
   import { storagesCollection } from "$stores/debug";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'Storage Inspector';
 </script>
 
 <Menu>

@@ -5,6 +5,9 @@
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import CheckboxField from "$components/ui/forms/CheckboxField.svelte";
   import { fullScreenViewerEnabled } from "$stores/preferences/misc";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'Misc Preferences';
 </script>
 
 <Menu>

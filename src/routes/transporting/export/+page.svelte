@@ -8,6 +8,7 @@
   import type StorageEntity from "$lib/extension/base/StorageEntity";
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
+  import { popupTitle } from "$stores/popup";
 
   const bulkTransporter = new BulkEntitiesTransporter();
 
@@ -44,6 +45,12 @@
       plainExport = bulkTransporter.exportToJSON(elementsToExport);
       compressedExport = bulkTransporter.exportToCompressedJSON(elementsToExport);
     }
+  });
+
+  $effect(() => {
+    $popupTitle = displayExportedString
+      ? 'Exported String'
+      : 'Select Entities to Export';
   });
 
   function refreshAreAllEntitiesChecked() {
