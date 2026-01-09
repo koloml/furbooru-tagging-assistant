@@ -7,7 +7,7 @@
 
   let { profile }: ProfileViewProps = $props();
 
-  const sortedTagsList = profile.settings.tags.sort((a, b) => a.localeCompare(b));
+  const sortedTagsList = $derived(profile.settings.tags.sort((a, b) => a.localeCompare(b)));
 </script>
 
 <div class="block">
