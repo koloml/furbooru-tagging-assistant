@@ -1,5 +1,5 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { ImageListInfo } from "$lib/components/listing/ImageListInfo";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { ImageListInfo } from "$content/components/listing/ImageListInfo";
 
 export class ImageListContainer extends BaseComponent {
   #info: ImageListInfo | null = null;

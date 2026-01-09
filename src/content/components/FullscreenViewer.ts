@@ -1,7 +1,7 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
+import { BaseComponent } from "$content/components/base/BaseComponent";
 import MiscSettings, { type FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
-import { emit, on } from "$lib/components/events/comms";
-import { EVENT_SIZE_LOADED } from "$lib/components/events/fullscreen-viewer-events";
+import { emit, on } from "$content/components/events/comms";
+import { EVENT_SIZE_LOADED } from "$content/components/events/fullscreen-viewer-events";
 
 export class FullscreenViewer extends BaseComponent {
   #videoElement: HTMLVideoElement = document.createElement('video');

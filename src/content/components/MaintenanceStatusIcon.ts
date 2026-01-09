@@ -1,8 +1,8 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
-import { on } from "$lib/components/events/comms";
-import { EVENT_MAINTENANCE_STATE_CHANGED } from "$lib/components/events/maintenance-popup-events";
-import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
+import { on } from "$content/components/events/comms";
+import { EVENT_MAINTENANCE_STATE_CHANGED } from "$content/components/events/maintenance-popup-events";
+import type { MediaBoxTools } from "$content/components/MediaBoxTools";
 
 export class MaintenanceStatusIcon extends BaseComponent {
   #mediaBoxTools: MediaBoxTools | null = null;
