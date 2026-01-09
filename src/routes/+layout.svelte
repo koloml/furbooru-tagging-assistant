@@ -4,6 +4,7 @@
   import Footer from "$components/layout/Footer.svelte";
   import { initializeLinksReplacement } from "$lib/popup-links";
   import { onDestroy } from "svelte";
+  import { headTitle } from "$stores/popup";
 
   interface Props {
     children?: import('svelte').Snippet;
@@ -21,6 +22,10 @@
     disconnectLinkReplacement();
   })
 </script>
+
+<svelte:head>
+  <title>{$headTitle}</title>
+</svelte:head>
 
 <Header/>
 <main>
