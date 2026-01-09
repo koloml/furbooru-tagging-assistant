@@ -9,6 +9,7 @@
   import { goto } from "$app/navigation";
   import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { popupTitle } from "$stores/popup";
 
 
   let profileId = $derived(page.params.id);
@@ -26,6 +27,7 @@
 
   $effect(() => {
     if (profileId === 'new') {
+      $popupTitle = 'Create Tagging Profile';
       return;
     }
 
@@ -33,6 +35,8 @@
       goto('/features/maintenance');
       return;
     }
+
+    $popupTitle = `Edit Tagging Profile: ${targetProfile.settings.name}`;
 
     profileName = targetProfile.settings.name;
     tagsList = [...targetProfile.settings.tags].sort((a, b) => a.localeCompare(b));

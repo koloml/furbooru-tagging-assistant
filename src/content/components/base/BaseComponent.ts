@@ -1,4 +1,4 @@
-import { bindComponent } from "$lib/components/base/component-utils";
+import { bindComponent } from "$content/components/base/component-utils";
 
 type ComponentEventListener<EventName extends keyof HTMLElementEventMap> =
   (this: HTMLElement, event: HTMLElementEventMap[EventName]) => void;

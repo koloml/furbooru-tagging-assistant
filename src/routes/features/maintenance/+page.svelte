@@ -4,6 +4,9 @@
   import MenuRadioItem from "$components/ui/menu/MenuRadioItem.svelte";
   import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'Tagging Profiles';
 
   let profiles = $derived<MaintenanceProfile[]>(
     $maintenanceProfiles.sort((a, b) => a.settings.name.localeCompare(b.settings.name))

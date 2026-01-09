@@ -6,6 +6,7 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import TagGroup from "$entities/TagGroup";
+  import { popupTitle } from "$stores/popup";
 
   let groupId = $derived<string>(page.params.id);
   let group = $derived<TagGroup | null>($tagGroups.find(group => group.id === groupId) || null);
@@ -19,6 +20,8 @@
     if (!group) {
       console.warn(`Group ${groupId} not found.`);
       goto('/features/groups');
+    } else {
+      $popupTitle = `Tag Group: ${group.settings.name}`;
     }
   })
 </script>

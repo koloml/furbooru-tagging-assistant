@@ -14,6 +14,7 @@
   import GroupView from "$components/features/GroupView.svelte";
   import { goto } from "$app/navigation";
   import type { SameSiteStatus } from "$lib/extension/EntitiesTransporter";
+  import { popupTitle } from "$stores/popup";
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -48,6 +49,16 @@
   const hasImportedEntities = $derived(
     Boolean(importedProfiles.length || importedGroups.length)
   );
+
+  $effect(() => {
+    $popupTitle = hasImportedEntities
+      ? (
+        previewedEntity
+          ? 'Preview of Imported Entity'
+          : 'Select & Preview Imported Entities'
+      )
+      : 'Import';
+  });
 
   const transporter = new BulkEntitiesTransporter();
 

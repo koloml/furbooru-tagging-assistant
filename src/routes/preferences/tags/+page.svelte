@@ -6,6 +6,9 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { stripBlacklistedTagsEnabled } from "$stores/preferences/maintenance";
   import { shouldSeparateTagGroups } from "$stores/preferences/tag";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'Tagging Preferences';
 </script>
 
 <Menu>

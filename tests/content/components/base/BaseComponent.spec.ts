@@ -1,5 +1,5 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
 import { randomString } from "$tests/utils";
 
 describe('BaseComponent', () => {

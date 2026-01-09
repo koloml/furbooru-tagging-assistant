@@ -1,9 +1,9 @@
-import { createMaintenancePopup } from "$lib/components/MaintenancePopup";
-import { createMediaBoxTools } from "$lib/components/MediaBoxTools";
-import { calculateMediaBoxesPositions, initializeMediaBox } from "$lib/components/MediaBoxWrapper";
-import { createMaintenanceStatusIcon } from "$lib/components/MaintenanceStatusIcon";
-import { createImageShowFullscreenButton } from "$lib/components/ImageShowFullscreenButton";
-import { initializeImageListContainer } from "$lib/components/listing/ImageListContainer";
+import { createMaintenancePopup } from "$content/components/MaintenancePopup";
+import { createMediaBoxTools } from "$content/components/MediaBoxTools";
+import { calculateMediaBoxesPositions, initializeMediaBox } from "$content/components/MediaBoxWrapper";
+import { createMaintenanceStatusIcon } from "$content/components/MaintenanceStatusIcon";
+import { createImageShowFullscreenButton } from "$content/components/ImageShowFullscreenButton";
+import { initializeImageListContainer } from "$content/components/listing/ImageListContainer";
 
 const mediaBoxes = document.querySelectorAll<HTMLElement>('.media-box');
 const imageListContainer = document.querySelector<HTMLElement>('#imagelist-container');

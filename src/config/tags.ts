@@ -1,3 +1,23 @@
+/**
+ * List of categories defined by the sites.
+ */
+export const categories: string[] = [
+  'rating',
+  'spoiler',
+  'origin',
+  'oc',
+  'error',
+  'character',
+  'content-official',
+  'content-fanmade',
+  'species',
+  'body-type',
+];
+
+/**
+ * List of tags which marked by the site as blacklisted. These tags are blocked from being added by the tag editor and
+ * should usually just be removed automatically.
+ */
 export const tagsBlacklist: string[] = (__CURRENT_SITE__ === 'furbooru' ? [
   "anthro art",
   "anthro artist",

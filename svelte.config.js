@@ -15,6 +15,7 @@ const config = {
     },
     alias: {
       "$config": "./src/config",
+      "$content": "./src/content",
       "$components": "./src/components",
       "$styles": "./src/styles",
       "$stores": "./src/stores",

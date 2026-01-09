@@ -1,5 +1,5 @@
-import { TagsForm } from "$lib/components/TagsForm";
-import { initializeAllTagsLists, watchForUpdatedTagLists } from "$lib/components/TagsListBlock";
+import { TagsForm } from "$content/components/TagsForm";
+import { initializeAllTagsLists, watchForUpdatedTagLists } from "$content/components/TagsListBlock";
 
 initializeAllTagsLists();
 watchForUpdatedTagLists();

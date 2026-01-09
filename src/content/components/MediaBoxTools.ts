@@ -1,9 +1,9 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
-import { MaintenancePopup } from "$lib/components/MaintenancePopup";
-import { on } from "$lib/components/events/comms";
-import { EVENT_ACTIVE_PROFILE_CHANGED } from "$lib/components/events/maintenance-popup-events";
-import type { MediaBoxWrapper } from "$lib/components/MediaBoxWrapper";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
+import { MaintenancePopup } from "$content/components/MaintenancePopup";
+import { on } from "$content/components/events/comms";
+import { EVENT_ACTIVE_PROFILE_CHANGED } from "$content/components/events/maintenance-popup-events";
+import type { MediaBoxWrapper } from "$content/components/MediaBoxWrapper";
 import type MaintenanceProfile from "$entities/MaintenanceProfile";
 
 export class MediaBoxTools extends BaseComponent {

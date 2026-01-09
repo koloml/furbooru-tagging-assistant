@@ -1,9 +1,9 @@
-import type { MaintenancePopupEventsMap } from "$lib/components/events/maintenance-popup-events";
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import type { FullscreenViewerEventsMap } from "$lib/components/events/fullscreen-viewer-events";
-import type { BooruEventsMap } from "$lib/components/events/booru-events";
-import type { TagsFormEventsMap } from "$lib/components/events/tags-form-events";
-import type { TagDropdownEvents } from "$lib/components/events/tag-dropdown-events";
+import type { MaintenancePopupEventsMap } from "$content/components/events/maintenance-popup-events";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import type { FullscreenViewerEventsMap } from "$content/components/events/fullscreen-viewer-events";
+import type { BooruEventsMap } from "$content/components/events/booru-events";
+import type { TagsFormEventsMap } from "$content/components/events/tags-form-events";
+import type { TagDropdownEvents } from "$content/components/events/tag-dropdown-events";
 
 type EventsMapping =
   MaintenancePopupEventsMap

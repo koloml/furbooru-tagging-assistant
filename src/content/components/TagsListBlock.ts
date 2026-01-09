@@ -1,10 +1,10 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
+import { BaseComponent } from "$content/components/base/BaseComponent";
 import type TagGroup from "$entities/TagGroup";
-import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
-import { on } from "$lib/components/events/comms";
-import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
-import { getComponent } from "$lib/components/base/component-utils";
-import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
+import type { TagDropdownWrapper } from "$content/components/TagDropdownWrapper";
+import { on } from "$content/components/events/comms";
+import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
+import { getComponent } from "$content/components/base/component-utils";
+import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdown-events";
 import TagSettings from "$lib/extension/settings/TagSettings";
 
 export class TagsListBlock extends BaseComponent {

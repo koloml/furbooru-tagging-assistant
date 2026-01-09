@@ -3,6 +3,9 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import TagGroup from "$entities/TagGroup";
+  import { popupTitle } from "$stores/popup";
+
+  $popupTitle = 'Tag Groups';
 
   let groups = $derived<TagGroup[]>($tagGroups.sort((a, b) => a.settings.name.localeCompare(b.settings.name)));
 </script>

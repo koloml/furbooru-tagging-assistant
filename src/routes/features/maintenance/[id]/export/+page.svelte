@@ -8,6 +8,7 @@
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { popupTitle } from "$stores/popup";
 
   let isCompressedProfileShown = $state(true);
 
@@ -19,6 +20,8 @@
   $effect(() => {
     if (!profile) {
       goto('/features/maintenance/');
+    } else {
+      $popupTitle = `Export Tagging Profile: ${profile.settings.name}`;
     }
   });
 
