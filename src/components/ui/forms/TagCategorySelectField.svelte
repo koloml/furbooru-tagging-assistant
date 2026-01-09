@@ -1,6 +1,6 @@
 <script lang="ts">
   import SelectField from "$components/ui/forms/SelectField.svelte";
-  import { categories } from "$lib/booru/tag-categories";
+  import { categories } from "$config/tags";
 
   interface TagCategorySelectFieldProps {
     value?: string;
