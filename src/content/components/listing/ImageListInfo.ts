@@ -1,4 +1,4 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
+import { BaseComponent } from "$content/components/base/BaseComponent";
 
 export class ImageListInfo extends BaseComponent {
   #tagElement: HTMLElement | null = null;

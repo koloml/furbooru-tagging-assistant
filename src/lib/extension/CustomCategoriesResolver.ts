@@ -1,8 +1,8 @@
-import type { TagDropdownWrapper } from "$lib/components/TagDropdownWrapper";
+import type { TagDropdownWrapper } from "$content/components/TagDropdownWrapper";
 import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
-import { emit } from "$lib/components/events/comms";
-import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
+import { emit } from "$content/components/events/comms";
+import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdown-events";
 
 export default class CustomCategoriesResolver {
   #exactGroupMatches = new Map<string, TagGroup>();

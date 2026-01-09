@@ -1,11 +1,11 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
+import { BaseComponent } from "$content/components/base/BaseComponent";
 import MaintenanceProfile from "$entities/MaintenanceProfile";
 import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
-import { getComponent } from "$lib/components/base/component-utils";
+import { getComponent } from "$content/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
-import { on } from "$lib/components/events/comms";
-import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
-import { EVENT_TAG_GROUP_RESOLVED } from "$lib/components/events/tag-dropdown-events";
+import { on } from "$content/components/events/comms";
+import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
+import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdown-events";
 import type TagGroup from "$entities/TagGroup";
 
 const categoriesResolver = new CustomCategoriesResolver();

@@ -1,16 +1,16 @@
 import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
 import MaintenanceProfile from "$entities/MaintenanceProfile";
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
 import ScrapedAPI from "$lib/booru/scraped/ScrapedAPI";
 import { tagsBlacklist } from "$config/tags";
-import { emitterAt } from "$lib/components/events/comms";
+import { emitterAt } from "$content/components/events/comms";
 import {
   EVENT_ACTIVE_PROFILE_CHANGED,
   EVENT_MAINTENANCE_STATE_CHANGED,
   EVENT_TAGS_UPDATED
-} from "$lib/components/events/maintenance-popup-events";
-import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
+} from "$content/components/events/maintenance-popup-events";
+import type { MediaBoxTools } from "$content/components/MediaBoxTools";
 
 class BlackListedTagsEncounteredError extends Error {
   constructor(tagName: string) {

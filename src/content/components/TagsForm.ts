@@ -1,8 +1,8 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
-import { emit, on, type UnsubscribeFunction } from "$lib/components/events/comms";
-import { EVENT_FETCH_COMPLETE } from "$lib/components/events/booru-events";
-import { EVENT_FORM_EDITOR_UPDATED } from "$lib/components/events/tags-form-events";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
+import { emit, on, type UnsubscribeFunction } from "$content/components/events/comms";
+import { EVENT_FETCH_COMPLETE } from "$content/components/events/booru-events";
+import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
 
 export class TagsForm extends BaseComponent {
   protected init() {

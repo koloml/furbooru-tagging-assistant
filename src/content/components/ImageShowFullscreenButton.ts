@@ -1,8 +1,8 @@
-import { BaseComponent } from "$lib/components/base/BaseComponent";
-import { getComponent } from "$lib/components/base/component-utils";
+import { BaseComponent } from "$content/components/base/BaseComponent";
+import { getComponent } from "$content/components/base/component-utils";
 import MiscSettings from "$lib/extension/settings/MiscSettings";
-import { FullscreenViewer } from "$lib/components/FullscreenViewer";
-import type { MediaBoxTools } from "$lib/components/MediaBoxTools";
+import { FullscreenViewer } from "$content/components/FullscreenViewer";
+import type { MediaBoxTools } from "$content/components/MediaBoxTools";
 
 export class ImageShowFullscreenButton extends BaseComponent {
   #mediaBoxTools: MediaBoxTools | null = null;

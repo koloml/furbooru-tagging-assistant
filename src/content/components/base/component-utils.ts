@@ -1,4 +1,4 @@
-import type { BaseComponent } from "$lib/components/base/BaseComponent";
+import type { BaseComponent } from "$content/components/base/BaseComponent";
 
 const instanceSymbol = Symbol.for('instance');
 
