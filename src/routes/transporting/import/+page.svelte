@@ -15,6 +15,7 @@
   import { goto } from "$app/navigation";
   import type { SameSiteStatus } from "$lib/extension/EntitiesTransporter";
   import { popupTitle } from "$stores/popup";
+  import Notice from "$components/ui/Notice.svelte";
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -182,7 +183,7 @@
     <hr>
   </Menu>
   {#if errorMessage}
-    <p class="error">{errorMessage}</p>
+    <Notice level="error">{errorMessage}</Notice>
     <Menu>
       <hr>
     </Menu>
@@ -214,18 +215,18 @@
     {/if}
   </Menu>
   {#if lastImportStatus === "different"}
-    <p class="warning">
+    <Notice level="warning">
       <b>Warning!</b>
       Looks like these entities were exported for the different extension! There are many differences between tagging
       systems of Furobooru and Derpibooru, so make sure to check if these settings are correct before using them!
-    </p>
+    </Notice>
   {/if}
   {#if lastImportStatus === 'unknown'}
-    <p class="warning">
+    <Notice level="warning">
       <b>Warning!</b>
       We couldn't verify if these settings are meant for this site or not. There are many differences between tagging
       systems of Furbooru and Derpibooru, so make sure to check if these settings are correct before using them.
-    </p>
+    </Notice>
   {/if}
   <Menu>
     {#if importedProfiles.length}
@@ -277,23 +278,3 @@
     </MenuItem>
   </Menu>
 {/if}
-
-<style lang="scss">
-  @use '$styles/colors';
-
-  .error, .warning {
-    padding: 5px 24px;
-    margin: {
-      left: -24px;
-      right: -24px;
-    }
-  }
-
-  .warning {
-    background: colors.$warning-background;
-  }
-
-  .error {
-    background: colors.$error-background;
-  }
-</style>
