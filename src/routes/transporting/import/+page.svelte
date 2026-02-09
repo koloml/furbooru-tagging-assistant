@@ -25,6 +25,8 @@
   let saveAllProfiles = $state(false);
   let saveAllGroups = $state(false);
 
+  let isSaving = $state(false);
+
   let selectedEntities: Record<keyof App.EntityNamesMap, Record<string, boolean>> = $state({
     profiles: {},
     groups: {},
@@ -145,25 +147,36 @@
     }
   }
 
-  function saveSelectedEntities() {
-    Promise.allSettled([
-      Promise.allSettled(
-        importedProfiles
-          .filter(profile => selectedEntities.profiles[profile.id])
-          .map(profile => profile.save())
-      ),
-      Promise.allSettled(
-        importedGroups
-          .filter(group => selectedEntities.groups[group.id])
-          .map(group => group.save())
-      ),
-    ]).then(() => {
-      goto("/transporting");
-    });
+  async function saveSelectedEntities() {
+    if (isSaving) {
+      return;
+    }
+
+    isSaving = true;
+
+    for (const profile of importedProfiles) {
+      if (!selectedEntities.profiles[profile.id]) {
+        continue;
+      }
+
+      await profile.save();
+    }
+
+    for (const group of importedGroups) {
+      if (!selectedEntities.groups[group.id]) {
+        continue;
+      }
+
+      await group.save();
+    }
+
+    await goto("/transporting");
   }
 </script>
 
-{#if !hasImportedEntities}
+{#if isSaving}
+  <p>Saving imported entities...</p>
+{:else if !hasImportedEntities}
   <Menu>
     <MenuItem href="/transporting" icon="arrow-left">Back</MenuItem>
     <hr>
