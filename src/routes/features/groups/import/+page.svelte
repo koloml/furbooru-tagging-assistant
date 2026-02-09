@@ -9,6 +9,7 @@
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { tagGroups } from "$stores/entities/tag-groups";
   import { popupTitle } from "$stores/popup";
+  import Notice from "$components/ui/Notice.svelte";
 
   const groupTransporter = new EntitiesTransporter(TagGroup);
 
@@ -81,7 +82,7 @@
   <hr>
 </Menu>
 {#if errorMessage}
-  <p class="error">Failed to import: {errorMessage}</p>
+  <Notice level="error">Failed to import: {errorMessage}</Notice>
   <Menu>
     <hr>
   </Menu>
@@ -98,9 +99,10 @@
   </Menu>
 {:else}
   {#if existingGroup}
-    <p class="warning">
+    <Notice level="warning">
       This group will replace the existing "{existingGroup.settings.name}" group, since it have the same ID.
-    </p>
+    </Notice>
+    <br>
   {/if}
   <GroupView group={candidateGroup}></GroupView>
   <Menu>
@@ -114,24 +116,3 @@
     <MenuItem onclick={() => candidateGroup = null}>Cancel</MenuItem>
   </Menu>
 {/if}
-
-<style lang="scss">
-  @use '$styles/colors';
-
-  .error, .warning {
-    padding: 5px 24px;
-    margin: {
-      left: -24px;
-      right: -24px;
-    }
-  }
-
-  .error {
-    background: colors.$error-background;
-  }
-
-  .warning {
-    background: colors.$warning-background;
-    margin-bottom: .5em;
-  }
-</style>

@@ -90,6 +90,7 @@ export default class CustomCategoriesResolver {
     this.#regExpGroupMatches.clear();
 
     if (!tagGroups.length) {
+      this.#queueUpdatingTags();
       return;
     }
 

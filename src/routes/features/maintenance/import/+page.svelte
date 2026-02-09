@@ -9,6 +9,7 @@
   import { goto } from "$app/navigation";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { popupTitle } from "$stores/popup";
+  import Notice from "$components/ui/Notice.svelte";
 
   const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
 
@@ -80,7 +81,7 @@
   <hr>
 </Menu>
 {#if errorMessage}
-  <p class="error">Failed to import: {errorMessage}</p>
+  <Notice level="error">Failed to import: {errorMessage}</Notice>
   <Menu>
     <hr>
   </Menu>
@@ -97,9 +98,10 @@
   </Menu>
 {:else}
   {#if existingProfile}
-    <p class="warning">
+    <Notice level="warning">
       This profile will replace the existing "{existingProfile.settings.name}" profile, since it have the same ID.
-    </p>
+    </Notice>
+    <br>
   {/if}
   <ProfileView profile={candidateProfile}></ProfileView>
   <Menu>
@@ -113,24 +115,3 @@
     <MenuItem onclick={() => candidateProfile = null}>Cancel</MenuItem>
   </Menu>
 {/if}
-
-<style lang="scss">
-  @use '$styles/colors';
-
-  .error, .warning {
-    padding: 5px 24px;
-    margin: {
-      left: -24px;
-      right: -24px;
-    }
-  }
-
-  .error {
-    background: colors.$error-background;
-  }
-
-  .warning {
-    background: colors.$warning-background;
-    margin-bottom: .5em;
-  }
-</style>

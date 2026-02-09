@@ -15,6 +15,7 @@
   import { goto } from "$app/navigation";
   import type { SameSiteStatus } from "$lib/extension/EntitiesTransporter";
   import { popupTitle } from "$stores/popup";
+  import Notice from "$components/ui/Notice.svelte";
 
   let importedString = $state('');
   let errorMessage = $state('');
@@ -24,6 +25,8 @@
 
   let saveAllProfiles = $state(false);
   let saveAllGroups = $state(false);
+
+  let isSaving = $state(false);
 
   let selectedEntities: Record<keyof App.EntityNamesMap, Record<string, boolean>> = $state({
     profiles: {},
@@ -145,31 +148,42 @@
     }
   }
 
-  function saveSelectedEntities() {
-    Promise.allSettled([
-      Promise.allSettled(
-        importedProfiles
-          .filter(profile => selectedEntities.profiles[profile.id])
-          .map(profile => profile.save())
-      ),
-      Promise.allSettled(
-        importedGroups
-          .filter(group => selectedEntities.groups[group.id])
-          .map(group => group.save())
-      ),
-    ]).then(() => {
-      goto("/transporting");
-    });
+  async function saveSelectedEntities() {
+    if (isSaving) {
+      return;
+    }
+
+    isSaving = true;
+
+    for (const profile of importedProfiles) {
+      if (!selectedEntities.profiles[profile.id]) {
+        continue;
+      }
+
+      await profile.save();
+    }
+
+    for (const group of importedGroups) {
+      if (!selectedEntities.groups[group.id]) {
+        continue;
+      }
+
+      await group.save();
+    }
+
+    await goto("/transporting");
   }
 </script>
 
-{#if !hasImportedEntities}
+{#if isSaving}
+  <p>Saving imported entities...</p>
+{:else if !hasImportedEntities}
   <Menu>
     <MenuItem href="/transporting" icon="arrow-left">Back</MenuItem>
     <hr>
   </Menu>
   {#if errorMessage}
-    <p class="error">{errorMessage}</p>
+    <Notice level="error">{errorMessage}</Notice>
     <Menu>
       <hr>
     </Menu>
@@ -201,18 +215,18 @@
     {/if}
   </Menu>
   {#if lastImportStatus === "different"}
-    <p class="warning">
+    <Notice level="warning">
       <b>Warning!</b>
       Looks like these entities were exported for the different extension! There are many differences between tagging
       systems of Furobooru and Derpibooru, so make sure to check if these settings are correct before using them!
-    </p>
+    </Notice>
   {/if}
   {#if lastImportStatus === 'unknown'}
-    <p class="warning">
+    <Notice level="warning">
       <b>Warning!</b>
       We couldn't verify if these settings are meant for this site or not. There are many differences between tagging
       systems of Furbooru and Derpibooru, so make sure to check if these settings are correct before using them.
-    </p>
+    </Notice>
   {/if}
   <Menu>
     {#if importedProfiles.length}
@@ -264,23 +278,3 @@
     </MenuItem>
   </Menu>
 {/if}
-
-<style lang="scss">
-  @use '$styles/colors';
-
-  .error, .warning {
-    padding: 5px 24px;
-    margin: {
-      left: -24px;
-      right: -24px;
-    }
-  }
-
-  .warning {
-    background: colors.$warning-background;
-  }
-
-  .error {
-    background: colors.$error-background;
-  }
-</style>
