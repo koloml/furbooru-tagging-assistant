@@ -32,7 +32,7 @@
         "@fortawesome/fontawesome-free": "^7.1.0",
         "amd-lite": "^1.0.1",
         "lz-string": "^1.5.0",
-        "sass": "^1.97.2",
+        "sass": "^1.97.3",
         "svelte": "^5.50.0"
     }
 }
