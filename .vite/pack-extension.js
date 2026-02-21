@@ -67,13 +67,24 @@ export async function packExtension(settings) {
     return entry;
   })
 
-  if (process.env.SITE === 'derpibooru') {
-    manifest.replaceHostTo([
-      'derpibooru.org',
-      'trixiebooru.org'
-    ]);
-    manifest.replaceBooruNameWith('Derpibooru');
-    manifest.setGeckoIdentifier('derpibooru-tagging-assistant@thecore.city');
+  switch (process.env.SITE) {
+    case 'derpibooru':
+      manifest.replaceHostTo([
+        'derpibooru.org',
+        'trixiebooru.org'
+      ]);
+      manifest.replaceBooruNameWith('Derpibooru');
+      manifest.setGeckoIdentifier('derpibooru-tagging-assistant@thecore.city');
+      break;
+
+    case 'tantabus':
+      manifest.replaceHostTo('tantabus.ai');
+      manifest.replaceBooruNameWith('Tantabus');
+      manifest.setGeckoIdentifier('tantabus-tagging-assistant@thecore.city');
+      break;
+
+    default:
+      console.warn('No replacement set up for site: ' + process.env.SITE);
   }
 
   manifest.passVersionFromPackage(path.resolve(settings.rootDir, 'package.json'));

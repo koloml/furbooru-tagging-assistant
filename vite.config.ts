@@ -20,6 +20,14 @@ export default defineConfig(() => {
           __CURRENT_SITE_NAME__: JSON.stringify('Derpibooru'),
         }
       }),
+      SwapDefinedVariablesPlugin({
+        envVariable: 'SITE',
+        expectedValue: 'tantabus',
+        define: {
+          __CURRENT_SITE__: JSON.stringify('tantabus'),
+          __CURRENT_SITE_NAME__: JSON.stringify('Tantabus'),
+        }
+      }),
     ],
     test: {
       globals: true,
