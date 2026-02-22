@@ -1,8 +1,8 @@
 # Philomena Tagging Assistant
 
-This is a browser extension written for the [Furbooru](https://furbooru.org) and [Derpibooru](https://derpibooru.org) 
-image-boards. It gives you the ability to manually go over the list of images and apply tags to them without opening 
-each individual image.
+This is a browser extension written for the [Furbooru](https://furbooru.org), [Derpibooru](https://derpibooru.org) and
+[Tantabus](https://tantabus.ai) image-boards. It gives you the ability to manually go over the list of images and apply 
+tags to them without opening each individual image.
 
 ## Installation
 
@@ -59,14 +59,17 @@ npm install --save-dev
 Second, you need to run the `build` command. It will first build the popup using SvelteKit and then build all the 
 content scripts/stylesheets and copy the manifest afterward.
 
-Extension can currently be built for 2 different imageboards using one of the following commands:
+Extension can currently be built for multiple different imageboards using one of the following commands:
 
 ```shell
-# To build the extension for Furbooru, use:
+# Furbooru:
 npm run build
 
-# To build the extension for Derpbooru, use:
+# Derpibooru:
 npm run build:derpibooru
+
+# Tantabus:
+npm run build:tantabus
 ```
 
 When build is complete, extension  files can be found in the `/build` directory. These files can be either used 
