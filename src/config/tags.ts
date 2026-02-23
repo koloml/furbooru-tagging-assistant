@@ -15,6 +15,28 @@ export const categories: string[] = [
 ];
 
 /**
+ * Mapping of namespaces to their respective categories. These namespaces are automatically assigned to them, so we can
+ * automatically assume categories of tags which start with them. Mapping is extracted from Philomena directly.
+ *
+ * This mapping may differ between boorus.
+ *
+ * @see https://github.com/philomena-dev/philomena/blob/6086757b654da8792ae52adb2a2f501ea6c30d12/lib/philomena/tags/tag.ex#L33-L45
+ */
+export const namespaceCategories: Map<string, string> = new Map([
+  ['artist', 'origin'],
+  ['art pack', 'content-fanmade'],
+  ['colorist', 'origin'],
+  ['comic', 'content-fanmade'],
+  ['editor', 'origin'],
+  ['fanfic', 'content-fanmade'],
+  ['oc', 'oc'],
+  ['photographer', 'origin'],
+  ['series', 'content-fanmade'],
+  ['spoiler', 'spoiler'],
+  ['video', 'content-fanmade'],
+]);
+
+/**
  * List of tags which marked by the site as blacklisted. These tags are blocked from being added by the tag editor and
  * should usually just be removed automatically.
  */

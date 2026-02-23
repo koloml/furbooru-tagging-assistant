@@ -69,6 +69,19 @@
             "js": [
                 "src/content/tags.ts"
             ]
+        },
+        {
+            "matches": [
+                "*://*.furbooru.org/posts",
+                "*://*.furbooru.org/posts?*",
+                "*://*.furbooru.org/forums/*/topics/*"
+            ],
+            "js": [
+                "src/content/posts.ts"
+            ],
+            "css": [
+                "src/styles/content/posts.scss"
+            ]
         }
     ],
     "action": {
