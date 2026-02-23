@@ -11,6 +11,7 @@ import {
   EVENT_TAGS_UPDATED
 } from "$content/components/events/maintenance-popup-events";
 import type { MediaBoxTools } from "$content/components/MediaBoxTools";
+import { resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
 
 class BlackListedTagsEncounteredError extends Error {
   constructor(tagName: string) {
@@ -121,8 +122,13 @@ export class MaintenancePopup extends BaseComponent {
 
         // Just to prevent duplication, we need to include this tag to the map of suggested invalid tags
         if (tagsBlacklist.includes(tagName)) {
-          MaintenancePopup.#markTagAsInvalid(tagElement);
+          MaintenancePopup.#markTagElementWithCategory(tagElement, 'error');
           this.#suggestedInvalidTags.set(tagName, tagElement);
+        } else {
+          MaintenancePopup.#markTagElementWithCategory(
+            tagElement,
+            resolveTagCategoryFromTagName(tagName) ?? '',
+          );
         }
       });
   }
@@ -287,7 +293,7 @@ export class MaintenancePopup extends BaseComponent {
         }
 
         const tagElement = MaintenancePopup.#buildTagElement(tagName);
-        MaintenancePopup.#markTagAsInvalid(tagElement);
+        MaintenancePopup.#markTagElementWithCategory(tagElement, 'error');
         tagElement.classList.add('is-present');
 
         this.#suggestedInvalidTags.set(tagName, tagElement);
@@ -315,12 +321,13 @@ export class MaintenancePopup extends BaseComponent {
   }
 
   /**
-   * Marks the tag with red color.
+   * Mark the tag element with specified category.
    * @param tagElement Element to mark.
+   * @param category Code name of category to mark.
    */
-  static #markTagAsInvalid(tagElement: HTMLElement) {
-    tagElement.dataset.tagCategory = 'error';
-    tagElement.setAttribute('data-tag-category', 'error');
+  static #markTagElementWithCategory(tagElement: HTMLElement, category: string) {
+    tagElement.dataset.tagCategory = category;
+    tagElement.setAttribute('data-tag-category', category);
   }
 
   /**

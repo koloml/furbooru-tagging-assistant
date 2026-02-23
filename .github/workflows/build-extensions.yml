@@ -10,7 +10,7 @@ jobs:
     
     strategy:
       matrix:
-        site: [furbooru, derpibooru]
+        site: [furbooru, derpibooru, tantabus]
     
     steps:
     - name: Checkout repository
@@ -27,10 +27,10 @@ jobs:
       
     - name: Build extension for ${{ matrix.site }}
       run: |
-        if [ "${{ matrix.site }}" = "derpibooru" ]; then
-          npm run build:derpibooru
-        else
+        if [ "${{ matrix.site }}" = "furbooru" ]; then
           npm run build
+        else
+          npm run build:${{ matrix.site }}
         fi
         
     - name: Create extension zip

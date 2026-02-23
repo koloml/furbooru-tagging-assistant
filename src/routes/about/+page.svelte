@@ -11,6 +11,10 @@
   if (__CURRENT_SITE__ === 'derpibooru') {
     currentSiteUrl = 'https://derpibooru.org';
   }
+
+  if (__CURRENT_SITE__ === 'tantabus') {
+    currentSiteUrl = 'https://tantabus.ai';
+  }
 </script>
 
 <Menu>

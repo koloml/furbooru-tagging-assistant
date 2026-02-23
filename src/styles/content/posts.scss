@@ -1,0 +1,9 @@
+@use '$styles/booru-vars';
+
+.block.communication {
+  .tag {
+    &:hover {
+      color: booru-vars.$resolved-tag-color;
+    }
+  }
+}

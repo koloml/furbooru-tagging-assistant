@@ -95,3 +95,31 @@ $warning-border: #95562c;
   $input-background: #282e39;
   $input-border: #575e6b;
 }
+
+@if environment.$current-site == 'tantabus' {
+  $background: #221117;
+
+  $text: #e0e0e0;
+  $text-gray: #bb90a6;
+
+  $link: #ee157a;
+  $link-hover: #b099dd;
+
+  $header: #811242;
+  $header-toolbar: #501e36;
+  $header-hover-background: #5d0d30;
+  $header-mobile-link-hover: #995470;
+
+  $footer: #2f1d26;
+  $footer-text: $text-gray;
+
+  $block-header: $header-toolbar;
+  $block-border: $header-toolbar;
+  $block-background: #2f1d26;
+  $block-background-alternate: #26171e;
+
+  $media-box-border: #573142;
+
+  $input-background: #392833;
+  $input-border: #6b5764;
+}

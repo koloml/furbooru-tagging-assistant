@@ -5,7 +5,7 @@
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { stripBlacklistedTagsEnabled } from "$stores/preferences/maintenance";
-  import { shouldSeparateTagGroups } from "$stores/preferences/tag";
+  import { shouldReplaceLinksOnForumPosts, shouldSeparateTagGroups } from "$stores/preferences/tag";
   import { popupTitle } from "$stores/popup";
 
   $popupTitle = 'Tagging Preferences';
@@ -24,6 +24,11 @@
   <FormControl>
     <CheckboxField bind:checked={$shouldSeparateTagGroups}>
       Enable separation of custom tag groups on the image pages
+    </CheckboxField>
+  </FormControl>
+  <FormControl>
+    <CheckboxField bind:checked={$shouldReplaceLinksOnForumPosts}>
+      Find and replace links to the tags in the forum posts
     </CheckboxField>
   </FormControl>
 </FormContainer>
