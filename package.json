@@ -29,7 +29,7 @@
     "type": "module",
     "dependencies": {
         "@sveltejs/adapter-static": "^3.0.10",
-        "@sveltejs/kit": "^2.50.2",
+        "@sveltejs/kit": "^2.53.0",
         "@fortawesome/fontawesome-free": "^7.1.0",
         "amd-lite": "^1.0.1",
         "lz-string": "^1.5.0",
