@@ -8,6 +8,7 @@ export class BlockCommunication extends BaseComponent {
   #tagLinks: HTMLAnchorElement[] = [];
 
   #tagLinksReplaced: boolean | null = null;
+  #linkTextReplaced: boolean | null = null;
 
   protected build() {
     this.#contentSection = this.container.querySelector('.communication__content');
@@ -15,14 +16,30 @@ export class BlockCommunication extends BaseComponent {
   }
 
   protected init() {
-    BlockCommunication.#tagSettings.resolveReplaceLinks().then(this.#onReplaceLinkSettingResolved.bind(this));
+    Promise.all([
+      BlockCommunication.#tagSettings.resolveReplaceLinks(),
+      BlockCommunication.#tagSettings.resolveReplaceLinkText(),
+    ]).then(([replaceLinks, replaceLinkText]) => {
+      this.#onReplaceLinkSettingResolved(
+        replaceLinks,
+        replaceLinkText
+      );
+    });
+
     BlockCommunication.#tagSettings.subscribe(settings => {
-      this.#onReplaceLinkSettingResolved(settings.replaceLinks ?? false);
+      this.#onReplaceLinkSettingResolved(
+        settings.replaceLinks ?? false,
+        settings.replaceLinkText ?? true
+      );
     });
   }
 
-  #onReplaceLinkSettingResolved(haveToReplaceLinks: boolean) {
-    if (!this.#tagLinks.length || this.#tagLinksReplaced === haveToReplaceLinks) {
+  #onReplaceLinkSettingResolved(haveToReplaceLinks: boolean, shouldReplaceLinkText: boolean) {
+    if (
+      !this.#tagLinks.length
+      || this.#tagLinksReplaced === haveToReplaceLinks
+      && this.#linkTextReplaced === shouldReplaceLinkText
+    ) {
       return;
     }
 
@@ -34,15 +51,52 @@ export class BlockCommunication extends BaseComponent {
         linkElement.textContent = linkElement.children[0].textContent;
       }
 
+      /**
+       * Resolved tag name. It should be stored for the text replacement.
+       */
+      let tagName: string | undefined;
+
       if (haveToReplaceLinks) {
-        const tagName = resolveTagNameFromLink(new URL(linkElement.href)) ?? '';
+        tagName = resolveTagNameFromLink(new URL(linkElement.href)) ?? '';
         linkElement.dataset.tagCategory = resolveTagCategoryFromTagName(tagName) ?? '';
       } else {
         linkElement.dataset.tagCategory = '';
       }
+
+      this.#toggleTagLinkText(
+        linkElement,
+        haveToReplaceLinks && shouldReplaceLinkText,
+        tagName,
+      );
     }
 
     this.#tagLinksReplaced = haveToReplaceLinks;
+    this.#linkTextReplaced = shouldReplaceLinkText;
+  }
+
+  /**
+   * Swap the link text with the tag name or restore it back to original content. This function will only perform
+   * replacement on links without any additional tags inside. This will ensure link won't break original content.
+   * @param linkElement Element to swap the text on.
+   * @param shouldSwapToTagName Should we swap the text to tag name or retore it back from memory.
+   * @param tagName Tag name to swap the text to. If not provided, text will be swapped back.
+   * @private
+   */
+  #toggleTagLinkText(linkElement: HTMLElement, shouldSwapToTagName: boolean, tagName?: string) {
+    if (linkElement.childElementCount) {
+      return;
+    }
+
+    // Make sure we save the original text to memory.
+    if (!BlockCommunication.#originalTagLinkTexts.has(linkElement)) {
+      BlockCommunication.#originalTagLinkTexts.set(linkElement, linkElement.textContent);
+    }
+
+    if (shouldSwapToTagName && tagName) {
+      linkElement.textContent = tagName;
+    } else {
+      linkElement.textContent = BlockCommunication.#originalTagLinkTexts.get(linkElement) ?? linkElement.textContent;
+    }
   }
 
   #findAllTagLinks(): HTMLAnchorElement[] {
@@ -59,6 +113,13 @@ export class BlockCommunication extends BaseComponent {
   }
 
   static #tagSettings = new TagSettings();
+
+  /**
+   * Map of links to their original texts. These texts need to be stored here to make them restorable. Keys is a link
+   * element and value is a text.
+   * @private
+   */
+  static #originalTagLinkTexts: WeakMap<HTMLElement, string> = new WeakMap();
 
   static findAndInitializeAll() {
     for (const container of document.querySelectorAll<HTMLElement>('.block.communication')) {
