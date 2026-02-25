@@ -34,6 +34,11 @@ export const namespaceCategories: Map<string, string> = new Map([
   ['series', 'content-fanmade'],
   ['spoiler', 'spoiler'],
   ['video', 'content-fanmade'],
+  ...(__CURRENT_SITE__ === 'tantabus' ? <const> [
+    ["prompter", "origin"],
+    ["creator", "origin"],
+    ["generator", "origin"]
+  ] : [])
 ]);
 
 /**
