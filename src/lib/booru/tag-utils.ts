@@ -1,4 +1,5 @@
 import { namespaceCategories } from "$config/tags";
+import { QueryLexer, QuotedTermToken, TermToken } from "$lib/booru/search/QueryLexer";
 
 /**
  * Build the map containing both real tags and their aliases.
@@ -51,16 +52,48 @@ const slugEncodedCharacters: Map<string, string> = new Map([
 ]);
 
 /**
- * Decode the tag name from its link path.
+ * Try to parse the tag name from the search query URL. It uses the same tokenizer as the booru. It only returns the
+ * tag name if query contains only one single tag without any additional conditions.
  *
- * @param tagLink Full or partial link to the tag.
+ * @param searchLink Link with search query.
  *
- * @return Tag name or NULL if function is failed to recognize the link as tag-related link.
+ * @return Tag name or NULL if query contains more than 1 tag or doesn't have any tags at all.
  */
-export function decodeTagNameFromLink(tagLink: string): string | null {
+function parseTagNameFromSearchQuery(searchLink: URL): string | null {
+  const lexer = new QueryLexer(searchLink.searchParams.get('q') || '');
+  const parsedQuery = lexer.parse();
+
+  if (parsedQuery.length !== 1) {
+    return null;
+  }
+
+  const [token] = parsedQuery;
+
+  switch (true) {
+    case token instanceof TermToken:
+      return token.value;
+    case token instanceof QuotedTermToken:
+      return token.decodedValue;
+  }
+
+  return null;
+}
+
+/**
+ * Decode the tag name from the following link.
+ *
+ * @param tagLink Search link or link to the tag to parse the tag name from.
+ *
+ * @return Tag name or NULL if function is failed to parse the name of the tag.
+ */
+export function resolveTagNameFromLink(tagLink: URL): string | null {
+  if (tagLink.pathname.startsWith('/search') && tagLink.searchParams.has('q')) {
+    return parseTagNameFromSearchQuery(tagLink);
+  }
+
   tagLinkRegExp.lastIndex = 0;
 
-  const result = tagLinkRegExp.exec(tagLink);
+  const result = tagLinkRegExp.exec(tagLink.pathname);
   const encodedTagName = result?.groups?.encodedTagName;
 
   if (!encodedTagName) {

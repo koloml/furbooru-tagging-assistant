@@ -1,7 +1,7 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import TagSettings from "$lib/extension/settings/TagSettings";
 import { getComponent } from "$content/components/base/component-utils";
-import { decodeTagNameFromLink, resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
+import { resolveTagNameFromLink, resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
 
 export class BlockCommunication extends BaseComponent {
   #contentSection: HTMLElement | null = null;
@@ -35,8 +35,8 @@ export class BlockCommunication extends BaseComponent {
       }
 
       if (haveToReplaceLinks) {
-        const maybeDecodedTagName = decodeTagNameFromLink(linkElement.pathname) ?? '';
-        linkElement.dataset.tagCategory = resolveTagCategoryFromTagName(maybeDecodedTagName) ?? '';
+        const tagName = resolveTagNameFromLink(new URL(linkElement.href)) ?? '';
+        linkElement.dataset.tagCategory = resolveTagCategoryFromTagName(tagName) ?? '';
       } else {
         linkElement.dataset.tagCategory = '';
       }
@@ -48,7 +48,14 @@ export class BlockCommunication extends BaseComponent {
   #findAllTagLinks(): HTMLAnchorElement[] {
     return Array
       .from(this.#contentSection?.querySelectorAll('a') || [])
-      .filter(link => link.pathname.startsWith('/tags/'))
+      .filter(
+        link =>
+          // Support links pointing to the tag page.
+          link.pathname.startsWith('/tags/')
+          // Also capture link which point to the search results with single tag.
+          || link.pathname.startsWith('/search')
+          && link.search.includes('q=')
+      );
   }
 
   static #tagSettings = new TagSettings();
