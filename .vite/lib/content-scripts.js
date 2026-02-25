@@ -174,6 +174,15 @@ export async function buildScriptsAndStyles(buildOptions) {
     }
   });
 
+  const tantabusSwapPlugin = SwapDefinedVariablesPlugin({
+    envVariable: 'SITE',
+    expectedValue: 'tantabus',
+    define: {
+      __CURRENT_SITE__: JSON.stringify('tantabus'),
+      __CURRENT_SITE_NAME__: JSON.stringify('Tantabus'),
+    }
+  });
+
   // Building all scripts together with AMD loader in mind
   await build({
     configFile: false,
@@ -209,6 +218,7 @@ export async function buildScriptsAndStyles(buildOptions) {
           ?.push(...dependencies);
       }),
       derpibooruSwapPlugin,
+      tantabusSwapPlugin,
     ],
     define: defineConstants,
   });
@@ -235,6 +245,7 @@ export async function buildScriptsAndStyles(buildOptions) {
       wrapScriptIntoIIFE(),
       ScssViteReadEnvVariableFunctionPlugin(),
       derpibooruSwapPlugin,
+      tantabusSwapPlugin,
     ],
     define: defineConstants,
   });
