@@ -5,7 +5,11 @@
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import { stripBlacklistedTagsEnabled } from "$stores/preferences/maintenance";
-  import { shouldReplaceLinksOnForumPosts, shouldSeparateTagGroups } from "$stores/preferences/tag";
+  import {
+    shouldReplaceLinksOnForumPosts,
+    shouldReplaceTextOfTagLinks,
+    shouldSeparateTagGroups
+  } from "$stores/preferences/tag";
   import { popupTitle } from "$stores/popup";
 
   $popupTitle = 'Tagging Preferences';
@@ -31,4 +35,11 @@
       Find and replace links to the tags in the forum posts
     </CheckboxField>
   </FormControl>
+  {#if $shouldReplaceLinksOnForumPosts}
+    <FormControl>
+      <CheckboxField bind:checked={$shouldReplaceTextOfTagLinks}>
+        Try to replace text on links pointing to tags in forum posts
+      </CheckboxField>
+    </FormControl>
+  {/if}
 </FormContainer>
