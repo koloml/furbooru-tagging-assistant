@@ -1,12 +1,12 @@
-import CacheableSettings from "$lib/extension/base/CacheableSettings";
+import CacheablePreferences from "$lib/extension/base/CacheablePreferences";
 
-interface TagSettingsFields {
+interface TagsPreferencesFields {
   groupSeparation: boolean;
   replaceLinks: boolean;
   replaceLinkText: boolean;
 }
 
-export default class TagSettings extends CacheableSettings<TagSettingsFields> {
+export default class TagsPreferences extends CacheablePreferences<TagsPreferencesFields> {
   constructor() {
     super("tag");
   }

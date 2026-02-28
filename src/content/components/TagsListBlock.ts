@@ -5,7 +5,7 @@ import { on } from "$content/components/events/comms";
 import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
 import { getComponent } from "$content/components/base/component-utils";
 import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdown-events";
-import TagSettings from "$lib/extension/settings/TagSettings";
+import TagsPreferences from "$lib/extension/preferences/TagsPreferences";
 
 export class TagsListBlock extends BaseComponent {
   #tagsListButtonsContainer: HTMLElement | null = null;
@@ -14,7 +14,7 @@ export class TagsListBlock extends BaseComponent {
   #toggleGroupingButton = document.createElement('a');
   #toggleGroupingButtonIcon = document.createElement('i');
 
-  #tagSettings = new TagSettings();
+  #preferences = new TagsPreferences();
 
   #shouldDisplaySeparation = false;
 
@@ -44,8 +44,8 @@ export class TagsListBlock extends BaseComponent {
   }
 
   init() {
-    this.#tagSettings.resolveGroupSeparation().then(this.#onTagSeparationChange.bind(this));
-    this.#tagSettings.subscribe(settings => {
+    this.#preferences.resolveGroupSeparation().then(this.#onTagSeparationChange.bind(this));
+    this.#preferences.subscribe(settings => {
       this.#onTagSeparationChange(Boolean(settings.groupSeparation))
     });
 
@@ -103,7 +103,7 @@ export class TagsListBlock extends BaseComponent {
 
   #onToggleGroupingClicked(event: Event) {
     event.preventDefault();
-    void this.#tagSettings.setGroupSeparation(!this.#shouldDisplaySeparation);
+    void this.#preferences.setGroupSeparation(!this.#shouldDisplaySeparation);
   }
 
   #handleTagGroupChanges(tagGroup: TagGroup) {

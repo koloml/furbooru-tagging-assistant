@@ -1,7 +1,7 @@
 <script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
-  import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import { taggingProfiles } from "$stores/entities/tagging-profiles";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
   import { tagGroups } from "$stores/entities/tag-groups";
   import BulkEntitiesTransporter from "$lib/extension/BulkEntitiesTransporter";
@@ -30,7 +30,7 @@
     if (displayExportedString) {
       const elementsToExport: StorageEntity[] = [];
 
-      $maintenanceProfiles.forEach(profile => {
+      $taggingProfiles.forEach(profile => {
         if (exportedEntities.profiles[profile.id]) {
           elementsToExport.push(profile);
         }
@@ -55,7 +55,7 @@
 
   function refreshAreAllEntitiesChecked() {
     requestAnimationFrame(() => {
-      exportAllProfiles = $maintenanceProfiles.every(profile => exportedEntities.profiles[profile.id]);
+      exportAllProfiles = $taggingProfiles.every(profile => exportedEntities.profiles[profile.id]);
       exportAllGroups = $tagGroups.every(group => exportedEntities.groups[group.id]);
     });
   }
@@ -69,7 +69,7 @@
       requestAnimationFrame(() => {
         switch (targetEntity) {
           case "profiles":
-            $maintenanceProfiles.forEach(profile => exportedEntities.profiles[profile.id] = exportAllProfiles);
+            $taggingProfiles.forEach(profile => exportedEntities.profiles[profile.id] = exportAllProfiles);
             break;
           case "groups":
             $tagGroups.forEach(group => exportedEntities.groups[group.id] = exportAllGroups);
@@ -94,11 +94,11 @@
   <Menu>
     <MenuItem href="/transporting" icon="arrow-left">Back</MenuItem>
     <hr>
-    {#if $maintenanceProfiles.length}
+    {#if $taggingProfiles.length}
       <MenuCheckboxItem bind:checked={exportAllProfiles} oninput={createToggleAllOnUserInput('profiles')}>
         Export All Profiles
       </MenuCheckboxItem>
-      {#each $maintenanceProfiles as profile}
+      {#each $taggingProfiles as profile}
         <MenuCheckboxItem bind:checked={exportedEntities.profiles[profile.id]} oninput={refreshAreAllEntitiesChecked}>
           Profile: {profile.settings.name}
         </MenuCheckboxItem>

@@ -1,6 +1,6 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
-import MiscSettings from "$lib/extension/settings/MiscSettings";
+import MiscPreferences from "$lib/extension/preferences/MiscPreferences";
 import { FullscreenViewer } from "$content/components/FullscreenViewer";
 import type { MediaBoxTools } from "$content/components/MediaBoxTools";
 
@@ -10,8 +10,6 @@ export class ImageShowFullscreenButton extends BaseComponent {
 
   protected build() {
     this.container.innerText = '🔍';
-
-    ImageShowFullscreenButton.#miscSettings ??= new MiscSettings();
   }
 
   protected init() {
@@ -27,14 +25,14 @@ export class ImageShowFullscreenButton extends BaseComponent {
 
     this.on('click', this.#onButtonClicked.bind(this));
 
-    if (ImageShowFullscreenButton.#miscSettings) {
-      ImageShowFullscreenButton.#miscSettings.resolveFullscreenViewerEnabled()
+    if (ImageShowFullscreenButton.#preferences) {
+      ImageShowFullscreenButton.#preferences.resolveFullscreenViewerEnabled()
         .then(isEnabled => {
           this.#isFullscreenButtonEnabled = isEnabled;
           this.#updateFullscreenButtonVisibility();
         })
         .then(() => {
-          ImageShowFullscreenButton.#miscSettings?.subscribe(settings => {
+          ImageShowFullscreenButton.#preferences?.subscribe(settings => {
             this.#isFullscreenButtonEnabled = settings.fullscreenViewer ?? true;
             this.#updateFullscreenButtonVisibility();
           })
@@ -76,7 +74,7 @@ export class ImageShowFullscreenButton extends BaseComponent {
     return viewer;
   }
 
-  static #miscSettings: MiscSettings | null = null;
+  static #preferences = new MiscPreferences();
 }
 
 export function createImageShowFullscreenButton() {

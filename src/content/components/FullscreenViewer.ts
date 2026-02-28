@@ -1,5 +1,5 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
-import MiscSettings, { type FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
+import MiscPreferences, { type FullscreenViewerSize } from "$lib/extension/preferences/MiscPreferences";
 import { emit, on } from "$content/components/events/comms";
 import { EVENT_SIZE_LOADED } from "$content/components/events/fullscreen-viewer-events";
 
@@ -53,7 +53,7 @@ export class FullscreenViewer extends BaseComponent {
     this.#imageElement.addEventListener('load', this.#onLoaded.bind(this));
     this.#sizeSelectorElement.addEventListener('click', event => event.stopPropagation());
 
-    FullscreenViewer.#miscSettings
+    FullscreenViewer.#preferences
       .resolveFullscreenViewerPreviewSize()
       .then(this.#onSizeResolved.bind(this))
       .then(this.#watchForSizeSelectionChanges.bind(this));
@@ -179,7 +179,7 @@ export class FullscreenViewer extends BaseComponent {
   #watchForSizeSelectionChanges() {
     let lastActiveSize = this.#sizeSelectorElement.value;
 
-    FullscreenViewer.#miscSettings.subscribe(settings => {
+    FullscreenViewer.#preferences.subscribe(settings => {
       const targetSize = settings.fullscreenViewerSize;
 
       if (!targetSize || lastActiveSize === targetSize) {
@@ -202,7 +202,7 @@ export class FullscreenViewer extends BaseComponent {
       }
 
       lastActiveSize = targetSize;
-      void FullscreenViewer.#miscSettings.setFullscreenViewerPreviewSize(targetSize);
+      void FullscreenViewer.#preferences.setFullscreenViewerPreviewSize(targetSize);
     });
   }
 
@@ -289,7 +289,7 @@ export class FullscreenViewer extends BaseComponent {
     return url.endsWith('.mp4') || url.endsWith('.webm');
   }
 
-  static #miscSettings = new MiscSettings();
+  static #preferences = new MiscPreferences();
 
   static #offsetProperty = '--offset';
   static #opacityProperty = '--opacity';

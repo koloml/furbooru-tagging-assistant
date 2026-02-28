@@ -2,22 +2,22 @@
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
-  import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import TaggingProfile from "$entities/TaggingProfile";
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import ProfileView from "$components/features/ProfileView.svelte";
-  import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import { taggingProfiles } from "$stores/entities/tagging-profiles";
   import { goto } from "$app/navigation";
   import EntitiesTransporter from "$lib/extension/EntitiesTransporter";
   import { popupTitle } from "$stores/popup";
   import Notice from "$components/ui/Notice.svelte";
 
-  const profilesTransporter = new EntitiesTransporter(MaintenanceProfile);
+  const profilesTransporter = new EntitiesTransporter(TaggingProfile);
 
   let importedString = $state('');
   let errorMessage = $state('');
 
-  let candidateProfile = $state<MaintenanceProfile | null>(null);
-  let existingProfile = $state<MaintenanceProfile | null>(null);
+  let candidateProfile = $state<TaggingProfile | null>(null);
+  let existingProfile = $state<TaggingProfile | null>(null);
 
   $effect(() => {
     $popupTitle = candidateProfile
@@ -49,7 +49,7 @@
     }
 
     if (candidateProfile) {
-      existingProfile = $maintenanceProfiles.find(profile => profile.id === candidateProfile?.id) ?? null;
+      existingProfile = $taggingProfiles.find(profile => profile.id === candidateProfile?.id) ?? null;
     }
   }
 
@@ -59,7 +59,7 @@
     }
 
     candidateProfile.save().then(() => {
-      goto(`/features/maintenance`);
+      goto(`/features/profiles`);
     });
   }
 
@@ -68,16 +68,16 @@
       return;
     }
 
-    const clonedProfile = new MaintenanceProfile(crypto.randomUUID(), candidateProfile.settings);
+    const clonedProfile = new TaggingProfile(crypto.randomUUID(), candidateProfile.settings);
     clonedProfile.settings.name += ` (Clone ${new Date().toISOString()})`;
     clonedProfile.save().then(() => {
-      goto(`/features/maintenance`);
+      goto(`/features/profiles`);
     });
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance" icon="arrow-left">Back</MenuItem>
+  <MenuItem href="/features/profiles" icon="arrow-left">Back</MenuItem>
   <hr>
 </Menu>
 {#if errorMessage}

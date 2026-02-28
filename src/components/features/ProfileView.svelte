@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type MaintenanceProfile from "$entities/MaintenanceProfile";
+  import type TaggingProfile from "$entities/TaggingProfile";
 
   interface ProfileViewProps {
-    profile: MaintenanceProfile;
+    profile: TaggingProfile;
   }
 
   let { profile }: ProfileViewProps = $props();

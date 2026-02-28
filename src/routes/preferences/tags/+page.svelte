@@ -4,12 +4,12 @@
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
-  import { stripBlacklistedTagsEnabled } from "$stores/preferences/maintenance";
+  import { stripBlacklistedTagsEnabled } from "$stores/preferences/profiles";
   import {
     shouldReplaceLinksOnForumPosts,
     shouldReplaceTextOfTagLinks,
     shouldSeparateTagGroups
-  } from "$stores/preferences/tag";
+  } from "$stores/preferences/tags";
   import { popupTitle } from "$stores/popup";
 
   $popupTitle = 'Tagging Preferences';

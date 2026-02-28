@@ -1,5 +1,5 @@
-import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
-import MaintenanceProfile from "$entities/MaintenanceProfile";
+import TaggingProfilesPreferences from "$lib/extension/preferences/TaggingProfilesPreferences";
+import TaggingProfile from "$entities/TaggingProfile";
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
 import ScrapedAPI from "$lib/booru/scraped/ScrapedAPI";
@@ -25,7 +25,7 @@ export class MaintenancePopup extends BaseComponent {
   #tagsListElement: HTMLElement = document.createElement('div');
   #tagsList: HTMLElement[] = [];
   #suggestedInvalidTags: Map<string, HTMLElement> = new Map();
-  #activeProfile: MaintenanceProfile | null = null;
+  #activeProfile: TaggingProfile | null = null;
   #mediaBoxTools: MediaBoxTools | null = null;
   #tagsToRemove: Set<string> = new Set();
   #tagsToAdd: Set<string> = new Set();
@@ -79,7 +79,7 @@ export class MaintenancePopup extends BaseComponent {
     mediaBox.on('mouseover', this.#onMouseEnteredArea.bind(this));
   }
 
-  #onActiveProfileChanged(activeProfile: MaintenanceProfile | null) {
+  #onActiveProfileChanged(activeProfile: TaggingProfile | null) {
     this.#activeProfile = activeProfile;
     this.container.classList.toggle('is-active', activeProfile !== null);
     this.#refreshTagsList();
@@ -214,7 +214,7 @@ export class MaintenancePopup extends BaseComponent {
 
     let maybeTagsAndAliasesAfterUpdate;
 
-    const shouldAutoRemove = await MaintenancePopup.#maintenanceSettings.resolveStripBlacklistedTags();
+    const shouldAutoRemove = await MaintenancePopup.#preferences.resolveStripBlacklistedTags();
 
     try {
       maybeTagsAndAliasesAfterUpdate = await MaintenancePopup.#scrapedAPI.updateImageTags(
@@ -333,7 +333,7 @@ export class MaintenancePopup extends BaseComponent {
   /**
    * Controller with maintenance settings.
    */
-  static #maintenanceSettings = new MaintenanceSettings();
+  static #preferences = new TaggingProfilesPreferences();
 
   /**
    * Subscribe to all necessary feeds to watch for every active profile change. Additionally, will execute the callback
@@ -341,10 +341,10 @@ export class MaintenancePopup extends BaseComponent {
    * @param callback Callback to execute whenever selection of active profile or profile itself has been changed.
    * @return Unsubscribe function. Call it to stop watching for changes.
    */
-  static #watchActiveProfile(callback: (profile: MaintenanceProfile | null) => void): () => void {
+  static #watchActiveProfile(callback: (profile: TaggingProfile | null) => void): () => void {
     let lastActiveProfileId: string | null | undefined = null;
 
-    const unsubscribeFromProfilesChanges = MaintenanceProfile.subscribe(profiles => {
+    const unsubscribeFromProfilesChanges = TaggingProfile.subscribe(profiles => {
       if (lastActiveProfileId) {
         callback(
           profiles.find(profile => profile.id === lastActiveProfileId) || null
@@ -352,19 +352,19 @@ export class MaintenancePopup extends BaseComponent {
       }
     });
 
-    const unsubscribeFromMaintenanceSettings = this.#maintenanceSettings.subscribe(settings => {
+    const unsubscribeFromMaintenanceSettings = this.#preferences.subscribe(settings => {
       if (settings.activeProfile === lastActiveProfileId) {
         return;
       }
 
       lastActiveProfileId = settings.activeProfile;
 
-      this.#maintenanceSettings
+      this.#preferences
         .resolveActiveProfileAsObject()
         .then(callback);
     });
 
-    this.#maintenanceSettings
+    this.#preferences
       .resolveActiveProfileAsObject()
       .then(profileOrNull => {
         if (profileOrNull) {

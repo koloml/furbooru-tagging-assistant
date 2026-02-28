@@ -7,19 +7,19 @@
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
-  import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
-  import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import { taggingProfiles } from "$stores/entities/tagging-profiles";
+  import TaggingProfile from "$entities/TaggingProfile";
   import { popupTitle } from "$stores/popup";
 
 
   let profileId = $derived(page.params.id);
 
-  let targetProfile = $derived.by<MaintenanceProfile | null>(() => {
+  let targetProfile = $derived.by<TaggingProfile | null>(() => {
     if (profileId === 'new') {
-      return new MaintenanceProfile(crypto.randomUUID(), {});
+      return new TaggingProfile(crypto.randomUUID(), {});
     }
 
-    return $maintenanceProfiles.find(profile => profile.id === profileId) || null;
+    return $taggingProfiles.find(profile => profile.id === profileId) || null;
   });
 
   let profileName = $state('');
@@ -32,7 +32,7 @@
     }
 
     if (!targetProfile) {
-      goto('/features/maintenance');
+      goto('/features/profiles');
       return;
     }
 
@@ -53,12 +53,12 @@
     targetProfile.settings.temporary = false;
 
     await targetProfile.save();
-    await goto('/features/maintenance/' + targetProfile.id);
+    await goto('/features/profiles/' + targetProfile.id);
   }
 </script>
 
 <Menu>
-  <MenuItem href="/features/maintenance{profileId === 'new' ? '' : '/' + profileId}" icon="arrow-left">
+  <MenuItem href="/features/profiles{profileId === 'new' ? '' : '/' + profileId}" icon="arrow-left">
     Back
   </MenuItem>
   <hr>

@@ -1,30 +1,30 @@
 <script lang="ts">
   import Menu from "$components/ui/menu/Menu.svelte";
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
-  import { activeProfileStore, maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import { activeTaggingProfile, taggingProfiles } from "$stores/entities/tagging-profiles";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
-  import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import TaggingProfile from "$entities/TaggingProfile";
   import { popupTitle } from "$stores/popup";
 
   $popupTitle = null;
 
-  let activeProfile = $derived<MaintenanceProfile | null>(
-    $maintenanceProfiles.find(profile => profile.id === $activeProfileStore) || null
+  let activeProfile = $derived<TaggingProfile | null>(
+    $taggingProfiles.find(profile => profile.id === $activeTaggingProfile) || null
   );
 
   function turnOffActiveProfile() {
-    $activeProfileStore = null;
+    $activeTaggingProfile = null;
   }
 </script>
 
 <Menu>
   {#if activeProfile}
-    <MenuCheckboxItem checked oninput={turnOffActiveProfile} href="/features/maintenance/{activeProfile.id}">
+    <MenuCheckboxItem checked oninput={turnOffActiveProfile} href="/features/profiles/{activeProfile.id}">
       Active Profile: {activeProfile.settings.name}
     </MenuCheckboxItem>
     <hr>
   {/if}
-  <MenuItem href="/features/maintenance">Tagging Profiles</MenuItem>
+  <MenuItem href="/features/profiles">Tagging Profiles</MenuItem>
   <MenuItem href="/features/groups">Tag Groups</MenuItem>
   <hr>
   <MenuItem href="/transporting">Import/Export</MenuItem>

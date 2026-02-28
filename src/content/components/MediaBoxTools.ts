@@ -4,7 +4,7 @@ import { MaintenancePopup } from "$content/components/MaintenancePopup";
 import { on } from "$content/components/events/comms";
 import { EVENT_ACTIVE_PROFILE_CHANGED } from "$content/components/events/maintenance-popup-events";
 import type { MediaBoxWrapper } from "$content/components/MediaBoxWrapper";
-import type MaintenanceProfile from "$entities/MaintenanceProfile";
+import type TaggingProfile from "$entities/TaggingProfile";
 
 export class MediaBoxTools extends BaseComponent {
   #mediaBox: MediaBoxWrapper | null = null;
@@ -42,7 +42,7 @@ export class MediaBoxTools extends BaseComponent {
     on(this, EVENT_ACTIVE_PROFILE_CHANGED, this.#onActiveProfileChanged.bind(this));
   }
 
-  #onActiveProfileChanged(profileChangedEvent: CustomEvent<MaintenanceProfile | null>) {
+  #onActiveProfileChanged(profileChangedEvent: CustomEvent<TaggingProfile | null>) {
     this.container.classList.toggle('has-active-profile', profileChangedEvent.detail !== null);
   }
 

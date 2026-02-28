@@ -1,13 +1,13 @@
-import CacheableSettings from "$lib/extension/base/CacheableSettings";
+import CacheablePreferences from "$lib/extension/base/CacheablePreferences";
 
 export type FullscreenViewerSize = keyof App.ImageURIs;
 
-interface MiscSettingsFields {
+interface MiscPreferencesFields {
   fullscreenViewer: boolean;
   fullscreenViewerSize: FullscreenViewerSize;
 }
 
-export default class MiscSettings extends CacheableSettings<MiscSettingsFields> {
+export default class MiscPreferences extends CacheablePreferences<MiscPreferencesFields> {
   constructor() {
     super("misc");
   }

@@ -1,12 +1,12 @@
-import MaintenanceProfile from "$entities/MaintenanceProfile";
-import CacheableSettings from "$lib/extension/base/CacheableSettings";
+import TaggingProfile from "$entities/TaggingProfile";
+import CacheablePreferences from "$lib/extension/base/CacheablePreferences";
 
-interface MaintenanceSettingsFields {
+interface TaggingProfilePreferencesFields {
   activeProfile: string | null;
   stripBlacklistedTags: boolean;
 }
 
-export default class MaintenanceSettings extends CacheableSettings<MaintenanceSettingsFields> {
+export default class TaggingProfilesPreferences extends CacheablePreferences<TaggingProfilePreferencesFields> {
   constructor() {
     super("maintenance");
   }
@@ -21,10 +21,10 @@ export default class MaintenanceSettings extends CacheableSettings<MaintenanceSe
   /**
    * Get the active maintenance profile if it is set.
    */
-  async resolveActiveProfileAsObject(): Promise<MaintenanceProfile | null> {
+  async resolveActiveProfileAsObject(): Promise<TaggingProfile | null> {
     const resolvedProfileId = await this.resolveActiveProfileId();
 
-    return (await MaintenanceProfile.readAll())
+    return (await TaggingProfile.readAll())
       .find(profile => profile.id === resolvedProfileId) || null;
   }
 

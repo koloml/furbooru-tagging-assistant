@@ -1,5 +1,5 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
-import TagSettings from "$lib/extension/settings/TagSettings";
+import TagsPreferences from "$lib/extension/preferences/TagsPreferences";
 import { getComponent } from "$content/components/base/component-utils";
 import { resolveTagNameFromLink, resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
 
@@ -17,8 +17,8 @@ export class BlockCommunication extends BaseComponent {
 
   protected init() {
     Promise.all([
-      BlockCommunication.#tagSettings.resolveReplaceLinks(),
-      BlockCommunication.#tagSettings.resolveReplaceLinkText(),
+      BlockCommunication.#preferences.resolveReplaceLinks(),
+      BlockCommunication.#preferences.resolveReplaceLinkText(),
     ]).then(([replaceLinks, replaceLinkText]) => {
       this.#onReplaceLinkSettingResolved(
         replaceLinks,
@@ -26,7 +26,7 @@ export class BlockCommunication extends BaseComponent {
       );
     });
 
-    BlockCommunication.#tagSettings.subscribe(settings => {
+    BlockCommunication.#preferences.subscribe(settings => {
       this.#onReplaceLinkSettingResolved(
         settings.replaceLinks ?? false,
         settings.replaceLinkText ?? true
@@ -112,7 +112,7 @@ export class BlockCommunication extends BaseComponent {
       );
   }
 
-  static #tagSettings = new TagSettings();
+  static #preferences = new TagsPreferences();
 
   /**
    * Map of links to their original texts. These texts need to be stored here to make them restorable. Keys is a link

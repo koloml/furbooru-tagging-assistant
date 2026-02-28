@@ -1,6 +1,6 @@
 import ConfigurationController from "$lib/extension/ConfigurationController";
 
-export default class CacheableSettings<Fields> {
+export default class CacheablePreferences<Fields> {
   #controller: ConfigurationController;
   #cachedValues: Map<keyof Fields, any> = new Map();
   #disposables: Function[] = [];

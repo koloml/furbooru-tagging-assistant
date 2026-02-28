@@ -1,6 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
-import MaintenanceProfile from "$entities/MaintenanceProfile";
+import TaggingProfile from "$entities/TaggingProfile";
 import type TagGroup from "$entities/TagGroup";
 
 declare global {
@@ -37,7 +37,7 @@ declare global {
       );
 
     interface EntityNamesMap {
-      profiles: MaintenanceProfile;
+      profiles: TaggingProfile;
       groups: TagGroup;
     }
 

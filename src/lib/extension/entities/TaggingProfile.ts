@@ -1,20 +1,20 @@
 import StorageEntity from "$lib/extension/base/StorageEntity";
 
-export interface MaintenanceProfileSettings {
+export interface TaggingProfileSettings {
   name: string;
   tags: string[];
   temporary: boolean;
 }
 
 /**
- * Class representing the maintenance profile entity.
+ * Class representing the tagging profile entity.
  */
-export default class MaintenanceProfile extends StorageEntity<MaintenanceProfileSettings> {
+export default class TaggingProfile extends StorageEntity<TaggingProfileSettings> {
   /**
    * @param id ID of the entity.
    * @param settings Maintenance profile settings object.
    */
-  constructor(id: string, settings: Partial<MaintenanceProfileSettings>) {
+  constructor(id: string, settings: Partial<TaggingProfileSettings>) {
     super(id, {
       name: settings.name || '',
       tags: settings.tags || [],

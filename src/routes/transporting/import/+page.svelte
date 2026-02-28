@@ -3,11 +3,11 @@
   import MenuItem from "$components/ui/menu/MenuItem.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
   import FormControl from "$components/ui/forms/FormControl.svelte";
-  import MaintenanceProfile from "$entities/MaintenanceProfile";
+  import TaggingProfile from "$entities/TaggingProfile";
   import TagGroup from "$entities/TagGroup";
   import BulkEntitiesTransporter from "$lib/extension/BulkEntitiesTransporter";
   import type StorageEntity from "$lib/extension/base/StorageEntity";
-  import { maintenanceProfiles } from "$stores/entities/maintenance-profiles";
+  import { taggingProfiles } from "$stores/entities/tagging-profiles";
   import { tagGroups } from "$stores/entities/tag-groups";
   import MenuCheckboxItem from "$components/ui/menu/MenuCheckboxItem.svelte";
   import ProfileView from "$components/features/ProfileView.svelte";
@@ -20,7 +20,7 @@
   let importedString = $state('');
   let errorMessage = $state('');
 
-  let importedProfiles = $state<MaintenanceProfile[]>([]);
+  let importedProfiles = $state<TaggingProfile[]>([]);
   let importedGroups = $state<TagGroup[]>([]);
 
   let saveAllProfiles = $state(false);
@@ -36,10 +36,10 @@
   let previewedEntity = $state<StorageEntity | null>(null);
 
   const existingProfilesMap = $derived(
-    $maintenanceProfiles.reduce((map, profile) => {
+    $taggingProfiles.reduce((map, profile) => {
       map.set(profile.id, profile);
       return map;
-    }, new Map<string, MaintenanceProfile>())
+    }, new Map<string, TaggingProfile>())
   );
 
   const existingGroupsMap = $derived(
@@ -98,7 +98,7 @@
       for (const targetImportedEntity of importedEntities) {
         switch (targetImportedEntity.type) {
           case "profiles":
-            importedProfiles.push(targetImportedEntity as MaintenanceProfile);
+            importedProfiles.push(targetImportedEntity as TaggingProfile);
             break;
           case "groups":
             importedGroups.push(targetImportedEntity as TagGroup);
@@ -202,7 +202,7 @@
     <MenuItem onclick={() => previewedEntity = null} icon="arrow-left">Back to Selection</MenuItem>
     <hr>
   </Menu>
-  {#if previewedEntity instanceof MaintenanceProfile}
+  {#if previewedEntity instanceof TaggingProfile}
     <ProfileView profile={previewedEntity}></ProfileView>
   {:else if previewedEntity instanceof TagGroup}
     <GroupView group={previewedEntity}></GroupView>

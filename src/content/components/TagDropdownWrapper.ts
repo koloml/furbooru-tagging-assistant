@@ -1,6 +1,6 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
-import MaintenanceProfile from "$entities/MaintenanceProfile";
-import MaintenanceSettings from "$lib/extension/settings/MaintenanceSettings";
+import TaggingProfile from "$entities/TaggingProfile";
+import TaggingProfilesPreferences from "$lib/extension/preferences/TaggingProfilesPreferences";
 import { getComponent } from "$content/components/base/component-utils";
 import CustomCategoriesResolver from "$lib/extension/CustomCategoriesResolver";
 import { on } from "$content/components/events/comms";
@@ -29,7 +29,7 @@ export class TagDropdownWrapper extends BaseComponent {
   /**
    * Local clone of the currently active profile used for updating the list of tags.
    */
-  #activeProfile: MaintenanceProfile | null = null;
+  #activeProfile: TaggingProfile | null = null;
 
   /**
    * Is cursor currently entered the dropdown.
@@ -172,14 +172,14 @@ export class TagDropdownWrapper extends BaseComponent {
       throw new Error('Missing tag name to create the profile!');
     }
 
-    const profile = new MaintenanceProfile(crypto.randomUUID(), {
+    const profile = new TaggingProfile(crypto.randomUUID(), {
       name: 'Temporary Profile (' + (new Date().toISOString()) + ')',
       tags: [this.tagName],
       temporary: true,
     });
 
     await profile.save();
-    await TagDropdownWrapper.#maintenanceSettings.setActiveProfileId(profile.id);
+    await TagDropdownWrapper.#preferences.setActiveProfileId(profile.id);
   }
 
   async #onToggleInExistingClicked() {
@@ -205,25 +205,25 @@ export class TagDropdownWrapper extends BaseComponent {
     await this.#activeProfile.save();
   }
 
-  static #maintenanceSettings = new MaintenanceSettings();
+  static #preferences = new TaggingProfilesPreferences();
 
   /**
    * Watch for changes to active profile.
    * @param onActiveProfileChange Callback to call when profile was
    * changed.
    */
-  static #watchActiveProfile(onActiveProfileChange: (profile: MaintenanceProfile | null) => void) {
+  static #watchActiveProfile(onActiveProfileChange: (profile: TaggingProfile | null) => void) {
     let lastActiveProfile: string | null = null;
 
-    this.#maintenanceSettings.subscribe((settings) => {
+    this.#preferences.subscribe((settings) => {
       lastActiveProfile = settings.activeProfile ?? null;
 
-      this.#maintenanceSettings
+      this.#preferences
         .resolveActiveProfileAsObject()
         .then(onActiveProfileChange);
     });
 
-    MaintenanceProfile.subscribe(profiles => {
+    TaggingProfile.subscribe(profiles => {
       const activeProfile = profiles
         .find(profile => profile.id === lastActiveProfile);
 
@@ -231,7 +231,7 @@ export class TagDropdownWrapper extends BaseComponent {
       );
     });
 
-    this.#maintenanceSettings
+    this.#preferences
       .resolveActiveProfileAsObject()
       .then(activeProfile => {
         lastActiveProfile = activeProfile?.id ?? null;
