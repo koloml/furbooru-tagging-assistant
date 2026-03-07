@@ -4,7 +4,7 @@ import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
 import { on } from "$content/components/events/comms";
 import { EVENT_TAGS_UPDATED } from "$content/components/events/maintenance-popup-events";
 
-export class MediaBoxWrapper extends BaseComponent {
+export class MediaBox extends BaseComponent {
   #thumbnailContainer: HTMLElement | null = null;
   #imageLinkElement: HTMLAnchorElement | null = null;
   #tagsAndAliases: Map<string, string> | null = null;
@@ -60,40 +60,44 @@ export class MediaBoxWrapper extends BaseComponent {
 
     return JSON.parse(jsonUris);
   }
-}
 
-/**
- * Wrap the media box element into the special wrapper.
- */
-export function initializeMediaBox(mediaBoxContainer: HTMLElement, childComponentElements: HTMLElement[]) {
-  new MediaBoxWrapper(mediaBoxContainer)
-    .initialize();
+  /**
+   * Wrap the media box element into the special wrapper.
+   */
+  static initialize(mediaBoxContainer: HTMLElement, childComponentElements: HTMLElement[]) {
+    new MediaBox(mediaBoxContainer)
+      .initialize();
 
-  for (let childComponentElement of childComponentElements) {
-    mediaBoxContainer.appendChild(childComponentElement);
-    getComponent(childComponentElement)?.initialize();
+    for (let childComponentElement of childComponentElements) {
+      mediaBoxContainer.appendChild(childComponentElement);
+      getComponent(childComponentElement)?.initialize();
+    }
   }
-}
 
-export function calculateMediaBoxesPositions(mediaBoxesList: NodeListOf<HTMLElement>) {
-  window.addEventListener('resize', () => {
-    let lastMediaBox: HTMLElement | null = null;
-    let lastMediaBoxPosition: number | null = null;
+  static findElements(): NodeListOf<HTMLElement> {
+    return document.querySelectorAll('.media-box');
+  }
 
-    for (const mediaBoxElement of mediaBoxesList) {
-      const yPosition = mediaBoxElement.getBoundingClientRect().y;
-      const isOnTheSameLine = yPosition === lastMediaBoxPosition;
+  static initializePositionCalculation(mediaBoxesList: NodeListOf<HTMLElement>) {
+    window.addEventListener('resize', () => {
+      let lastMediaBox: HTMLElement | null = null;
+      let lastMediaBoxPosition: number | null = null;
 
-      mediaBoxElement.classList.toggle('media-box--first', !isOnTheSameLine);
-      lastMediaBox?.classList.toggle('media-box--last', !isOnTheSameLine);
+      for (const mediaBoxElement of mediaBoxesList) {
+        const yPosition = mediaBoxElement.getBoundingClientRect().y;
+        const isOnTheSameLine = yPosition === lastMediaBoxPosition;
 
-      lastMediaBox = mediaBoxElement;
-      lastMediaBoxPosition = yPosition;
-    }
+        mediaBoxElement.classList.toggle('media-box--first', !isOnTheSameLine);
+        lastMediaBox?.classList.toggle('media-box--last', !isOnTheSameLine);
 
-    // Last-ever media box is checked separately
-    if (lastMediaBox && !lastMediaBox.nextElementSibling) {
-      lastMediaBox.classList.add('media-box--last');
-    }
-  })
+        lastMediaBox = mediaBoxElement;
+        lastMediaBoxPosition = yPosition;
+      }
+
+      // Last-ever media box is checked separately
+      if (lastMediaBox && !lastMediaBox.nextElementSibling) {
+        lastMediaBox.classList.add('media-box--last');
+      }
+    })
+  }
 }

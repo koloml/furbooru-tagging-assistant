@@ -1,6 +1,6 @@
-import { TagsForm } from "$content/components/TagsForm";
-import { initializeAllTagsLists, watchForUpdatedTagLists } from "$content/components/TagsListBlock";
+import { TagsForm } from "$content/components/philomena/TagsForm";
+import { TagsListBlock } from "$content/components/philomena/TagsListBlock";
 
-initializeAllTagsLists();
-watchForUpdatedTagLists();
+TagsListBlock.initializeAll();
+TagsListBlock.watchUpdatedLists();
 TagsForm.watchForEditors();

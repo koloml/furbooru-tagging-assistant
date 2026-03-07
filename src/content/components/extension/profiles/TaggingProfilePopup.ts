@@ -10,7 +10,7 @@ import {
   EVENT_MAINTENANCE_STATE_CHANGED,
   EVENT_TAGS_UPDATED
 } from "$content/components/events/maintenance-popup-events";
-import type { MediaBoxTools } from "$content/components/MediaBoxTools";
+import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
 import { resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
 
 class BlackListedTagsEncounteredError extends Error {
@@ -21,7 +21,7 @@ class BlackListedTagsEncounteredError extends Error {
   }
 }
 
-export class MaintenancePopup extends BaseComponent {
+export class TaggingProfilePopup extends BaseComponent {
   #tagsListElement: HTMLElement = document.createElement('div');
   #tagsList: HTMLElement[] = [];
   #suggestedInvalidTags: Map<string, HTMLElement> = new Map();
@@ -66,7 +66,7 @@ export class MaintenancePopup extends BaseComponent {
 
     this.#mediaBoxTools = mediaBoxTools;
 
-    MaintenancePopup.#watchActiveProfile(this.#onActiveProfileChanged.bind(this));
+    TaggingProfilePopup.#watchActiveProfile(this.#onActiveProfileChanged.bind(this));
     this.#tagsListElement.addEventListener('click', this.#handleTagClick.bind(this));
 
     const mediaBox = this.#mediaBoxTools.mediaBox;
@@ -110,7 +110,7 @@ export class MaintenancePopup extends BaseComponent {
     activeProfileTagsList
       .sort((a, b) => a.localeCompare(b))
       .forEach((tagName, index) => {
-        const tagElement = MaintenancePopup.#buildTagElement(tagName);
+        const tagElement = TaggingProfilePopup.#buildTagElement(tagName);
         this.#tagsList[index] = tagElement;
         this.#tagsListElement.appendChild(tagElement);
 
@@ -122,10 +122,10 @@ export class MaintenancePopup extends BaseComponent {
 
         // Just to prevent duplication, we need to include this tag to the map of suggested invalid tags
         if (tagsBlacklist.includes(tagName)) {
-          MaintenancePopup.#markTagElementWithCategory(tagElement, 'error');
+          TaggingProfilePopup.#markTagElementWithCategory(tagElement, 'error');
           this.#suggestedInvalidTags.set(tagName, tagElement);
         } else {
-          MaintenancePopup.#markTagElementWithCategory(
+          TaggingProfilePopup.#markTagElementWithCategory(
             tagElement,
             resolveTagCategoryFromTagName(tagName) ?? '',
           );
@@ -179,7 +179,7 @@ export class MaintenancePopup extends BaseComponent {
     if (this.#tagsToAdd.size || this.#tagsToRemove.size) {
       // Notify only once, when first planning to submit
       if (!this.#isPlanningToSubmit) {
-        MaintenancePopup.#notifyAboutPendingSubmission(true);
+        TaggingProfilePopup.#notifyAboutPendingSubmission(true);
       }
 
       this.#isPlanningToSubmit = true;
@@ -197,7 +197,7 @@ export class MaintenancePopup extends BaseComponent {
     if (this.#isPlanningToSubmit && !this.#isSubmitting) {
       this.#tagsSubmissionTimer = setTimeout(
         this.#onSubmissionTimerPassed.bind(this),
-        MaintenancePopup.#delayBeforeSubmissionMs
+        TaggingProfilePopup.#delayBeforeSubmissionMs
       );
     }
   }
@@ -214,10 +214,10 @@ export class MaintenancePopup extends BaseComponent {
 
     let maybeTagsAndAliasesAfterUpdate;
 
-    const shouldAutoRemove = await MaintenancePopup.#preferences.stripBlacklistedTags.get();
+    const shouldAutoRemove = await TaggingProfilePopup.#preferences.stripBlacklistedTags.get();
 
     try {
-      maybeTagsAndAliasesAfterUpdate = await MaintenancePopup.#scrapedAPI.updateImageTags(
+      maybeTagsAndAliasesAfterUpdate = await TaggingProfilePopup.#scrapedAPI.updateImageTags(
         this.#mediaBoxTools.mediaBox.imageId,
         tagsList => {
           for (let tagName of this.#tagsToRemove) {
@@ -250,7 +250,7 @@ export class MaintenancePopup extends BaseComponent {
         console.warn('Tags submission failed:', e);
       }
 
-      MaintenancePopup.#notifyAboutPendingSubmission(false);
+      TaggingProfilePopup.#notifyAboutPendingSubmission(false);
 
       this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'failed');
       this.#isSubmitting = false;
@@ -268,7 +268,7 @@ export class MaintenancePopup extends BaseComponent {
     this.#tagsToRemove.clear();
 
     this.#refreshTagsList();
-    MaintenancePopup.#notifyAboutPendingSubmission(false);
+    TaggingProfilePopup.#notifyAboutPendingSubmission(false);
 
     this.#isSubmitting = false;
   }
@@ -292,8 +292,8 @@ export class MaintenancePopup extends BaseComponent {
           continue;
         }
 
-        const tagElement = MaintenancePopup.#buildTagElement(tagName);
-        MaintenancePopup.#markTagElementWithCategory(tagElement, 'error');
+        const tagElement = TaggingProfilePopup.#buildTagElement(tagName);
+        TaggingProfilePopup.#markTagElementWithCategory(tagElement, 'error');
         tagElement.classList.add('is-present');
 
         this.#suggestedInvalidTags.set(tagName, tagElement);
@@ -309,6 +309,14 @@ export class MaintenancePopup extends BaseComponent {
 
   get isActive() {
     return this.container.classList.contains('is-active');
+  }
+
+  static create(): HTMLElement {
+    const container = document.createElement('div');
+
+    new this(container);
+
+    return container;
   }
 
   static #buildTagElement(tagName: string): HTMLElement {
@@ -413,12 +421,4 @@ export class MaintenancePopup extends BaseComponent {
    * Amount of pending submissions or NULL if logic was not yet initialized.
    */
   static #pendingSubmissionCount: number|null = null;
-}
-
-export function createMaintenancePopup() {
-  const container = document.createElement('div');
-
-  new MaintenancePopup(container);
-
-  return container;
 }

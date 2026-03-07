@@ -1,8 +1,8 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
 import MiscPreferences from "$lib/extension/preferences/MiscPreferences";
-import { FullscreenViewer } from "$content/components/FullscreenViewer";
-import type { MediaBoxTools } from "$content/components/MediaBoxTools";
+import { FullscreenViewer } from "$content/components/extension/FullscreenViewer";
+import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
 
 export class ImageShowFullscreenButton extends BaseComponent {
   #mediaBoxTools: MediaBoxTools | null = null;
@@ -56,6 +56,15 @@ export class ImageShowFullscreenButton extends BaseComponent {
       ?.show(imageLinks);
   }
 
+  static create(): HTMLElement {
+    const element = document.createElement('div');
+    element.classList.add('media-box-show-fullscreen');
+
+    new ImageShowFullscreenButton(element);
+
+    return element;
+  }
+
   static #viewer: FullscreenViewer | null = null;
 
   static #resolveViewer(): FullscreenViewer {
@@ -75,13 +84,4 @@ export class ImageShowFullscreenButton extends BaseComponent {
   }
 
   static #preferences = new MiscPreferences();
-}
-
-export function createImageShowFullscreenButton() {
-  const element = document.createElement('div');
-  element.classList.add('media-box-show-fullscreen');
-
-  new ImageShowFullscreenButton(element);
-
-  return element;
 }

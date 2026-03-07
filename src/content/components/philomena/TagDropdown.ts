@@ -8,9 +8,7 @@ import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-
 import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdown-events";
 import type TagGroup from "$entities/TagGroup";
 
-const categoriesResolver = new CustomCategoriesResolver();
-
-export class TagDropdownWrapper extends BaseComponent {
+export class TagDropdown extends BaseComponent {
   /**
    * Container with dropdown elements to insert options into.
    */
@@ -46,7 +44,7 @@ export class TagDropdownWrapper extends BaseComponent {
     this.on('mouseenter', this.#onDropdownEntered.bind(this));
     this.on('mouseleave', this.#onDropdownLeft.bind(this));
 
-    TagDropdownWrapper.#watchActiveProfile(activeProfileOrNull => {
+    TagDropdown.#watchActiveProfile(activeProfileOrNull => {
       this.#activeProfile = activeProfileOrNull;
 
       if (this.#isEntered) {
@@ -122,7 +120,7 @@ export class TagDropdownWrapper extends BaseComponent {
 
   #updateButtons() {
     if (!this.#activeProfile) {
-      this.#addToNewButton ??= TagDropdownWrapper.#createDropdownLink(
+      this.#addToNewButton ??= TagDropdown.#createDropdownLink(
         'Add to new tagging profile',
         this.#onAddToNewClicked.bind(this)
       );
@@ -135,7 +133,7 @@ export class TagDropdownWrapper extends BaseComponent {
     }
 
     if (this.#activeProfile) {
-      this.#toggleOnExistingButton ??= TagDropdownWrapper.#createDropdownLink(
+      this.#toggleOnExistingButton ??= TagDropdown.#createDropdownLink(
         'Add to existing tagging profile',
         this.#onToggleInExistingClicked.bind(this)
       );
@@ -179,7 +177,7 @@ export class TagDropdownWrapper extends BaseComponent {
     });
 
     await profile.save();
-    await TagDropdownWrapper.#preferences.activeProfile.set(profile.id);
+    await TagDropdown.#preferences.activeProfile.set(profile.id);
   }
 
   async #onToggleInExistingClicked() {
@@ -263,58 +261,65 @@ export class TagDropdownWrapper extends BaseComponent {
 
     return dropdownLink;
   }
-}
 
-export function wrapTagDropdown(element: HTMLElement) {
-  // Skip initialization when tag component is already wrapped
-  if (getComponent(element)) {
-    return;
+  static #categoriesResolver = new CustomCategoriesResolver();
+  static #processedElements: WeakSet<HTMLElement> = new WeakSet();
+
+  static #findAll(parentNode: ParentNode = document): NodeListOf<HTMLElement> {
+    return parentNode.querySelectorAll('.tag.dropdown');
   }
 
-  const tagDropdown = new TagDropdownWrapper(element);
-  tagDropdown.initialize();
+  static #initialize(element: HTMLElement) {
+    // Skip initialization when tag component is already wrapped
+    if (getComponent(element)) {
+      return;
+    }
 
-  categoriesResolver.addElement(tagDropdown);
-}
+    const tagDropdown = new TagDropdown(element);
+    tagDropdown.initialize();
 
-const processedElementsSet = new WeakSet<HTMLElement>();
-
-export function watchTagDropdownsInTagsEditor() {
-  // We only need to watch for new editor elements if there is a tag editor present on the page
-  if (!document.querySelector('#image_tags_and_source')) {
-    return;
+    this.#categoriesResolver.addElement(tagDropdown);
   }
 
-  document.body.addEventListener('mouseover', event => {
-    const targetElement = event.target;
+  static findAllAndInitialize(parentNode: ParentNode = document) {
+    for (const element of this.#findAll(parentNode)) {
+      this.#initialize(element);
+    }
+  }
 
-    if (!(targetElement instanceof HTMLElement)) {
+  static watch() {
+    // We only need to watch for new editor elements if there is a tag editor present on the page
+    if (!document.querySelector('#image_tags_and_source')) {
       return;
     }
 
-    if (processedElementsSet.has(targetElement)) {
-      return;
-    }
+    document.body.addEventListener('mouseover', event => {
+      const targetElement = event.target;
 
-    const closestTagEditor = targetElement.closest<HTMLElement>('#image_tags_and_source');
+      if (!(targetElement instanceof HTMLElement)) {
+        return;
+      }
 
-    if (!closestTagEditor || processedElementsSet.has(closestTagEditor)) {
-      processedElementsSet.add(targetElement);
-      return;
-    }
+      if (this.#processedElements.has(targetElement)) {
+        return;
+      }
 
-    processedElementsSet.add(targetElement);
-    processedElementsSet.add(closestTagEditor);
+      const closestTagEditor = targetElement.closest<HTMLElement>('#image_tags_and_source');
 
-    for (const tagDropdownElement of closestTagEditor.querySelectorAll<HTMLElement>('.tag.dropdown')) {
-      wrapTagDropdown(tagDropdownElement);
-    }
-  });
+      if (!closestTagEditor || this.#processedElements.has(closestTagEditor)) {
+        this.#processedElements.add(targetElement);
+        return;
+      }
 
-  // When form is submitted, its DOM is completely updated. We need to fetch those tags in this case.
-  on(document.body, EVENT_FORM_EDITOR_UPDATED, event => {
-    for (const tagDropdownElement of event.detail.querySelectorAll<HTMLElement>('.tag.dropdown')) {
-      wrapTagDropdown(tagDropdownElement);
-    }
-  });
+      this.#processedElements.add(targetElement);
+      this.#processedElements.add(closestTagEditor);
+
+      this.findAllAndInitialize(closestTagEditor);
+    });
+
+    // When form is submitted, its DOM is completely updated. We need to fetch those tags in this case.
+    on(document.body, EVENT_FORM_EDITOR_UPDATED, event => {
+      this.findAllAndInitialize(event.detail);
+    });
+  }
 }

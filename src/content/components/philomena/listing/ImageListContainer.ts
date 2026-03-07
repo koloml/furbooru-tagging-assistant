@@ -1,5 +1,5 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
-import { ImageListInfo } from "$content/components/listing/ImageListInfo";
+import { ImageListInfo } from "$content/components/philomena/listing/ImageListInfo";
 
 export class ImageListContainer extends BaseComponent {
   #info: ImageListInfo | null = null;
@@ -12,8 +12,12 @@ export class ImageListContainer extends BaseComponent {
       this.#info.initialize();
     }
   }
-}
 
-export function initializeImageListContainer(element: HTMLElement) {
-  new ImageListContainer(element).initialize();
+  static findAndInitialize() {
+    const imageListContainer = document.querySelector<HTMLElement>('#imagelist-container');
+
+    if (imageListContainer) {
+      new ImageListContainer(imageListContainer).initialize();
+    }
+  }
 }

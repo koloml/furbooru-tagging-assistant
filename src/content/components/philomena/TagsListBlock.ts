@@ -1,6 +1,6 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import type TagGroup from "$entities/TagGroup";
-import type { TagDropdownWrapper } from "$content/components/TagDropdownWrapper";
+import type { TagDropdown } from "$content/components/philomena/TagDropdown";
 import { on } from "$content/components/events/comms";
 import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
 import { getComponent } from "$content/components/base/component-utils";
@@ -21,7 +21,7 @@ export class TagsListBlock extends BaseComponent {
   #separatedGroups = new Map<string, TagGroup>();
   #separatedHeaders = new Map<string, HTMLElement>();
   #groupsCount = new Map<string, number>();
-  #lastTagGroup = new WeakMap<TagDropdownWrapper, TagGroup | null>;
+  #lastTagGroup = new WeakMap<TagDropdown, TagGroup | null>;
 
   #isReorderingPlanned = false;
 
@@ -80,7 +80,7 @@ export class TagsListBlock extends BaseComponent {
       return;
     }
 
-    const tagDropdown = getComponent<TagDropdownWrapper>(maybeDropdownElement);
+    const tagDropdown = getComponent<TagDropdown>(maybeDropdownElement);
 
     if (!tagDropdown) {
       return;
@@ -146,7 +146,7 @@ export class TagsListBlock extends BaseComponent {
     heading.innerText = group.settings.name;
   }
 
-  #handleResolvedTagGroup(resolvedGroup: TagGroup | null, tagComponent: TagDropdownWrapper) {
+  #handleResolvedTagGroup(resolvedGroup: TagGroup | null, tagComponent: TagDropdown) {
     const previousGroupId = this.#lastTagGroup.get(tagComponent)?.id;
     const currentGroupId = resolvedGroup?.id;
     const isDifferentId = currentGroupId !== previousGroupId;
@@ -217,28 +217,28 @@ export class TagsListBlock extends BaseComponent {
 
   static #iconGroupingDisabled = 'fa-folder';
   static #iconGroupingEnabled = 'fa-folder-tree';
-}
 
-export function initializeAllTagsLists() {
-  for (let element of document.querySelectorAll<HTMLElement>('#image_tags_and_source')) {
-    if (getComponent(element)) {
-      return;
+  static initializeAll() {
+    for (let element of document.querySelectorAll<HTMLElement>('#image_tags_and_source')) {
+      if (getComponent(element)) {
+        return;
+      }
+
+      new TagsListBlock(element)
+        .initialize();
     }
-
-    new TagsListBlock(element)
-      .initialize();
   }
-}
 
-export function watchForUpdatedTagLists() {
-  on(document, EVENT_FORM_EDITOR_UPDATED, event => {
-    const tagsListElement = event.detail.closest<HTMLElement>('#image_tags_and_source');
+  static watchUpdatedLists() {
+    on(document, EVENT_FORM_EDITOR_UPDATED, event => {
+      const tagsListElement = event.detail.closest<HTMLElement>('#image_tags_and_source');
 
-    if (!tagsListElement || getComponent(tagsListElement)) {
-      return;
-    }
+      if (!tagsListElement || getComponent(tagsListElement)) {
+        return;
+      }
 
-    new TagsListBlock(tagsListElement)
-      .initialize();
-  });
+      new TagsListBlock(tagsListElement)
+        .initialize();
+    })
+  }
 }
