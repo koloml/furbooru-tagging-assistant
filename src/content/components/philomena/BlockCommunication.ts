@@ -1,7 +1,7 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import TagsPreferences from "$lib/extension/preferences/TagsPreferences";
 import { getComponent } from "$content/components/base/component-utils";
-import { resolveTagNameFromLink, resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
+import { resolveTagNameFromLink, resolveTagCategoryFromTagName } from "$lib/philomena/tag-utils";
 
 export class BlockCommunication extends BaseComponent {
   #contentSection: HTMLElement | null = null;

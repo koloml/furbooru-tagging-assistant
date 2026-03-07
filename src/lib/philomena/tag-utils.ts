@@ -1,5 +1,5 @@
 import { namespaceCategories } from "$config/tags";
-import { QueryLexer, QuotedTermToken, TermToken } from "$lib/booru/search/QueryLexer";
+import { QueryLexer, QuotedTermToken, TermToken } from "$lib/philomena/search/QueryLexer";
 
 /**
  * Build the map containing both real tags and their aliases.

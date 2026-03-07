@@ -1,4 +1,4 @@
-import PostParser from "$lib/booru/scraped/parsing/PostParser";
+import PostParser from "$lib/philomena/scraping/parsing/PostParser";
 
 type UpdaterFunction = (tags: Set<string>) => Set<string>;
 

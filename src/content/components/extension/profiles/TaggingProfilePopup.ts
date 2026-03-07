@@ -2,7 +2,7 @@ import TaggingProfilesPreferences from "$lib/extension/preferences/TaggingProfil
 import TaggingProfile from "$entities/TaggingProfile";
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
-import ScrapedAPI from "$lib/booru/scraped/ScrapedAPI";
+import ScrapedAPI from "$lib/philomena/scraping/ScrapedAPI";
 import { tagsBlacklist } from "$config/tags";
 import { emitterAt } from "$content/components/events/comms";
 import {
@@ -11,7 +11,7 @@ import {
   EVENT_TAGS_UPDATED
 } from "$content/components/events/maintenance-popup-events";
 import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
-import { resolveTagCategoryFromTagName } from "$lib/booru/tag-utils";
+import { resolveTagCategoryFromTagName } from "$lib/philomena/tag-utils";
 
 class BlackListedTagsEncounteredError extends Error {
   constructor(tagName: string) {

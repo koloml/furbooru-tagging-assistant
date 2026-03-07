@@ -1,5 +1,5 @@
-import PageParser from "$lib/booru/scraped/parsing/PageParser";
-import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
+import PageParser from "$lib/philomena/scraping/parsing/PageParser";
+import { buildTagsAndAliasesMap } from "$lib/philomena/tag-utils";
 
 export default class PostParser extends PageParser {
   #tagEditorForm: HTMLFormElement | null = null;

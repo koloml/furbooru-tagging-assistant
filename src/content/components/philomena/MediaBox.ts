@@ -1,6 +1,6 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
-import { buildTagsAndAliasesMap } from "$lib/booru/tag-utils";
+import { buildTagsAndAliasesMap } from "$lib/philomena/tag-utils";
 import { on } from "$content/components/events/comms";
 import { EVENT_TAGS_UPDATED } from "$content/components/events/maintenance-popup-events";
 
