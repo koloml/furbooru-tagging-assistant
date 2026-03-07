@@ -1,4 +1,4 @@
-import type { FullscreenViewerSize } from "$lib/extension/settings/MiscSettings";
+import type { FullscreenViewerSize } from "$lib/extension/preferences/MiscPreferences";
 
 export const EVENT_SIZE_LOADED = 'size-loaded';
 

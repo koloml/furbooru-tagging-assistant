@@ -1,19 +1,18 @@
-import { createMaintenancePopup } from "$content/components/MaintenancePopup";
-import { createMediaBoxTools } from "$content/components/MediaBoxTools";
-import { calculateMediaBoxesPositions, initializeMediaBox } from "$content/components/MediaBoxWrapper";
-import { createMaintenanceStatusIcon } from "$content/components/MaintenanceStatusIcon";
-import { createImageShowFullscreenButton } from "$content/components/ImageShowFullscreenButton";
-import { initializeImageListContainer } from "$content/components/listing/ImageListContainer";
+import { TaggingProfilePopup } from "$content/components/extension/profiles/TaggingProfilePopup";
+import { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
+import { MediaBox } from "$content/components/philomena/MediaBox";
+import { TaggingProfileStatusIcon } from "$content/components/extension/profiles/TaggingProfileStatusIcon";
+import { ImageShowFullscreenButton } from "$content/components/extension/ImageShowFullscreenButton";
+import { ImageListContainer } from "$content/components/philomena/listing/ImageListContainer";
 
-const mediaBoxes = document.querySelectorAll<HTMLElement>('.media-box');
-const imageListContainer = document.querySelector<HTMLElement>('#imagelist-container');
+const mediaBoxes = MediaBox.findElements();
 
 mediaBoxes.forEach(mediaBoxElement => {
-  initializeMediaBox(mediaBoxElement, [
-    createMediaBoxTools(
-      createMaintenancePopup(),
-      createMaintenanceStatusIcon(),
-      createImageShowFullscreenButton(),
+  MediaBox.initialize(mediaBoxElement, [
+    MediaBoxTools.create(
+      TaggingProfilePopup.create(),
+      TaggingProfileStatusIcon.create(),
+      ImageShowFullscreenButton.create(),
     )
   ]);
 
@@ -23,8 +22,5 @@ mediaBoxes.forEach(mediaBoxElement => {
   })
 });
 
-calculateMediaBoxesPositions(mediaBoxes);
-
-if (imageListContainer) {
-  initializeImageListContainer(imageListContainer);
-}
+MediaBox.initializePositionCalculation(mediaBoxes);
+ImageListContainer.findAndInitialize();

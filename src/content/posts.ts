@@ -1,3 +1,3 @@
-import { BlockCommunication } from "$content/components/BlockCommunication";
+import { BlockCommunication } from "$content/components/philomena/BlockCommunication";
 
 BlockCommunication.findAndInitializeAll();

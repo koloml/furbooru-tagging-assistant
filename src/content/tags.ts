@@ -1,7 +1,4 @@
-import { watchTagDropdownsInTagsEditor, wrapTagDropdown } from "$content/components/TagDropdownWrapper";
+import { TagDropdown } from "$content/components/philomena/TagDropdown";
 
-for (let tagDropdownElement of document.querySelectorAll<HTMLElement>('.tag.dropdown')) {
-  wrapTagDropdown(tagDropdownElement);
-}
-
-watchTagDropdownsInTagsEditor();
+TagDropdown.findAllAndInitialize();
+TagDropdown.watch();
