@@ -214,7 +214,7 @@ export class MaintenancePopup extends BaseComponent {
 
     let maybeTagsAndAliasesAfterUpdate;
 
-    const shouldAutoRemove = await MaintenancePopup.#preferences.resolveStripBlacklistedTags();
+    const shouldAutoRemove = await MaintenancePopup.#preferences.stripBlacklistedTags.get();
 
     try {
       maybeTagsAndAliasesAfterUpdate = await MaintenancePopup.#scrapedAPI.updateImageTags(
@@ -359,13 +359,11 @@ export class MaintenancePopup extends BaseComponent {
 
       lastActiveProfileId = settings.activeProfile;
 
-      this.#preferences
-        .resolveActiveProfileAsObject()
+      this.#preferences.activeProfile.asObject()
         .then(callback);
     });
 
-    this.#preferences
-      .resolveActiveProfileAsObject()
+    this.#preferences.activeProfile.asObject()
       .then(profileOrNull => {
         if (profileOrNull) {
           lastActiveProfileId = profileOrNull.id;

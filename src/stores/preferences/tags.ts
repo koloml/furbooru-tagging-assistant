@@ -9,21 +9,21 @@ export const shouldReplaceTextOfTagLinks = writable(true);
 
 Promise
   .allSettled([
-    preferences.resolveGroupSeparation().then(value => shouldSeparateTagGroups.set(value)),
-    preferences.resolveReplaceLinks().then(value => shouldReplaceLinksOnForumPosts.set(value)),
-    preferences.resolveReplaceLinkText().then(value => shouldReplaceTextOfTagLinks.set(value)),
+    preferences.groupSeparation.get().then(value => shouldSeparateTagGroups.set(value)),
+    preferences.replaceLinks.get().then(value => shouldReplaceLinksOnForumPosts.set(value)),
+    preferences.replaceLinkText.get().then(value => shouldReplaceTextOfTagLinks.set(value)),
   ])
   .then(() => {
     shouldSeparateTagGroups.subscribe(value => {
-      void preferences.setGroupSeparation(value);
+      void preferences.groupSeparation.set(value);
     });
 
     shouldReplaceLinksOnForumPosts.subscribe(value => {
-      void preferences.setReplaceLinks(value);
+      void preferences.replaceLinks.set(value);
     });
 
     shouldReplaceTextOfTagLinks.subscribe(value => {
-      void preferences.setReplaceLinkText(value);
+      void preferences.replaceLinkText.set(value);
     });
 
     preferences.subscribe(settings => {

@@ -7,12 +7,12 @@ const preferences = new TaggingProfilesPreferences();
 
 Promise
   .all([
-    preferences.resolveStripBlacklistedTags().then(v => stripBlacklistedTagsEnabled.set(v ?? true))
+    preferences.stripBlacklistedTags.get().then(v => stripBlacklistedTagsEnabled.set(v ?? true))
   ])
   .then(() => {
     preferences.subscribe(settings => {
       stripBlacklistedTagsEnabled.set(typeof settings.stripBlacklistedTags === 'boolean' ? settings.stripBlacklistedTags : true);
     });
 
-    stripBlacklistedTagsEnabled.subscribe(v => preferences.setStripBlacklistedTags(v));
+    stripBlacklistedTagsEnabled.subscribe(v => preferences.stripBlacklistedTags.set(v));
   });

@@ -24,7 +24,7 @@ Promise.allSettled([
   TaggingProfile.readAll().then(profiles => {
     taggingProfiles.set(profiles);
   }),
-  preferences.resolveActiveProfileId().then(activeProfileId => {
+  preferences.activeProfile.get().then(activeProfileId => {
     activeTaggingProfile.set(activeProfileId);
   })
 ]).then(() => {
@@ -40,7 +40,7 @@ Promise.allSettled([
   activeTaggingProfile.subscribe(profileId => {
     lastActiveProfileId = profileId;
 
-    void preferences.setActiveProfileId(profileId);
+    void preferences.activeProfile.set(profileId);
   });
 
   // Watch the existence of the active profile on every change.

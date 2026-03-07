@@ -26,7 +26,7 @@ export class ImageShowFullscreenButton extends BaseComponent {
     this.on('click', this.#onButtonClicked.bind(this));
 
     if (ImageShowFullscreenButton.#preferences) {
-      ImageShowFullscreenButton.#preferences.resolveFullscreenViewerEnabled()
+      ImageShowFullscreenButton.#preferences.fullscreenViewer.get()
         .then(isEnabled => {
           this.#isFullscreenButtonEnabled = isEnabled;
           this.#updateFullscreenButtonVisibility();

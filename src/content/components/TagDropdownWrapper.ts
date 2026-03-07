@@ -179,7 +179,7 @@ export class TagDropdownWrapper extends BaseComponent {
     });
 
     await profile.save();
-    await TagDropdownWrapper.#preferences.setActiveProfileId(profile.id);
+    await TagDropdownWrapper.#preferences.activeProfile.set(profile.id);
   }
 
   async #onToggleInExistingClicked() {
@@ -219,7 +219,7 @@ export class TagDropdownWrapper extends BaseComponent {
       lastActiveProfile = settings.activeProfile ?? null;
 
       this.#preferences
-        .resolveActiveProfileAsObject()
+        .activeProfile.asObject()
         .then(onActiveProfileChange);
     });
 
@@ -232,7 +232,7 @@ export class TagDropdownWrapper extends BaseComponent {
     });
 
     this.#preferences
-      .resolveActiveProfileAsObject()
+      .activeProfile.asObject()
       .then(activeProfile => {
         lastActiveProfile = activeProfile?.id ?? null;
         onActiveProfileChange(activeProfile);

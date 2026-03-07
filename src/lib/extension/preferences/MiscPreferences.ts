@@ -1,4 +1,7 @@
-import CacheablePreferences from "$lib/extension/base/CacheablePreferences";
+import CacheablePreferences, {
+  PreferenceField,
+  type WithFields
+} from "$lib/extension/base/CacheablePreferences";
 
 export type FullscreenViewerSize = keyof App.ImageURIs;
 
@@ -7,24 +10,18 @@ interface MiscPreferencesFields {
   fullscreenViewerSize: FullscreenViewerSize;
 }
 
-export default class MiscPreferences extends CacheablePreferences<MiscPreferencesFields> {
+export default class MiscPreferences extends CacheablePreferences<MiscPreferencesFields> implements WithFields<MiscPreferencesFields> {
   constructor() {
     super("misc");
   }
 
-  async resolveFullscreenViewerEnabled() {
-    return this._resolveSetting("fullscreenViewer", true);
-  }
+  readonly fullscreenViewer = new PreferenceField(this, {
+    field: "fullscreenViewer",
+    defaultValue: true,
+  });
 
-  async resolveFullscreenViewerPreviewSize() {
-    return this._resolveSetting('fullscreenViewerSize', 'large');
-  }
-
-  async setFullscreenViewerEnabled(isEnabled: boolean) {
-    return this._writeSetting("fullscreenViewer", isEnabled);
-  }
-
-  async setFullscreenViewerPreviewSize(size: FullscreenViewerSize | string) {
-    return this._writeSetting('fullscreenViewerSize', size as FullscreenViewerSize);
-  }
+  readonly fullscreenViewerSize = new PreferenceField(this, {
+    field: "fullscreenViewerSize",
+    defaultValue: "large",
+  });
 }

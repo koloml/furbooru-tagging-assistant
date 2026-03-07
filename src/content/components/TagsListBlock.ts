@@ -44,7 +44,7 @@ export class TagsListBlock extends BaseComponent {
   }
 
   init() {
-    this.#preferences.resolveGroupSeparation().then(this.#onTagSeparationChange.bind(this));
+    this.#preferences.groupSeparation.get().then(this.#onTagSeparationChange.bind(this));
     this.#preferences.subscribe(settings => {
       this.#onTagSeparationChange(Boolean(settings.groupSeparation))
     });
@@ -103,7 +103,7 @@ export class TagsListBlock extends BaseComponent {
 
   #onToggleGroupingClicked(event: Event) {
     event.preventDefault();
-    void this.#preferences.setGroupSeparation(!this.#shouldDisplaySeparation);
+    void this.#preferences.groupSeparation.set(!this.#shouldDisplaySeparation);
   }
 
   #handleTagGroupChanges(tagGroup: TagGroup) {

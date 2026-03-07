@@ -1,4 +1,4 @@
-import CacheablePreferences from "$lib/extension/base/CacheablePreferences";
+import CacheablePreferences, { PreferenceField, type WithFields } from "$lib/extension/base/CacheablePreferences";
 
 interface TagsPreferencesFields {
   groupSeparation: boolean;
@@ -6,32 +6,23 @@ interface TagsPreferencesFields {
   replaceLinkText: boolean;
 }
 
-export default class TagsPreferences extends CacheablePreferences<TagsPreferencesFields> {
+export default class TagsPreferences extends CacheablePreferences<TagsPreferencesFields> implements WithFields<TagsPreferencesFields> {
   constructor() {
     super("tag");
   }
 
-  async resolveGroupSeparation() {
-    return this._resolveSetting("groupSeparation", true);
-  }
+  readonly groupSeparation = new PreferenceField(this, {
+    field: "groupSeparation",
+    defaultValue: true,
+  });
 
-  async resolveReplaceLinks() {
-    return this._resolveSetting("replaceLinks", false);
-  }
+  readonly replaceLinks = new PreferenceField(this, {
+    field: "replaceLinks",
+    defaultValue: false,
+  });
 
-  async resolveReplaceLinkText() {
-    return this._resolveSetting("replaceLinkText", true);
-  }
-
-  async setGroupSeparation(value: boolean) {
-    return this._writeSetting("groupSeparation", Boolean(value));
-  }
-
-  async setReplaceLinks(value: boolean) {
-    return this._writeSetting("replaceLinks", Boolean(value));
-  }
-
-  async setReplaceLinkText(value: boolean) {
-    return this._writeSetting("replaceLinkText", Boolean(value));
-  }
+  readonly replaceLinkText = new PreferenceField(this, {
+    field: "replaceLinkText",
+    defaultValue: true,
+  });
 }

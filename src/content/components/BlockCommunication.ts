@@ -17,8 +17,8 @@ export class BlockCommunication extends BaseComponent {
 
   protected init() {
     Promise.all([
-      BlockCommunication.#preferences.resolveReplaceLinks(),
-      BlockCommunication.#preferences.resolveReplaceLinkText(),
+      BlockCommunication.#preferences.replaceLinks.get(),
+      BlockCommunication.#preferences.replaceLinkText.get(),
     ]).then(([replaceLinks, replaceLinkText]) => {
       this.#onReplaceLinkSettingResolved(
         replaceLinks,

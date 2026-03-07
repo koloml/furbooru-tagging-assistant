@@ -54,7 +54,7 @@ export class FullscreenViewer extends BaseComponent {
     this.#sizeSelectorElement.addEventListener('click', event => event.stopPropagation());
 
     FullscreenViewer.#preferences
-      .resolveFullscreenViewerPreviewSize()
+      .fullscreenViewerSize.get()
       .then(this.#onSizeResolved.bind(this))
       .then(this.#watchForSizeSelectionChanges.bind(this));
   }
@@ -202,7 +202,7 @@ export class FullscreenViewer extends BaseComponent {
       }
 
       lastActiveSize = targetSize;
-      void FullscreenViewer.#preferences.setFullscreenViewerPreviewSize(targetSize);
+      void FullscreenViewer.#preferences.fullscreenViewerSize.set(targetSize as FullscreenViewerSize);
     });
   }
 

@@ -6,10 +6,10 @@ export const fullScreenViewerEnabled = writable(true);
 const preferences = new MiscPreferences();
 
 Promise.allSettled([
-  preferences.resolveFullscreenViewerEnabled().then(v => fullScreenViewerEnabled.set(v))
+  preferences.fullscreenViewer.get().then(v => fullScreenViewerEnabled.set(v))
 ]).then(() => {
   fullScreenViewerEnabled.subscribe(value => {
-    void preferences.setFullscreenViewerEnabled(value);
+    void preferences.fullscreenViewer.set(value);
   });
 
   preferences.subscribe(settings => {
