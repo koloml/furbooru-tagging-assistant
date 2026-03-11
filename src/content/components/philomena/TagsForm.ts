@@ -180,7 +180,11 @@ export class TagsForm extends BaseComponent {
     }
 
     if (removedTags) {
-      tagChangeList.push(...Array.from(removedTags).map(tagName => `-${tagName}`));
+      tagChangeList.push(
+        ...Array.from(removedTags)
+          .filter(tagName => this.#tagsSet.has(tagName))
+          .map(tagName => `-${tagName}`)
+      );
     }
 
     this.#applyTagChangesWithFancyTagEditor(
