@@ -1,7 +1,7 @@
 import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
 import { emit, on, type UnsubscribeFunction } from "$content/components/events/comms";
-import { EVENT_FETCH_COMPLETE, EVENT_RELOAD } from "$content/components/events/booru-events";
+import { EVENT_FETCH_COMPLETE, EVENT_RELOAD, type ReloadCustomOptions } from "$content/components/events/booru-events";
 import { EVENT_FORM_EDITOR_UPDATED } from "$content/components/events/tags-form-events";
 import EditorPresetsBlock from "$content/components/extension/presets/EditorPresetsBlock";
 import { EVENT_PRESET_TAG_CHANGE_APPLIED, type PresetTagChange } from "$content/components/events/preset-block-events";
@@ -52,7 +52,7 @@ export class TagsForm extends BaseComponent {
     if (this.#plainEditorTextarea) {
       // When reloaded, we should catch and refresh the colors. Extension reuses this event to force site to update
       // list of tags in the fancy tag editor.
-      on(this.#plainEditorTextarea, EVENT_RELOAD, this.refreshTagColors.bind(this));
+      on(this.#plainEditorTextarea, EVENT_RELOAD, this.#onPlainEditorReloadRequested.bind(this));
     }
   }
 
@@ -215,7 +215,11 @@ export class TagsForm extends BaseComponent {
 
     // We have to tell plain text editor to also refresh the list of tags in the fancy editor, just in case user
     // made changes to it in plain mode.
-    emit(this.#plainEditorTextarea, EVENT_RELOAD, null);
+    emit(this.#plainEditorTextarea, EVENT_RELOAD, {
+      // Sending that we don't need to refresh the color on this event, since we will do that ourselves later, after
+      // changes are applied.
+      skipTagColorRefresh: true,
+    });
 
     this.#fancyEditorInput.value = tagsListWithChanges;
     this.#fancyEditorInput.dispatchEvent(new KeyboardEvent('keydown', {
@@ -223,6 +227,16 @@ export class TagsForm extends BaseComponent {
     }));
 
     this.#fancyEditorInput.value = originalValue;
+
+    this.refreshTagColors();
+  }
+
+  #onPlainEditorReloadRequested(event: CustomEvent<ReloadCustomOptions|null>) {
+    if (event.detail?.skipTagColorRefresh) {
+      return;
+    }
+
+    this.refreshTagColors();
   }
 
   static watchForEditors() {
