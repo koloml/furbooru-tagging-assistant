@@ -33,6 +33,16 @@ const entitiesExporters: ExportersMap = {
       category: entity.settings.category,
       separate: entity.settings.separate,
     }
+  },
+  presets: entity => {
+    return {
+      $type: "presets",
+      $site: __CURRENT_SITE__,
+      v: 1,
+      id: entity.id,
+      name: entity.settings.name,
+      tags: entity.settings.tags,
+    }
   }
 };
 

@@ -26,6 +26,7 @@
   {/if}
   <MenuItem href="/features/profiles">Tagging Profiles</MenuItem>
   <MenuItem href="/features/groups">Tag Groups</MenuItem>
+  <MenuItem href="/features/presets">Tag Presets</MenuItem>
   <hr>
   <MenuItem href="/transporting">Import/Export</MenuItem>
   <MenuItem href="/preferences">Preferences</MenuItem>

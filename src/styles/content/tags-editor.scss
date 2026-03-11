@@ -11,3 +11,18 @@ h2.tag-category-headline {
     bottom: calc(#{$base-margin-bottom} - #{booru-vars.$padding-small});
   }
 }
+
+.block.tag-presets {
+  .tag {
+    cursor: pointer;
+
+    &.is-missing {
+      opacity: 0.5;
+    }
+
+    &:hover {
+      color: booru-vars.$resolved-tag-background;
+      background: booru-vars.$resolved-tag-color;
+    }
+  }
+}
