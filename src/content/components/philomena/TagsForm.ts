@@ -187,9 +187,23 @@ export class TagsForm extends BaseComponent {
       );
     }
 
+    const offsetBeforeSubmission = this.#presetsList.container.offsetTop;
+
     this.#applyTagChangesWithFancyTagEditor(
       tagChangeList.join(',')
     );
+
+    const offsetDifference = this.#presetsList.container.offsetTop - offsetBeforeSubmission;
+
+    // Compensating for the layout shift: when user clicks on a tag (or on "add/remove all tags"), tag editor might
+    // overflow the current line and wrap tags around to the next line, causing presets section to shift. We need to
+    // avoid that for better UX.
+    if (offsetDifference !== 0) {
+      window.scrollTo({
+        top: window.scrollY + offsetDifference,
+        behavior: 'instant',
+      });
+    }
   }
 
   #applyTagChangesWithFancyTagEditor(tagsListWithChanges: string): void {
