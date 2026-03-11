@@ -24,7 +24,7 @@ export class TagsForm extends BaseComponent {
     this.#togglePresetsButton.textContent = 'Presets';
 
     this.container
-      .querySelector('.fancy-tag-edit ~ button:last-of-type')
+      .querySelector(':is(.fancy-tag-edit, .fancy-tag-upload) ~ button:last-of-type')
       ?.after(this.#togglePresetsButton, this.#presetsList.container);
 
     this.#plainEditorTextarea = this.container.querySelector('textarea.tagsinput');
@@ -242,5 +242,15 @@ export class TagsForm extends BaseComponent {
 
       (tagEditor as TagsForm).refreshTagColors();
     });
+  }
+
+  static initializeUploadEditor() {
+    const uploadEditorContainer = document.querySelector<HTMLElement>('.field:has(.fancy-tag-upload)');
+
+    if (!uploadEditorContainer) {
+      return;
+    }
+
+    new TagsForm(uploadEditorContainer).initialize();
   }
 }
