@@ -1,14 +1,16 @@
 <script lang="ts">
   interface TagsListProps {
     tags: string[];
+    prepend?: string;
+    append?: string;
   }
 
-  let { tags }: TagsListProps = $props();
+  let { tags, prepend, append }: TagsListProps = $props();
 </script>
 
 <div class="tags-list">
   {#each tags as tagName}
-    <div class="tag">{tagName}</div>
+    <div class="tag">{prepend || ''}{tagName}{append || ''}</div>
   {/each}
 </div>
 
