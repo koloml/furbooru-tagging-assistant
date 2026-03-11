@@ -24,7 +24,7 @@
     margin-bottom: .25em;
   }
 
-  .block + .block {
+  .block + :global(.block) {
     margin-top: .5em;
   }
 </style>
