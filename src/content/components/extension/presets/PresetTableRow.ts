@@ -17,14 +17,16 @@ export default class PresetTableRow extends BaseComponent {
   }
 
   protected build() {
-    this.#tagsList = this.#preset.settings.tags.map(tagName => {
-      const tagElement = document.createElement('span');
-      tagElement.classList.add('tag');
-      tagElement.textContent = tagName;
-      tagElement.dataset.tagName = tagName;
+    this.#tagsList = this.#preset.settings.tags
+      .toSorted((a, b) => a.localeCompare(b))
+      .map(tagName => {
+        const tagElement = document.createElement('span');
+        tagElement.classList.add('tag');
+        tagElement.textContent = tagName;
+        tagElement.dataset.tagName = tagName;
 
-      return tagElement;
-    });
+        return tagElement;
+      });
 
     const nameCell = document.createElement('td');
     nameCell.textContent = this.#preset.settings.name;

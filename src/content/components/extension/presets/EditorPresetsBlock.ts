@@ -2,6 +2,7 @@ import { BaseComponent } from "$content/components/base/BaseComponent";
 import TagEditorPreset from "$entities/TagEditorPreset";
 import PresetTableRow from "$content/components/extension/presets/PresetTableRow";
 import { createFontAwesomeIcon } from "$lib/dom-utils";
+import { sortEntitiesByField } from "$lib/utils";
 
 export default class EditorPresetsBlock extends BaseComponent {
   #presetsTable = document.createElement('table');
@@ -70,7 +71,7 @@ export default class EditorPresetsBlock extends BaseComponent {
       }
     }
 
-    for (const preset of presetsList) {
+    for (const preset of sortEntitiesByField(presetsList, "name")) {
       const block = PresetTableRow.create(preset);
       this.#presetsTable.tBodies[0]?.append(block.container);
       block.initialize();
