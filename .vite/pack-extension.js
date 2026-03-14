@@ -84,7 +84,9 @@ export async function packExtension(settings) {
       break;
 
     default:
-      console.warn('No replacement set up for site: ' + process.env.SITE);
+      if (process.env.SITE) {
+        console.warn('No replacement set up for site: ' + process.env.SITE);
+      }
   }
 
   manifest.passVersionFromPackage(path.resolve(settings.rootDir, 'package.json'));
