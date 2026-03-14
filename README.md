@@ -9,15 +9,20 @@ tags to them without opening each individual image.
 This extension is available for both Chromium- and Firefox-based browsers. You can find the links to the extension pages
 below.
 
-### Furbooru Tagging Assistant
+### Furbooru
 
 [![Get the Add-on on Firefox](.github/assets/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/furbooru-tagging-assistant/)
 [![Get the extension on Chrome](.github/assets/chrome.png)](https://chromewebstore.google.com/detail/kpgaphaooaaodgodmnkamhmoedjcnfkj)
 
-### Derpibooru Tagging Assistant
+### Derpibooru
 
 [![Get the Add-on on Firefox](.github/assets/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/derpibooru-tagging-assistant/)
 [![Get the extension on Chrome](.github/assets/chrome.png)](https://chromewebstore.google.com/detail/pnmbomcdbfcghgmegklfofncfigdielb)
+
+### Tantabus
+
+[![Get the Add-on on Firefox](.github/assets/firefox.png)](https://addons.mozilla.org/en-US/firefox/addon/tantabus-tagging-assistant/)
+[![Get the extension on Chrome](.github/assets/chrome.png)](https://chromewebstore.google.com/detail/jpfkohpgdnpabpjafgagonghknaiecih)
 
 ## Features
 
