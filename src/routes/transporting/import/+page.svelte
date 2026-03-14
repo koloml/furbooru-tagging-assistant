@@ -16,21 +16,26 @@
   import type { SameSiteStatus } from "$lib/extension/EntitiesTransporter";
   import { popupTitle } from "$stores/popup";
   import Notice from "$components/ui/Notice.svelte";
+  import TagEditorPreset from "$entities/TagEditorPreset";
+  import { tagEditorPresets } from "$stores/entities/tag-editor-presets";
 
   let importedString = $state('');
   let errorMessage = $state('');
 
   let importedProfiles = $state<TaggingProfile[]>([]);
   let importedGroups = $state<TagGroup[]>([]);
+  let importedPresets = $state<TagEditorPreset[]>([]);
 
   let saveAllProfiles = $state(false);
   let saveAllGroups = $state(false);
+  let saveAllPresets = $state(false);
 
   let isSaving = $state(false);
 
   let selectedEntities: Record<keyof App.EntityNamesMap, Record<string, boolean>> = $state({
     profiles: {},
     groups: {},
+    presets: {},
   });
 
   let previewedEntity = $state<StorageEntity | null>(null);
@@ -49,8 +54,15 @@
     }, new Map<string, TagGroup>())
   );
 
+  const existingPresetsMap = $derived(
+    $tagEditorPresets.reduce((map, preset) => {
+      map.set(preset.id, preset);
+      return map;
+    }, new Map<string, TagEditorPreset>())
+  );
+
   const hasImportedEntities = $derived(
-    Boolean(importedProfiles.length || importedGroups.length)
+    Boolean(importedProfiles.length || importedGroups.length || importedPresets.length)
   );
 
   $effect(() => {
@@ -70,6 +82,7 @@
   function tryBulkImport() {
     importedProfiles = [];
     importedGroups = [];
+    importedPresets = [];
     errorMessage = '';
 
     importedString = importedString.trim();
@@ -103,6 +116,9 @@
           case "groups":
             importedGroups.push(targetImportedEntity as TagGroup);
             break;
+          case "presets":
+            importedPresets.push(targetImportedEntity as TagEditorPreset);
+            break;
           default:
             console.warn(`Unprocessed entity type detected: ${targetImportedEntity.type}`, targetImportedEntity);
         }
@@ -115,12 +131,14 @@
   function cancelImport() {
     importedProfiles = [];
     importedGroups = [];
+    importedPresets = [];
   }
 
   function refreshAreAllEntitiesChecked() {
     requestAnimationFrame(() => {
       saveAllProfiles = importedProfiles.every(profile => selectedEntities.profiles[profile.id]);
       saveAllGroups = importedGroups.every(group => selectedEntities.groups[group.id]);
+      saveAllPresets = importedPresets.every(preset => selectedEntities.presets[preset.id]);
     });
   }
 
@@ -133,6 +151,9 @@
             break;
           case "groups":
             importedGroups.forEach(group => selectedEntities.groups[group.id] = saveAllGroups);
+            break;
+          case "presets":
+            importedPresets.forEach(preset => selectedEntities.presets[preset.id] = saveAllPresets);
             break;
           default:
             console.warn(`Trying to toggle unsupported entity type: ${entityType}`);
@@ -169,6 +190,14 @@
       }
 
       await group.save();
+    }
+
+    for (const preset of importedPresets) {
+      if (!selectedEntities.presets[preset.id]) {
+        continue;
+      }
+
+      await preset.save();
     }
 
     await goto("/transporting");
@@ -251,10 +280,7 @@
     {/if}
     {#if importedGroups.length}
       <hr>
-      <MenuCheckboxItem
-        bind:checked={saveAllGroups}
-        oninput={createToggleAllOnUserInput('groups')}
-      >
+      <MenuCheckboxItem bind:checked={saveAllGroups} oninput={createToggleAllOnUserInput('groups')}>
         Import All Groups
       </MenuCheckboxItem>
       {#each importedGroups as candidateGroup}
@@ -269,6 +295,26 @@
             New:
           {/if}
           {candidateGroup.settings.name || 'Unnamed Group'}
+        </MenuCheckboxItem>
+      {/each}
+    {/if}
+    {#if importedPresets.length}
+      <hr>
+      <MenuCheckboxItem bind:checked={saveAllPresets} oninput={createToggleAllOnUserInput('presets')}>
+        Import All Presets
+      </MenuCheckboxItem>
+      {#each importedPresets as candidatePreset}
+        <MenuCheckboxItem
+          bind:checked={selectedEntities.presets[candidatePreset.id]}
+          oninput={refreshAreAllEntitiesChecked}
+          onitemclick={createShowPreviewForEntity(candidatePreset)}
+        >
+          {#if existingPresetsMap.has(candidatePreset.id)}
+            Update:
+          {:else}
+            New:
+          {/if}
+          {candidatePreset.settings.name || 'Unnamed Preset'}
         </MenuCheckboxItem>
       {/each}
     {/if}

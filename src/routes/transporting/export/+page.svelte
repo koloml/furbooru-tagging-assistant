@@ -9,11 +9,13 @@
   import FormControl from "$components/ui/forms/FormControl.svelte";
   import FormContainer from "$components/ui/forms/FormContainer.svelte";
   import { popupTitle } from "$stores/popup";
+  import { tagEditorPresets } from "$stores/entities/tag-editor-presets";
 
   const bulkTransporter = new BulkEntitiesTransporter();
 
   let exportAllProfiles = $state(false);
   let exportAllGroups = $state(false);
+  let exportAllPresets = $state(false);
 
   let displayExportedString = $state(false);
   let shouldUseCompressed = $state(true);
@@ -24,6 +26,7 @@
   const exportedEntities: Record<keyof App.EntityNamesMap, Record<string, boolean>> = $state({
     profiles: {},
     groups: {},
+    presets: {},
   });
 
   $effect(() => {
@@ -42,6 +45,12 @@
         }
       });
 
+      $tagEditorPresets.forEach(preset => {
+        if (exportedEntities.presets[preset.id]) {
+          elementsToExport.push(preset);
+        }
+      });
+
       plainExport = bulkTransporter.exportToJSON(elementsToExport);
       compressedExport = bulkTransporter.exportToCompressedJSON(elementsToExport);
     }
@@ -57,6 +66,7 @@
     requestAnimationFrame(() => {
       exportAllProfiles = $taggingProfiles.every(profile => exportedEntities.profiles[profile.id]);
       exportAllGroups = $tagGroups.every(group => exportedEntities.groups[group.id]);
+      exportAllPresets = $tagEditorPresets.every(preset => exportedEntities.presets[preset.id]);
     });
   }
 
@@ -73,6 +83,9 @@
             break;
           case "groups":
             $tagGroups.forEach(group => exportedEntities.groups[group.id] = exportAllGroups);
+            break;
+          case "presets":
+            $tagEditorPresets.forEach(preset => exportedEntities.presets[preset.id] = exportAllPresets);
             break;
           default:
             console.warn(`Trying to toggle unsupported entity type: ${targetEntity}`);
@@ -112,6 +125,17 @@
       {#each $tagGroups as group}
         <MenuCheckboxItem bind:checked={exportedEntities.groups[group.id]} oninput={refreshAreAllEntitiesChecked}>
           Group: {group.settings.name}
+        </MenuCheckboxItem>
+      {/each}
+      <hr>
+    {/if}
+    {#if $tagEditorPresets.length}
+      <MenuCheckboxItem bind:checked={exportAllPresets} oninput={createToggleAllOnUserInput('presets')}>
+        Export All Presets
+      </MenuCheckboxItem>
+      {#each $tagEditorPresets as preset}
+        <MenuCheckboxItem bind:checked={exportedEntities.presets[preset.id]} oninput={refreshAreAllEntitiesChecked}>
+          Preset: {preset.settings.name}
         </MenuCheckboxItem>
       {/each}
       <hr>

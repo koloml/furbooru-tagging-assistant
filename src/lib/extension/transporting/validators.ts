@@ -64,6 +64,19 @@ const entitiesValidators: EntitiesValidationMap = {
       throw new Error('Invalid group format detected!');
     }
   },
+  presets: importedObject => {
+    if (!importedObject.v || importedObject.v > 1) {
+      throw new Error('Unsupported preset version!');
+    }
+
+    if (
+      !validateRequiredString(importedObject?.id)
+      || !validateRequiredString(importedObject?.name)
+      || !validateOptionalArray(importedObject?.tags)
+    ) {
+      throw new Error('Invalid preset format detected!');
+    }
+  }
 };
 
 /**
