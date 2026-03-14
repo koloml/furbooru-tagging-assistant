@@ -6,6 +6,7 @@ export const EVENT_RELOAD = 'reload';
  */
 export interface ReloadCustomOptions {
   skipTagColorRefresh?: boolean;
+  skipTagRefresh?: boolean;
 }
 
 export interface BooruEventsMap {

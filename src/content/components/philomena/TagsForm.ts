@@ -42,10 +42,10 @@ export class TagsForm extends BaseComponent {
     this.#togglePresetsButton.addEventListener('click', this.#togglePresetsList.bind(this));
     this.#presetsList.initialize();
 
-    this.#plainEditorTextarea?.addEventListener('input', this.#refreshTagsList.bind(this));
-    this.#fancyEditorInput?.addEventListener('keydown', this.#refreshTagsList.bind(this));
+    this.#plainEditorTextarea?.addEventListener('input', this.#refreshTagsListForPresets.bind(this));
+    this.#fancyEditorInput?.addEventListener('keydown', this.#refreshTagsListForPresets.bind(this));
 
-    this.#refreshTagsList();
+    this.#refreshTagsListForPresets();
 
     on(this.#presetsList, EVENT_PRESET_TAG_CHANGE_APPLIED, this.#onTagChangeRequested.bind(this));
 
@@ -158,10 +158,10 @@ export class TagsForm extends BaseComponent {
     event.preventDefault();
 
     this.#presetsList.toggleVisibility();
-    this.#refreshTagsList();
+    this.#refreshTagsListForPresets();
   }
 
-  #refreshTagsList() {
+  #refreshTagsListForPresets() {
     this.#tagsSet = new Set(
       this.#plainEditorTextarea?.value
         .split(',')
@@ -219,6 +219,7 @@ export class TagsForm extends BaseComponent {
       // Sending that we don't need to refresh the color on this event, since we will do that ourselves later, after
       // changes are applied.
       skipTagColorRefresh: true,
+      skipTagRefresh: true,
     });
 
     this.#fancyEditorInput.value = tagsListWithChanges;
@@ -232,11 +233,13 @@ export class TagsForm extends BaseComponent {
   }
 
   #onPlainEditorReloadRequested(event: CustomEvent<ReloadCustomOptions|null>) {
-    if (event.detail?.skipTagColorRefresh) {
-      return;
+    if (!event.detail?.skipTagColorRefresh) {
+      this.refreshTagColors();
     }
 
-    this.refreshTagColors();
+    if (!event.detail?.skipTagRefresh) {
+      this.#refreshTagsListForPresets();
+    }
   }
 
   static watchForEditors() {
