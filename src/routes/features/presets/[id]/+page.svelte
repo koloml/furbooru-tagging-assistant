@@ -38,5 +38,5 @@
 <Menu>
   <hr>
   <MenuItem href="/features/presets/{presetId}/edit" icon="wrench">Edit Preset</MenuItem>
-  <MenuItem href="/features/presets/{presetId}/delete">Delete Preset</MenuItem>
+  <MenuItem href="/features/presets/{presetId}/delete" icon="trash">Delete Preset</MenuItem>
 </Menu>
