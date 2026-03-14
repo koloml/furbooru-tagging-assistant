@@ -1,18 +1,18 @@
 import { writable } from "svelte/store";
-import MiscSettings from "$lib/extension/settings/MiscSettings";
+import MiscPreferences from "$lib/extension/preferences/MiscPreferences";
 
 export const fullScreenViewerEnabled = writable(true);
 
-const miscSettings = new MiscSettings();
+const preferences = new MiscPreferences();
 
 Promise.allSettled([
-  miscSettings.resolveFullscreenViewerEnabled().then(v => fullScreenViewerEnabled.set(v))
+  preferences.fullscreenViewer.get().then(v => fullScreenViewerEnabled.set(v))
 ]).then(() => {
   fullScreenViewerEnabled.subscribe(value => {
-    void miscSettings.setFullscreenViewerEnabled(value);
+    void preferences.fullscreenViewer.set(value);
   });
 
-  miscSettings.subscribe(settings => {
+  preferences.subscribe(settings => {
     fullScreenViewerEnabled.set(Boolean(settings.fullscreenViewer));
   });
 });

@@ -1,7 +1,8 @@
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
-import MaintenanceProfile from "$entities/MaintenanceProfile";
+import type TaggingProfile from "$entities/TaggingProfile";
 import type TagGroup from "$entities/TagGroup";
+import type TagEditorPreset from "$entities/TagEditorPreset";
 
 declare global {
   /**
@@ -37,8 +38,9 @@ declare global {
       );
 
     interface EntityNamesMap {
-      profiles: MaintenanceProfile;
+      profiles: TaggingProfile;
       groups: TagGroup;
+      presets: TagEditorPreset;
     }
 
     interface ImageURIs {

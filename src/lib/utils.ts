@@ -1,3 +1,6 @@
+import type StorageEntity from "$lib/extension/base/StorageEntity";
+import type TagGroup from "$entities/TagGroup";
+
 /**
  * Traverse and find the object using the key path.
  * @param targetObject Target object to traverse into.
@@ -38,4 +41,15 @@ const unsafeRegExpCharacters: RegExp = /[/\-\\^$*+?.()|[\]{}]/g;
 export function escapeRegExp(value: string): string {
   unsafeRegExpCharacters.lastIndex = 0;
   return value.replace(unsafeRegExpCharacters, "\\$&");
+}
+
+type OnlyStringFields<Fields extends Record<string, any>> = {
+  [FieldKey in keyof Fields as Fields[FieldKey] extends string ? FieldKey : never]: string;
+};
+
+export function sortEntitiesByField<Fields extends Object>(entities: StorageEntity<Fields>[], fieldName: keyof OnlyStringFields<Fields>) {
+  return entities.toSorted(
+    (a, b) => (a.settings[fieldName] as string)
+      .localeCompare(b.settings[fieldName] as string)
+  );
 }

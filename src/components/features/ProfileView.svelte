@@ -1,8 +1,10 @@
 <script lang="ts">
-  import type MaintenanceProfile from "$entities/MaintenanceProfile";
+  import type TaggingProfile from "$entities/TaggingProfile";
+  import DetailsBlock from "$components/ui/DetailsBlock.svelte";
+  import TagsList from "$components/tags/TagsList.svelte";
 
   interface ProfileViewProps {
-    profile: MaintenanceProfile;
+    profile: TaggingProfile;
   }
 
   let { profile }: ProfileViewProps = $props();
@@ -10,32 +12,9 @@
   const sortedTagsList = $derived(profile.settings.tags.sort((a, b) => a.localeCompare(b)));
 </script>
 
-<div class="block">
-  <strong>Profile:</strong>
-  <div>{profile.settings.name}</div>
-</div>
-<div class="block">
-  <strong>Tags:</strong>
-  <div class="tags-list">
-    {#each sortedTagsList as tagName}
-      <span class="tag">{tagName}</span>
-    {/each}
-  </div>
-</div>
-
-<style lang="scss">
-  .tags-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .block + .block {
-    margin-top: .5em;
-
-    strong {
-      display: block;
-      margin-bottom: .25em;
-    }
-  }
-</style>
+<DetailsBlock title="Profile">
+  {profile.settings.name}
+</DetailsBlock>
+<DetailsBlock title="Tags">
+  <TagsList tags={sortedTagsList} />
+</DetailsBlock>

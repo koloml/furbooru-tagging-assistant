@@ -6,5 +6,5 @@
 <Menu>
   <MenuItem href="/">Back</MenuItem>
   <hr>
-  <MenuItem href="/features/maintenance">Tagging Profiles</MenuItem>
+  <MenuItem href="/features/profiles">Tagging Profiles</MenuItem>
 </Menu>

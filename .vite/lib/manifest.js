@@ -96,21 +96,16 @@ class ManifestProcessor {
       singleOrMultipleHostnames = [singleOrMultipleHostnames];
     }
 
+    const matchPatterReplacer = ManifestProcessor.#createHostnameReplacementReduce(singleOrMultipleHostnames);
+
     this.#manifestObject.host_permissions = singleOrMultipleHostnames.map(hostname => `*://*.${hostname}/`);
 
     this.#manifestObject.content_scripts?.forEach(entry => {
-      entry.matches = entry.matches.reduce((resultMatches, originalMatchPattern) => {
-        for (const updatedHostname of singleOrMultipleHostnames) {
-          resultMatches.push(
-            originalMatchPattern.replace(
-              /\*:\/\/\*\.[a-z]+\.[a-z]+\//,
-              `*://*.${updatedHostname}/`
-            ),
-          );
-        }
+      entry.matches = entry.matches.reduce(matchPatterReplacer, []);
 
-        return resultMatches;
-      }, []);
+      if (entry.exclude_matches) {
+        entry.exclude_matches = entry.exclude_matches.reduce(matchPatterReplacer, []);
+      }
     })
   }
 
@@ -145,6 +140,32 @@ class ManifestProcessor {
       JSON.stringify(this.#manifestObject, null, 2),
       {
         encoding: 'utf8'
+      }
+    );
+  }
+
+  /**
+   * @param {string|(string[])} singleOrMultipleHostnames
+   * @return {function(string[], string): string[]}
+   */
+  static #createHostnameReplacementReduce(singleOrMultipleHostnames) {
+    return (
+      /**
+       * @param {string[]} resultMatches
+       * @param {string} originalMatchPattern
+       * @return {string[]}
+       */
+        (resultMatches, originalMatchPattern) => {
+        for (const updatedHostname of singleOrMultipleHostnames) {
+          resultMatches.push(
+            originalMatchPattern.replace(
+              /\*:\/\/\*\.[a-z]+\.[a-z]+\//,
+              `*://*.${updatedHostname}/`
+            ),
+          );
+        }
+
+        return resultMatches;
       }
     );
   }
@@ -186,6 +207,7 @@ export function loadManifest(filePath) {
 /**
  * @typedef {Object} ContentScriptsEntry
  * @property {string[]} matches
+ * @property {string[]} exclude_matches
  * @property {string[]|undefined} js
  * @property {string[]|undefined} css
  */

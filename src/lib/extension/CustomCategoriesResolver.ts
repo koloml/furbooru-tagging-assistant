@@ -1,4 +1,4 @@
-import type { TagDropdownWrapper } from "$content/components/TagDropdownWrapper";
+import type { TagDropdown } from "$content/components/philomena/TagDropdown";
 import TagGroup from "$entities/TagGroup";
 import { escapeRegExp } from "$lib/utils";
 import { emit } from "$content/components/events/comms";
@@ -7,7 +7,7 @@ import { EVENT_TAG_GROUP_RESOLVED } from "$content/components/events/tag-dropdow
 export default class CustomCategoriesResolver {
   #exactGroupMatches = new Map<string, TagGroup>();
   #regExpGroupMatches = new Map<RegExp, TagGroup>();
-  #tagDropdowns: TagDropdownWrapper[] = [];
+  #tagDropdowns: TagDropdown[] = [];
   #nextQueuedUpdate: Timeout | null = null;
 
   constructor() {
@@ -15,7 +15,7 @@ export default class CustomCategoriesResolver {
     TagGroup.readAll().then(this.#onTagGroupsReceived.bind(this));
   }
 
-  public addElement(tagDropdown: TagDropdownWrapper): void {
+  public addElement(tagDropdown: TagDropdown): void {
     this.#tagDropdowns.push(tagDropdown);
 
     if (!this.#exactGroupMatches.size && !this.#regExpGroupMatches.size) {
@@ -49,7 +49,7 @@ export default class CustomCategoriesResolver {
    * @return {boolean} Will return false when tag is processed and true when it is not found.
    * @private
    */
-  #applyCustomCategoryForExactMatches(tagDropdown: TagDropdownWrapper): boolean {
+  #applyCustomCategoryForExactMatches(tagDropdown: TagDropdown): boolean {
     const tagName = tagDropdown.tagName!;
 
     if (!this.#exactGroupMatches.has(tagName)) {
@@ -65,7 +65,7 @@ export default class CustomCategoriesResolver {
     return false;
   }
 
-  #matchCustomCategoryByRegExp(tagDropdown: TagDropdownWrapper) {
+  #matchCustomCategoryByRegExp(tagDropdown: TagDropdown) {
     const tagName = tagDropdown.tagName!;
 
     for (const targetRegularExpression of this.#regExpGroupMatches.keys()) {
@@ -117,7 +117,7 @@ export default class CustomCategoriesResolver {
     this.#queueUpdatingTags();
   }
 
-  static #resetToOriginalCategory(tagDropdown: TagDropdownWrapper): void {
+  static #resetToOriginalCategory(tagDropdown: TagDropdown): void {
     emit(
       tagDropdown,
       EVENT_TAG_GROUP_RESOLVED,

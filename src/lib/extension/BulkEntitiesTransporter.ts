@@ -2,8 +2,9 @@ import type StorageEntity from "$lib/extension/base/StorageEntity";
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from "lz-string";
 import type { ImportableElementsList, ImportableEntityObject } from "$lib/extension/transporting/importables";
 import EntitiesTransporter, { type SameSiteStatus } from "$lib/extension/EntitiesTransporter";
-import MaintenanceProfile from "$entities/MaintenanceProfile";
+import TaggingProfile from "$entities/TaggingProfile";
 import TagGroup from "$entities/TagGroup";
+import TagEditorPreset from "$entities/TagEditorPreset";
 
 type TransportersMapping = {
   [EntityName in keyof App.EntityNamesMap]: EntitiesTransporter<App.EntityNamesMap[EntityName]>;
@@ -73,10 +74,12 @@ export default class BulkEntitiesTransporter {
       elements: entities
         .map(entity => {
           switch (true) {
-            case entity instanceof MaintenanceProfile:
+            case entity instanceof TaggingProfile:
               return BulkEntitiesTransporter.#transporters.profiles.exportToObject(entity);
             case entity instanceof TagGroup:
               return BulkEntitiesTransporter.#transporters.groups.exportToObject(entity);
+            case entity instanceof TagEditorPreset:
+              return BulkEntitiesTransporter.#transporters.presets.exportToObject(entity);
           }
 
           return null;
@@ -99,8 +102,9 @@ export default class BulkEntitiesTransporter {
   }
 
   static #transporters: TransportersMapping = {
-    profiles: new EntitiesTransporter(MaintenanceProfile),
+    profiles: new EntitiesTransporter(TaggingProfile),
     groups: new EntitiesTransporter(TagGroup),
+    presets: new EntitiesTransporter(TagEditorPreset),
   }
 
   /**
