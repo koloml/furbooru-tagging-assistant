@@ -185,6 +185,19 @@ export class TaggingProfilePopup extends BaseComponent {
       this.#isPlanningToSubmit = true;
       this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'waiting');
     }
+
+    // Whenever user undoes the change they wanted to do in the popup, it's better to not send the submission and just
+    // do nothing.
+    if (!this.#tagsToAdd.size && !this.#tagsToRemove.size && this.#isPlanningToSubmit) {
+      this.#isPlanningToSubmit = false;
+      this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'ready');
+      TaggingProfilePopup.#notifyAboutPendingSubmission(false);
+
+      // Probably shouldn't ever happen, but make sure we cancel any delayed submission.
+      if (this.#tagsSubmissionTimer) {
+        clearTimeout(this.#tagsSubmissionTimer);
+      }
+    }
   }
 
   #onMouseEnteredArea() {
