@@ -7,7 +7,7 @@ import { tagsBlacklist } from "$config/tags";
 import { emitterAt } from "$content/components/events/comms";
 import {
   EVENT_ACTIVE_PROFILE_CHANGED,
-  EVENT_MAINTENANCE_STATE_CHANGED,
+  EVENT_PROFILE_POPUP_STATE_CHANGED,
   EVENT_TAGS_UPDATED
 } from "$content/components/events/maintenance-popup-events";
 import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
@@ -183,7 +183,7 @@ export class TaggingProfilePopup extends BaseComponent {
       }
 
       this.#isPlanningToSubmit = true;
-      this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'waiting');
+      this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'waiting');
     }
   }
 
@@ -210,7 +210,7 @@ export class TaggingProfilePopup extends BaseComponent {
     this.#isPlanningToSubmit = false;
     this.#isSubmitting = true;
 
-    this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'processing');
+    this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'processing');
 
     let maybeTagsAndAliasesAfterUpdate;
 
@@ -252,7 +252,7 @@ export class TaggingProfilePopup extends BaseComponent {
 
       TaggingProfilePopup.#notifyAboutPendingSubmission(false);
 
-      this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'failed');
+      this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'failed');
       this.#isSubmitting = false;
 
       return;
@@ -262,7 +262,7 @@ export class TaggingProfilePopup extends BaseComponent {
       this.#emitter.emit(EVENT_TAGS_UPDATED, maybeTagsAndAliasesAfterUpdate);
     }
 
-    this.#emitter.emit(EVENT_MAINTENANCE_STATE_CHANGED, 'complete');
+    this.#emitter.emit(EVENT_PROFILE_POPUP_STATE_CHANGED, 'complete');
 
     this.#tagsToAdd.clear();
     this.#tagsToRemove.clear();
