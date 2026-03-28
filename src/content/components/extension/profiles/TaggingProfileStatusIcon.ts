@@ -4,7 +4,7 @@ import { on } from "$content/components/events/comms";
 import {
   EVENT_PROFILE_POPUP_STATE_CHANGED,
   type ProfilePopupState
-} from "$content/components/events/maintenance-popup-events";
+} from "$content/components/events/tagging-profile-popup-events";
 import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
 
 export class TaggingProfileStatusIcon extends BaseComponent {

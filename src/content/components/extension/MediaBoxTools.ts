@@ -2,7 +2,7 @@ import { BaseComponent } from "$content/components/base/BaseComponent";
 import { getComponent } from "$content/components/base/component-utils";
 import { TaggingProfilePopup } from "$content/components/extension/profiles/TaggingProfilePopup";
 import { on } from "$content/components/events/comms";
-import { EVENT_ACTIVE_PROFILE_CHANGED } from "$content/components/events/maintenance-popup-events";
+import { EVENT_ACTIVE_PROFILE_CHANGED } from "$content/components/events/tagging-profile-popup-events";
 import type { MediaBox } from "$content/components/philomena/MediaBox";
 import type TaggingProfile from "$entities/TaggingProfile";
 

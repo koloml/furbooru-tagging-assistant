@@ -9,7 +9,7 @@ import {
   EVENT_ACTIVE_PROFILE_CHANGED,
   EVENT_PROFILE_POPUP_STATE_CHANGED,
   EVENT_TAGS_UPDATED
-} from "$content/components/events/maintenance-popup-events";
+} from "$content/components/events/tagging-profile-popup-events";
 import type { MediaBoxTools } from "$content/components/extension/MediaBoxTools";
 import { resolveTagCategoryFromTagName } from "$lib/philomena/tag-utils";
 
