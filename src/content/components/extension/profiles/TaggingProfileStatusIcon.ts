@@ -25,10 +25,10 @@ export class TaggingProfileStatusIcon extends BaseComponent {
       throw new Error('Status icon element initialized outside of the media box!');
     }
 
-    on(this.#mediaBoxTools, EVENT_PROFILE_POPUP_STATE_CHANGED, this.#onMaintenanceStateChanged.bind(this));
+    on(this.#mediaBoxTools, EVENT_PROFILE_POPUP_STATE_CHANGED, this.#onPopupStateChanged.bind(this));
   }
 
-  #onMaintenanceStateChanged(stateChangeEvent: CustomEvent<ProfilePopupState>) {
+  #onPopupStateChanged(stateChangeEvent: CustomEvent<ProfilePopupState>) {
     // TODO Replace those with FontAwesome icons later. Those icons can probably be sourced from the website itself.
     switch (stateChangeEvent.detail) {
       case "ready":

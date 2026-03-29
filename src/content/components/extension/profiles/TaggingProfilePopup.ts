@@ -373,7 +373,7 @@ export class TaggingProfilePopup extends BaseComponent {
       }
     });
 
-    const unsubscribeFromMaintenanceSettings = this.#preferences.subscribe(settings => {
+    const unsubscribeFromPreferences = this.#preferences.subscribe(settings => {
       if (settings.activeProfile === lastActiveProfileId) {
         return;
       }
@@ -395,7 +395,7 @@ export class TaggingProfilePopup extends BaseComponent {
 
     return () => {
       unsubscribeFromProfilesChanges();
-      unsubscribeFromMaintenanceSettings();
+      unsubscribeFromPreferences();
     }
   }
 
